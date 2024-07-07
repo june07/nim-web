@@ -22,7 +22,7 @@
 												<div class="d-flex align-center" :style="store.faq.question === index ? 'font-size: larger' : ''" v-bind:class="questionHeaderClass(store.faq.question === index)">
 													<span class="text-h6">{{ faq.question }}</span>
 													<div class="ml-4" v-if="store.faq.question === index">
-														<social-share
+														<ShareMenu
 															color="red-darken-4"
 															:icon="smAndDown ? 'share' : undefined"
 															:rounded="smAndDown ? undefined : true"
@@ -30,8 +30,8 @@
 															:disabled="['qrcode']"
 															:url="`${origin}/faq?category=${encodeURIComponent(categoryName)}&id=${faq.id}`"
 															@copy="copyHandler(`${origin}/faq?category=${encodeURIComponent(categoryName)}&id=${faq.id}`, faq.id)"
-															title="Letterbox FAQ">
-														</social-share>
+															title="NiM FAQ">
+														</ShareMenu>
 													</div>
 												</div>
 											</v-expansion-panel-title>
@@ -140,7 +140,7 @@ import { marked } from 'marked'
 import { useAppStore } from '@/store/app'
 import { useRouter, useRoute } from 'vue-router'
 
-import SocialShare from '@/components/SocialShare.vue'
+import ShareMenu from '@/components/ShareMenu.vue'
 
 const route = useRoute()
 const router = useRouter()
