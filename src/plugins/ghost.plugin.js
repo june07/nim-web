@@ -16,7 +16,7 @@ class GhostPlugin {
             version: "v5.51.1"
         })
     }
-    async getMeta(type = 'faq', site = '', retry = 0) {
+    async getMeta(type = 'faq', site = 'nim', retry = 0) {
         const re = new RegExp(`${type}${site}-([a-zA-Z0-9_.&/]*)(?:-([a-zA-Z0-9_]*))?`)
         const cached = cache.get(re.toString())
 
@@ -83,11 +83,11 @@ class GhostPlugin {
 
         return post
     }
-    async browseTags(filter) {
+    async browseTags() {
         const cached = cache.get('tags')
 
         if (cached) return cached
-        const tags = await this.api.tags.browse({ filter })
+        const tags = await this.api.tags.browse({ limit: 1000 })
         cache.set('tags', tags)
         return tags
     }

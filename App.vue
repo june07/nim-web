@@ -1,5 +1,16 @@
 <template>
     <v-app>
+        <v-app-bar flat location="bottom" :collapse="collapse" style="opacity: 0.95;">
+            <template v-slot:prepend>
+                <v-app-bar-nav-icon @click="collapse = !collapse"></v-app-bar-nav-icon>
+            </template>
+
+            <v-app-bar-title class="font-weight-light"></v-app-bar-title>
+            <v-btn v-show="!collapse" v-for="link of links.general" :key="link.name" :to="link.to" :href="link.href" variant="text" :target="link.target" :rel="link.rel" class="text-capitalize">{{ link.name }}</v-btn>
+            <v-spacer></v-spacer>
+            <v-btn v-show="!collapse" v-for="link of links.legal" :key="link.name" :to="link.to" :href="link.href" variant="text" size="small" class="pa-0 text-caption">{{ link.name }}</v-btn>
+            <div v-show="!collapse" class="mx-8 font-weight-light"><span style="font-family: sans-serif">©</span> 2024 June07</div>
+        </v-app-bar>
         <v-navigation-drawer v-if="!smAndDown" order="2" width="200" floating location="left">
             <div class="h-100 d-flex align-center">
                 <a href="https://www.digitalocean.com/?refcode=fe4184318b19&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%202.svg" style="width: 200px; height: 65px" alt="DigitalOcean Referral Badge" /></a>
@@ -33,8 +44,7 @@
         </v-snackbar>
     </v-app>
 </template>
-<style scoped>
-</style>
+<style scoped></style>
 <script setup>
 import { ref, getCurrentInstance } from "vue"
 import { useDisplay } from 'vuetify/lib/framework.mjs'
@@ -47,10 +57,23 @@ const snackbarDefault = {
     icon: 'info',
     message: undefined,
 }
+const collapse = ref(false)
 const snackbar = ref({ ...snackbarDefault })
 const lastBuild = ref()
 const versionCheckIntervalId = ref()
 const buildInfo = ref()
+const links = {
+    general: [
+        { name: "Home", to: "/" },
+        { name: "FAQ", to: "/faq" },
+        { name: "Blog", href: "https://blog.june07.com" },
+        { name: "GitHub", href: "https://github.com/june07", target: "_blank", rel: "noopener" },
+    ],
+    legal: [
+        { name: "Privacy", href: "https://privacy.june07.com" },
+        { name: "Terms", href: "https://terms.june07.com" },
+    ],
+}
 
 const checkVersion = async () => {
     buildInfo.value = await $api.buildInfo()

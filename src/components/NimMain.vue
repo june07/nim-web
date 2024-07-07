@@ -1,6 +1,6 @@
 <template>
     <v-container fluid class="py-0">
-        <v-parallax src="/irvan-smith-5eBW5GomfhY-unsplash.jpg" height="100vh" min-height="2160px">
+        <v-parallax :src="`/irvan-smith-5eBW5GomfhY-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh" min-height="2160px">
             <v-spacer style="height: 100px"></v-spacer>
             <NimUI class="nim-ui" />
             <v-container class="d-flex justify-center align-center">
@@ -28,8 +28,8 @@
             <v-spacer style="height: 200px"></v-spacer>
         </v-parallax>
 
-        <v-parallax src="/joan-gamell-XmZ4GDAp9G0-unsplash.jpg" height="100vh">
-            <highlight-card ref="h-card-2" height="400" title="TRUSTED by Companies" textClass="py-0 h-50 d-flex flex-column justify-end" titleClass="text-center anton-regular" subtitle="Large and small" subtitleClass="text-center font-weight-light" color="black">
+        <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
+            <highlight-card ref="h-card-2" height="500" title="TRUSTED by Companies" textClass="py-0 h-50 d-flex flex-column justify-end" titleClass="text-center anton-regular" subtitle="Large and small" subtitleClass="text-center font-weight-light" color="black">
                 <div class="d-flex justify-center flex-wrap">
                     <img v-for="company of companies.filter(c => c.logo)" :key="company.id" :src="company?.logo" class="mx-2 company-logo" :style="company?.inverted ? 'filter: invert()' : ''" />
                 </div>
@@ -49,7 +49,9 @@
             <v-spacer style="height: 200px"></v-spacer>
         </v-parallax>
 
-
+        <v-parallax :src="`/tai-bui-QW89whdEClA-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
+            <v-spacer style="height: 600px"></v-spacer>
+        </v-parallax>
     </v-container>
 </template>
 <style scoped>
@@ -96,10 +98,12 @@
 <script setup>
 import 'animate.css'
 import { ref, onMounted } from 'vue'
+import { useDisplay } from 'vuetify/lib/framework.mjs'
 
 import HighlightCard from './HighlightCard.vue'
 import NimUI from './NimUI.vue'
 
+const { smAndDown } = useDisplay()
 const debounced = ref(false)
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {

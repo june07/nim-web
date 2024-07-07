@@ -1,5 +1,5 @@
 <template>
-    <v-app :theme="theme" >
+    <v-app :theme="theme">
         <v-app-bar density="compact" flat>
             <v-spacer></v-spacer>
             <span id="nim-version" class="mx-8 text-body-2 font-weight-thin">v{{ version }}</span>
@@ -9,7 +9,7 @@
             <v-btn variant="plain" icon density="compact">
                 <span class="material-icons">login</span>
             </v-btn>
-            <v-btn variant="plain" icon density="compact" @click="routeHandler(route?.path === 'settings' ? 'main' : 'settings')" class="mr-6" id="settings-btn">
+            <v-btn variant="plain" icon density="compact" class="mr-6" id="settings-btn">
                 <span class="material-icons">settings</span>
             </v-btn>
         </v-app-bar>
@@ -26,16 +26,19 @@
             <div class="text-body-1">
             </div>
             <v-spacer></v-spacer>
-            <v-tooltip v-model="tooltips.donate" open-on-click no-click-animation location="top" activator="#donate-btn">
+            <v-tooltip no-click-animation location="top">
                 <v-card style="opacity: 0.8;" rounded="lg" color="black">
                     <v-card-title class="mb-0">Thank you for your support!</v-card-title>
                     <v-card-subtitle class="mt-n2 mb-2">Please share NiM with your network.</v-card-subtitle>
                     <div class="text-h5 text-end">👇</div>
                 </v-card>
+                <template v-slot:activator="{ props }">
+                    <v-btn v-bind="props" id="donate-btn" variant="flat" class="mx-2 text-white rounded-xl" color="green-lighten-2">
+                        <span class="material-icons mr-2">toll</span>donate
+                    </v-btn>
+                </template>
             </v-tooltip>
-            <v-btn id="donate-btn" variant="flat" class="mx-2 text-white rounded-xl" color="green-lighten-2" @click="tooltips.donate = true">
-                <span class="material-icons mr-2">toll</span>donate
-            </v-btn>
+
             <div class="mr-4">
                 <ShareMenu color="blue">
                     <span class="material-icons mr-2">share</span>share
