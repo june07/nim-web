@@ -1,5 +1,5 @@
 <template>
-    <v-app :theme="theme">
+    <v-app :theme="theme" >
         <v-app-bar density="compact" flat>
             <v-spacer></v-spacer>
             <span id="nim-version" class="mx-8 text-body-2 font-weight-thin">v{{ version }}</span>

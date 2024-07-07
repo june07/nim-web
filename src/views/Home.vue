@@ -1,7 +1,5 @@
 <template>
-    <v-container fluid>
-        <NimMain />
-    </v-container>
+    <NimMain />
 </template>
 <script setup>
 import NimMain from '../components/NimMain.vue'

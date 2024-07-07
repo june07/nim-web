@@ -3,8 +3,8 @@
         <v-card-title class="mb-0 text-h3" :class="titleClass">
             <slot name="title">{{ title }}</slot>
         </v-card-title>
-        <v-card-subtitle class="mt-n6 mb-2 text-h6" :class="subtitleClass">{{ subtitle }}</v-card-subtitle>
-        <v-card-text>
+        <v-card-subtitle class="mt-n6 mb-2 text-h6" style="opacity: 1" :class="subtitleClass">{{ subtitle }}</v-card-subtitle>
+        <v-card-text :class="textClass">
             <slot></slot>
         </v-card-text>
     </v-card>
@@ -37,6 +37,7 @@ defineProps({
     class: String,
     titleClass: String,
     subtitleClass: String,
+    textClass: String,
     style: Object,
     style2: Object,
     color: String
