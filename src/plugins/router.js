@@ -11,7 +11,7 @@ export default (app) => {
                 name: 'faq',
                 meta: {
                     title: 'Frequently Asked Questions',
-                    menu: 'home'
+                    menu: 'FAQ'
                 },
                 component: () => import('@/views/FAQ.vue')
             }, {

@@ -6,9 +6,9 @@
             </template>
 
             <v-app-bar-title class="font-weight-light"></v-app-bar-title>
-            <v-btn v-show="!collapse" v-for="link of links.general" :key="link.name" :to="link.to" :href="link.href" variant="text" :target="link.target" :rel="link.rel" class="text-capitalize">{{ link.name }}</v-btn>
+            <v-btn v-show="!collapse" v-for="link of links.general" :to="link.to" :href="link.href" variant="text" :target="link.target" :rel="link.rel" class="text-capitalize">{{ link.name }}</v-btn>
             <v-spacer></v-spacer>
-            <v-btn v-show="!collapse" v-for="link of links.legal" :key="link.name" :to="link.to" :href="link.href" variant="text" size="small" class="pa-0 text-caption">{{ link.name }}</v-btn>
+            <v-btn v-show="!collapse" v-for="link of links.legal" :to="link.to" :href="link.href" variant="text" size="small" class="pa-0 text-caption">{{ link.name }}</v-btn>
             <div v-show="!collapse" class="mx-8 font-weight-light"><span style="font-family: sans-serif">©</span> 2024 June07</div>
         </v-app-bar>
         <v-navigation-drawer v-if="!smAndDown" order="2" width="200" floating location="left">
