@@ -20,7 +20,7 @@ export default defineConfig({
             template: {
                 transformAssetUrls,
                 compilerOptions: {
-                    isCustomElement: (tag) => tag.startsWith('share-menu'),
+                    isCustomElement: (tag) => /share-menu/.test(tag),
                 }
             },
         }),

@@ -14,6 +14,7 @@ import router from './router'
 import ghostPlugin from './ghost.plugin'
 import keycloakPlugin from './keycloak.plugin'
 import VueSocialSharing from 'vue-social-sharing'
+import InstantSearch from 'vue-instantsearch/vue3/es'
 
 const {
     VITE_APP_KEYCLOAK_URL,
@@ -34,6 +35,7 @@ export function registerPlugins(app) {
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
         })
+        .use(InstantSearch)
         .use(pinia)
         .use(router)
         .use(ghostPlugin)

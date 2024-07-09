@@ -15,6 +15,14 @@ export default (app) => {
                 },
                 component: () => import('@/views/FAQ.vue')
             }, {
+                path: '/docs',
+                name: 'docs',
+                meta: {
+                    title: 'JavaScript V8 Platform API Documentation Search Tool',
+                    menu: 'Docs'
+                },
+                component: () => import('@/views/Docs.vue')
+            }, {
                 path: '/:catchAll(.*)',
                 name: 'catchall',
                 component: () => import('@/views/Home.vue')

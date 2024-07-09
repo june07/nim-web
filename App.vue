@@ -65,6 +65,7 @@ const buildInfo = ref()
 const links = {
     general: [
         { name: "Home", to: "/" },
+        { name: "Docs", to: "/docs" },
         { name: "FAQ", to: "/faq" },
         { name: "Blog", href: "https://blog.june07.com" },
         { name: "GitHub", href: "https://github.com/june07", target: "_blank", rel: "noopener" },
