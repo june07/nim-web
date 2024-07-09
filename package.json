@@ -12,6 +12,7 @@
     "animate.css": "^4.1.1",
     "async": "^3.2.5",
     "axios": "^1.6.8",
+    "highlight.js": "^11.10.0",
     "instantsearch.css": "^8.3.0",
     "keycloak-js": "^25.0.1",
     "lru-cache": "^10.3.1",
