@@ -76,7 +76,7 @@ const selectedAPIIndex = ref(0)
 const selectedAPIModel = ref(apis[selectedAPIIndex.value].id)
 const selectedAPI = computed(() => apis[selectedAPIIndex.value])
 const canonicalDocsURL = computed(() => apis[selectedAPIIndex.value].canonicalDocsURL)
-const searchClient = algoliasearch('EUFO29W4LA', '59ad37c5752020c3dc125d5347f545a9')
+const searchClient = algoliasearch('EUFO29W4LA', '234d0a6ccc02409c2212ef77aaecfdb2')
 const selectedIndex = ref('node-20.15.1')
 const nodeSyntaxToggle = ref('mjs')
 function filter(htmlString) {
