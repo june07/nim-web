@@ -17,11 +17,11 @@
             </div>
             <ais-hits style="width: 70vw">
                 <template v-slot="{ items }">
-                    <v-expansion-panels v-for="item in items" :key="item" @update:model-value="expansionPanelsUpdateHandler">
+                    <v-expansion-panels v-for="item in items" :key="item" @update:model-value="expansionPanelsUpdateHandler" flat>
                         <v-expansion-panel>
                             <template v-slot:title>
                                 {{ console.log(item) }}
-                                <a :href="`${canonicalDocsURL}${item}`" target="_blank" rel="noopener" class="mr-2"><v-img src="/node-favicon.ico" width="24" height="24" /></a>
+                                <a :href="`${canonicalDocsURL}${item.source.split('/').pop().replace('.md', '.html')}#${item.textRaw.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z-]/g, '')}`" target="_blank" rel="noopener" class="mr-2"><v-img src="/node-favicon.ico" width="24" height="24" /></a>
                                 <span class="font-weight-bold mr-6"><ais-highlight :hit="item" attribute="textRaw" /></span><br>
                                 <div v-html="filter(item.desc.slice(0, 150))" class="d-flex text-truncate"></div>
                             </template>
