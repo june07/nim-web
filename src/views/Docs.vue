@@ -3,7 +3,7 @@
         <p>
             {{ selectedAPI?.name || 'Javascrip V8 Framework' }} API Search Tool
         </p>
-        <ais-instant-search v-if="searchClient" :hits-per-page.camel="5" :search-client="searchClient" :index-name="selectedIndex" :initial-ui-state="{ [`${selectedIndex}`]: { query: 'crypto.createHash' } }">
+        <ais-instant-search v-if="searchClient" :hits-per-page.camel="5" :search-client="searchClient" :index-name="selectedAPIModel" :initial-ui-state="initialUiState">
             <div class="d-flex">
                 <div class="d-flex flex-column flex-grow-1">
                     <ais-search-box placeholder="Search API" />
@@ -15,7 +15,7 @@
                     </template>
                 </v-select>
             </div>
-            <ais-hits style="width: 70vw">
+            <ais-hits class="mt-4" style="width: 70vw">
                 <template v-slot="{ items }">
                     <v-expansion-panels v-for="item in items" :key="item" @update:model-value="expansionPanelsUpdateHandler" flat>
                         <v-expansion-panel>
@@ -57,7 +57,7 @@
 }
 </style>
 <script setup>
-import { h, ref, computed, render, getCurrentInstance } from 'vue'
+import { h, ref, computed, render, getCurrentInstance, watch, onMounted } from 'vue'
 import { VSwitch } from 'vuetify/components'
 import algoliasearch from 'algoliasearch/lite'
 import 'instantsearch.css/themes/satellite-min.css'
@@ -68,16 +68,31 @@ const { appContext } = getCurrentInstance()
 const apis = [{
     id: 'node-20.15.1',
     name: 'Node.js',
-    text: 'Node.js v20.15.1',
+    text: 'Node.js v20.15.1 (LTS)',
     version: '20.15.1',
     canonicalDocsURL: 'https://nodejs.org/docs/latest-v20.x/api/',
+}, {
+    id: 'node-22.4.1',
+    name: 'Node.js',
+    text: 'Node.js v22.4.1 (Latest)',
+    version: '22.4.1',
+    canonicalDocsURL: 'https://nodejs.org/docs/latest-v22.x/api/',
+}, {
+    id: 'node-18.20.4',
+    name: 'Node.js',
+    text: 'Node.js v18.20.4 (LTS 18)',
+    version: '18.20.4',
+    canonicalDocsURL: 'https://nodejs.org/docs/latest-v18.x/api/',
 }]
 const selectedAPIIndex = ref(0)
 const selectedAPIModel = ref(apis[selectedAPIIndex.value].id)
 const selectedAPI = computed(() => apis[selectedAPIIndex.value])
 const canonicalDocsURL = computed(() => apis[selectedAPIIndex.value].canonicalDocsURL)
 const searchClient = algoliasearch('EUFO29W4LA', 'cd313d4204c72de9cbe7d9928efb215b')
-const selectedIndex = ref('node-20.15.1')
+const initialUiState = ref({
+    [`${selectedAPIModel.value}`]: { query: '' }
+})
+
 const nodeSyntaxToggle = ref('mjs')
 function filter(htmlString) {
     return translateRelativeLinksToAbsolute(htmlString)
@@ -113,7 +128,7 @@ function translateRelativeLinksToAbsolute(htmlString) {
                 preTag.style.visibility = 'hidden'
                 preTag.style.height = 0
                 preTag.style.padding = 0
-                
+
             }
             code.innerHTML = `<div id="${Date.now()}" class="node-syntax-toggle"></div>
 ${highlightedCode}`
@@ -142,4 +157,10 @@ async function expansionPanelsUpdateHandler(value) {
         render(vNode, node)
     })
 }
+onMounted(() => {
+    watch(() => selectedAPIModel.value, value => {
+        initialUiState.value = { [`${value}`]: { query: '' } }
+    })
+    expansionPanelsUpdateHandler()
+})
 </script>
