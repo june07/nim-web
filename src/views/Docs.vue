@@ -85,8 +85,8 @@ const apis = [{
     version: '18.20.4',
     canonicalDocsURL: 'https://nodejs.org/docs/latest-v18.x/api/',
 }]
-const selectedAPIIndex = ref(0)
-const selectedAPIModel = ref(apis[selectedAPIIndex.value].id)
+const selectedAPIModel = ref(apis[0].id)
+const selectedAPIIndex = computed(() => apis.findIndex(api => api.id === selectedAPIModel.value))
 const selectedAPI = computed(() => apis[selectedAPIIndex.value])
 const canonicalDocsURL = computed(() => apis[selectedAPIIndex.value].canonicalDocsURL)
 const searchClient = algoliasearch('EUFO29W4LA', 'cd313d4204c72de9cbe7d9928efb215b')
