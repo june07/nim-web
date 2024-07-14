@@ -20,7 +20,7 @@
                     <v-expansion-panels v-for="item in items" :key="item" @update:model-value="expansionPanelsUpdateHandler" flat>
                         <v-expansion-panel>
                             <template v-slot:title>
-                                {{ console.log(item) }}
+                                <!-- {{ console.log(item) }} -->
                                 <a :href="`${canonicalDocsURL}${item.source.split('/').pop().replace('.md', '.html')}#${item.textRaw.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z-]/g, '')}`" target="_blank" rel="noopener" class="mr-2"><v-img src="/node-favicon.ico" width="24" height="24" /></a>
                                 <span class="font-weight-bold mr-6"><ais-highlight :hit="item" attribute="textRaw" /></span><br>
                                 <div v-html="filter(item.desc.slice(0, 150))" class="d-flex text-truncate"></div>
@@ -48,7 +48,6 @@
     right: 0;
     margin-right: 70px;
 }
-
 .node-syntax-toggle-btn {
     position: absolute;
     bottom: 0;
@@ -97,6 +96,21 @@ const nodeSyntaxToggle = ref('mjs')
 function filter(htmlString) {
     return translateRelativeLinksToAbsolute(htmlString)
 }
+function isSameCodeBlock(lastTwoCodeBlocks) {
+    const re = new RegExp(/import|require\(|async|\}\)\(\);/i)
+    const block1Lines = lastTwoCodeBlocks[0].split('\n').filter(line => line && !re.test(line)).map(line => line.trim())
+    const block2Lines = lastTwoCodeBlocks[1].split('\n').filter(line => line && !re.test(line)).map(line => line.trim())
+
+    // compare the lines from each block
+    const percentageMatch = block1Lines.reduce((acc, line, index) => {
+        if (block2Lines.find(block2Line => block2Line === line)) {
+            return index === block1Lines.length - 1 ? (acc + 1)/block1Lines.length : acc += 1
+        }
+        return index === block1Lines.length - 1 ? acc/block1Lines.length : acc
+    }, 0)
+
+    return percentageMatch > 0.8
+}
 function translateRelativeLinksToAbsolute(htmlString) {
     // Create a DOM parser
     const parser = new DOMParser()
@@ -118,42 +132,50 @@ function translateRelativeLinksToAbsolute(htmlString) {
     })
 
     if (htmlString.length > 150) {
-        const codeTags = doc.querySelectorAll('pre code')
+        const codeTags = Array.from(doc.querySelectorAll('pre code'))
+        let codeGroups = []
 
-        codeTags.forEach(code => {
+        codeTags.map(async (code, index, arr) => {
             const preTag = code.parentNode
             const highlightedCode = hljs.highlight(code.innerHTML, { language: 'javascript' }).value
+            const codeClassName = Array.from(code.classList).find(className => /language-/.test(className))
 
-            if (!code.classList.contains(`language-${nodeSyntaxToggle.value}`)) {
+            if (`language-${nodeSyntaxToggle.value}` !== codeClassName) {
                 preTag.style.visibility = 'hidden'
                 preTag.style.height = 0
                 preTag.style.padding = 0
-
+                preTag.style.margin = 0
             }
-            code.innerHTML = `<div id="${Date.now()}" class="node-syntax-toggle"></div>
-${highlightedCode}`
+            codeGroups.push(code.innerHTML)
+            if (codeGroups.length > 1 && isSameCodeBlock(codeGroups.slice(-2))) {                
+                arr[index > 0 ? index - 1 : 0].innerHTML = arr[index > 0 ? index - 1 : 0].innerHTML.replace('nst-placeholder', 'node-syntax-toggle')
+                code.innerHTML = `<div id="${Date.now()}" class="node-syntax-toggle${' ' + codeClassName || ''}"></div>\n${highlightedCode}`
+            } else {
+                code.innerHTML = `<div class="nst-placeholder"></div>\n${highlightedCode}`
+            }
         })
     }
 
     // Serialize the document back into an HTML string
-    return new XMLSerializer().serializeToString(doc)
+    return  new XMLSerializer().serializeToString(doc)
 }
 async function expansionPanelsUpdateHandler(value) {
     if (value === undefined) return
     await new Promise(resolve => setTimeout(resolve, 500))
-    Array.from(document.querySelectorAll('.node-syntax-toggle')).forEach(node => {
+    
+    Array.from(document.querySelectorAll('.node-syntax-toggle')).map(node => {
         const vNode = h(VSwitch, {
-            id: `id-${Date.now()}`,
-            ref: `nodeSyntaxToggle-${Date.now()}`,
-            class: 'node-syntax-toggle-btn',
+            class: `node-syntax-toggle-btn`,
             inset: true,
             label: nodeSyntaxToggle.value,
+            modelValue: nodeSyntaxToggle.value === 'mjs' ? true : false,
             onClick: () => {
                 nodeSyntaxToggle.value = nodeSyntaxToggle.value === 'mjs' ? 'cjs' : 'mjs'
                 expansionPanelsUpdateHandler(true)
             }
         })
         vNode.appContext = appContext
+        
         render(vNode, node)
     })
 }
@@ -161,6 +183,6 @@ onMounted(() => {
     watch(() => selectedAPIModel.value, value => {
         initialUiState.value = { [`${value}`]: { query: '' } }
     })
-    expansionPanelsUpdateHandler()
+    expansionPanelsUpdateHandler(true)
 })
 </script>
