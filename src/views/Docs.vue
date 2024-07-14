@@ -20,7 +20,7 @@
                     <v-expansion-panels v-for="item in items" :key="item" @update:model-value="expansionPanelsUpdateHandler" flat>
                         <v-expansion-panel>
                             <template v-slot:title>
-                                <!-- {{ console.log(item) }} -->
+                                <span v-if="MODE !== 'production'">{{ console.log(item) }}</span>
                                 <a :href="`${canonicalDocsURL}${item.source.split('/').pop().replace('.md', '.html')}#${item.textRaw.replace(/\s+/g, '-').toLowerCase().replace(/[^a-z-]/g, '')}`" target="_blank" rel="noopener" class="mr-2"><v-img src="/node-favicon.ico" width="24" height="24" /></a>
                                 <span class="font-weight-bold mr-6"><ais-highlight :hit="item" attribute="textRaw" /></span><br>
                                 <div v-html="filter(item.desc.slice(0, 150))" class="d-flex text-truncate"></div>
@@ -48,6 +48,7 @@
     right: 0;
     margin-right: 70px;
 }
+
 .node-syntax-toggle-btn {
     position: absolute;
     bottom: 0;
@@ -63,6 +64,7 @@ import 'instantsearch.css/themes/satellite-min.css'
 import 'highlight.js/styles/github.css'
 import hljs from 'highlight.js'
 
+const { MODE } = import.meta.env
 const { appContext } = getCurrentInstance()
 const apis = [{
     id: 'node-20.15.1',
@@ -104,12 +106,17 @@ function isSameCodeBlock(lastTwoCodeBlocks) {
     // compare the lines from each block
     const percentageMatch = block1Lines.reduce((acc, line, index) => {
         if (block2Lines.find(block2Line => block2Line === line)) {
-            return index === block1Lines.length - 1 ? (acc + 1)/block1Lines.length : acc += 1
+            return index === block1Lines.length - 1 ? (acc + 1) / block1Lines.length : acc += 1
         }
-        return index === block1Lines.length - 1 ? acc/block1Lines.length : acc
+        return index === block1Lines.length - 1 ? acc / block1Lines.length : acc
     }, 0)
 
     return percentageMatch > 0.8
+}
+function decodeHTMLEntities(encodedString) {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(encodedString, 'text/html')
+    return doc.documentElement.textContent
 }
 function translateRelativeLinksToAbsolute(htmlString) {
     // Create a DOM parser
@@ -137,7 +144,7 @@ function translateRelativeLinksToAbsolute(htmlString) {
 
         codeTags.map(async (code, index, arr) => {
             const preTag = code.parentNode
-            const highlightedCode = hljs.highlight(code.innerHTML, { language: 'javascript' }).value
+            const highlightedCode = decodeHTMLEntities(hljs.highlight(code.innerHTML, { language: 'javascript' }).value)
             const codeClassName = Array.from(code.classList).find(className => /language-/.test(className))
 
             if (`language-${nodeSyntaxToggle.value}` !== codeClassName) {
@@ -147,7 +154,7 @@ function translateRelativeLinksToAbsolute(htmlString) {
                 preTag.style.margin = 0
             }
             codeGroups.push(code.innerHTML)
-            if (codeGroups.length > 1 && isSameCodeBlock(codeGroups.slice(-2))) {                
+            if (codeGroups.length > 1 && isSameCodeBlock(codeGroups.slice(-2))) {
                 arr[index > 0 ? index - 1 : 0].innerHTML = arr[index > 0 ? index - 1 : 0].innerHTML.replace('nst-placeholder', 'node-syntax-toggle')
                 code.innerHTML = `<div id="${Date.now()}" class="node-syntax-toggle${' ' + codeClassName || ''}"></div>\n${highlightedCode}`
             } else {
@@ -157,12 +164,12 @@ function translateRelativeLinksToAbsolute(htmlString) {
     }
 
     // Serialize the document back into an HTML string
-    return  new XMLSerializer().serializeToString(doc)
+    return new XMLSerializer().serializeToString(doc)
 }
 async function expansionPanelsUpdateHandler(value) {
     if (value === undefined) return
     await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     Array.from(document.querySelectorAll('.node-syntax-toggle')).map(node => {
         const vNode = h(VSwitch, {
             class: `node-syntax-toggle-btn`,
@@ -175,7 +182,7 @@ async function expansionPanelsUpdateHandler(value) {
             }
         })
         vNode.appContext = appContext
-        
+
         render(vNode, node)
     })
 }
