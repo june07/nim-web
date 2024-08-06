@@ -32,8 +32,9 @@
                 <v-spacer style="height: 200px"></v-spacer>
             </v-parallax>
 
-            <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
-                <highlight-card ref="h-card-2" height="500" textClass="py-0 h-50 d-flex flex-column justify-end" titleClass="text-center anton-regular" subtitle="Large and Small, from Startups to Industry Leaders" subtitleClass="text-center font-weight-light" color="black">
+            <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="50vh">
+                <v-spacer style="height: 200px"></v-spacer>
+                <highlight-card ref="h-card-features" height="500" textClass="py-0 h-50 d-flex flex-column justify-end" titleClass="text-center anton-regular" subtitle="Large and Small, from Startups to Industry Leaders" subtitleClass="text-center font-weight-light" color="black">
                     <div class="d-flex justify-center flex-wrap">
                         <img v-for="company of companies.filter(c => c.logo)" :key="company.id" :src="company?.logo" class="mx-2 company-logo" :style="company?.inverted ? 'filter: invert()' : ''" />
                     </div>
@@ -41,8 +42,39 @@
                         <span class="text-blue-darken-4 font-weight-bold text-uppercase anton-regular">TRUSTED</span> by Companies
                     </template>
                 </highlight-card>
+                <v-spacer style="height: 200px"></v-spacer>
+            </v-parallax>
+
+            <v-parallax :src="`/tai-bui-QW89whdEClA-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
+                <v-spacer style="height: 200px"></v-spacer>
+                <highlight-card ref="h-card-1" height="1800" class="ml-16 rounded-s-lg" opacity="0.9" subtitle="by Streamlining Development Workflows" subtitleClass="text-center font-weight-light" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
+                    <template v-slot:title>
+                        <div @mouseleave="randomlyReanimate">
+                            <span class="font-weight-bold anton-regular text-orange-darken-2">Igniting</span> Productivity<div class="loved">
+                                <div class="heart1 animate__animated animate__heartBeat">🔥</div>
+                                <div class="heart2 animate__animated animate__heartBeat">🔥</div>
+                                <div class="heart3 animate__animated animate__heartBeat">🔥</div>
+                            </div>
+                        </div>
+                    </template>
+                    <!-- feature 1 -->
+                    <v-card color="green-lighten-4 px-8 pb-8 ma-16" class="rounded-xl">
+                        <v-card-text class="d-flex justify-center align-center font-weight-bold text-capitalize"><v-chip text="feature 🔥" class="mr-2 font-weight-bold" /> plugable DevTools</v-card-text>
+                        <v-img class="mx-auto opaque-image" height="600px" width="800" src="/features-devtools-switching.png" style="border-radius: 10%;" />
+                    </v-card>
+                    <!-- feature 2 -->
+                    <v-card color="green-lighten-5 px-8 pb-8 ma-16" class="rounded-xl">
+                        <v-card-text class="d-flex justify-center align-center font-weight-bold text-capitalize"><v-chip text="feature 🔥" class="mr-2 font-weight-bold" /> Multi-session Debugging management</v-card-text>
+                        <v-img class="mx-auto opaque-image" height="400px" width="800" src="/features-multisession.png" style="border-radius: 10%;" />
+                    </v-card>
+                    <!-- feature 3 -->
+                </highlight-card>
+                <v-spacer style="height: 200px"></v-spacer>
+            </v-parallax>
+
+            <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
                 <v-spacer style="height: 400px"></v-spacer>
-                <highlight-card ref="h-card-2" height="300" title="Install Now for Free" subtitle="If you're a solo developer/student/or just don't have the budget for tools, you can still use NiM unrestricted." subtitleClass="text-center font-weight-light" class="ml-16 rounded-s-lg" opacity="0.8" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
+                <highlight-card ref="h-card-2" height="300" title="Install Now for Free" subtitle="If you're a solo developer/student/or just don't have the budget for tools, you can still use NiM unrestricted." subtitleClass="text-center font-weight-light" class="mr-16 rounded-e-lg" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, white, transparent 10%)' }">
                     <v-container class="d-flex justify-center align-center">
                         <div class="install-buttons" v-for="method of installMethods">
                             <v-btn variant="tonal" color="green-darken-2" :href="method.href" :text="method.name" rounded="lg" class="px-4 mr-2">
@@ -55,16 +87,17 @@
                 </highlight-card>
                 <v-spacer style="height: 200px"></v-spacer>
             </v-parallax>
-
-            <v-parallax :src="`/tai-bui-QW89whdEClA-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
-                <v-spacer style="height: 600px"></v-spacer>
-            </v-parallax>
         </div>
     </v-container>
 </template>
 <style scoped>
 :deep() .v-card {
     border-radius: 0;
+}
+
+:deep() .opaque-image>img {
+    background-color: rgb(255, 255, 255, 1);
+    color: white;
 }
 
 .company-logo {
