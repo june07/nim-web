@@ -33,10 +33,13 @@
             </v-parallax>
 
             <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
-                <highlight-card ref="h-card-2" height="500" title="TRUSTED by Companies" textClass="py-0 h-50 d-flex flex-column justify-end" titleClass="text-center anton-regular" subtitle="Large and small" subtitleClass="text-center font-weight-light" color="black">
+                <highlight-card ref="h-card-2" height="500" textClass="py-0 h-50 d-flex flex-column justify-end" titleClass="text-center anton-regular" subtitle="Large and Small, from Startups to Industry Leaders" subtitleClass="text-center font-weight-light" color="black">
                     <div class="d-flex justify-center flex-wrap">
                         <img v-for="company of companies.filter(c => c.logo)" :key="company.id" :src="company?.logo" class="mx-2 company-logo" :style="company?.inverted ? 'filter: invert()' : ''" />
                     </div>
+                    <template v-slot:title>
+                        <span class="text-blue-darken-4 font-weight-bold text-uppercase anton-regular">TRUSTED</span> by Companies
+                    </template>
                 </highlight-card>
                 <v-spacer style="height: 400px"></v-spacer>
                 <highlight-card ref="h-card-2" height="300" title="Install Now for Free" subtitle="If you're a solo developer/student/or just don't have the budget for tools, you can still use NiM unrestricted." subtitleClass="text-center font-weight-light" class="ml-16 rounded-s-lg" opacity="0.8" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
