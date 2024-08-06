@@ -45,9 +45,9 @@
                 <v-spacer style="height: 200px"></v-spacer>
             </v-parallax>
 
-            <v-parallax :src="`/tai-bui-QW89whdEClA-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
+            <v-parallax :src="`/tai-bui-QW89whdEClA-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="2200">
                 <v-spacer style="height: 200px"></v-spacer>
-                <highlight-card ref="h-card-1" height="1800" class="ml-16 rounded-s-lg" opacity="0.9" subtitle="by Streamlining Development Workflows" subtitleClass="text-center font-weight-light" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
+                <highlight-card ref="h-card-1" height="1600" class="ml-16 rounded-s-lg" opacity="0.9" subtitle="by Streamlining Development Workflows" subtitleClass="text-center font-weight-light" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
                     <template v-slot:title>
                         <div @mouseleave="randomlyReanimate">
                             <span class="font-weight-bold anton-regular text-orange-darken-2">Igniting</span> Productivity<div class="loved">
