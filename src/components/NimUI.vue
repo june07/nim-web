@@ -66,7 +66,7 @@ const version = ref()
 async function asyncInit() {
     const response = await fetch(`https://api.github.com/repos/june07/NiMv3/releases`)
     const releases = await response.json()
-    version.value = releases.pop().tag_name.replace(/^v/i, '')
+    version.value = releases.sort((a, b) => new Date(b.published_at) > new Date(a.published_at) ? -1 : 0).pop().tag_name.replace(/^v/i, '')
 }
 onMounted(() => {
     asyncInit()
