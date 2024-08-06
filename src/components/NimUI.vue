@@ -6,9 +6,6 @@
             <v-btn variant="plain" icon size="x-small" id="theme" @click="theme === 'light' ? theme = 'dark' : theme = 'light'">
                 <span class="material-icons small-icon">{{ theme === 'light' ? 'light_mode' : 'dark_mode' }}</span>
             </v-btn>
-            <v-btn variant="plain" icon density="compact">
-                <span class="material-icons">login</span>
-            </v-btn>
             <v-btn variant="plain" icon density="compact" class="mr-6" id="settings-btn">
                 <span class="material-icons">settings</span>
             </v-btn>
@@ -58,30 +55,18 @@
 </style>
 <script setup>
 import 'animate.css'
-import { computed, ref, onMounted, getCurrentInstance } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useDisplay } from 'vuetify/lib/framework.mjs'
-import { useAppStore } from '../store/app'
+import { ref, onMounted } from 'vue'
 
 import NiMain from '@/components/extension/NiMain.vue'
 import ShareMenu from './ShareMenu.vue'
 
-const tooltips = ref({
-    donate: false
-})
-const route = useRoute()
-const router = useRouter()
 const theme = ref('light')
-const { smAndDown } = useDisplay()
-const { $api } = getCurrentInstance().appContext.config.globalProperties
-const { VITE_APP_API_SERVER } = import.meta.env
-const store = useAppStore()
-const version = computed(() => store.releaseInfo?.tag_name)
+const version = ref()
 
 async function asyncInit() {
-    if (!store.releaseInfo || store.releaseInfo.lastUpdated < Date.now() - 1000 * 60 * 60 * 24) {
-        store.releaseInfo = await $api.releaseInfo()
-    }
+    const response = await fetch(`https://api.github.com/repos/june07/NiMv3/releases`)
+    const releases = await response.json()
+    version.value = releases.pop().tag_name.replace(/^v/i, '')
 }
 onMounted(() => {
     asyncInit()
