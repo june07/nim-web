@@ -3,11 +3,13 @@
         <v-parallax :src="`/irvan-smith-5eBW5GomfhY-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh" min-height="2160px">
             <v-spacer style="height: 100px"></v-spacer>
             <v-sheet class="d-flex mb-16 mx-auto" flat width="800" rounded="lg" style="opacity: 0.9;">
-                <div class="d-flex flex-column">
-                    <div class="px-8 text-body-1 pt-8">Proudly Serving DevTools UX Diabeetus Since 2016</div>
+                <div class="d-flex flex-column flex-grow-1">
+                    <div class="px-8 text-body-1 pt-8 font-weight-bold">Serving DevTools UX Diabeetus Since 2016</div>
                     <div class="px-8 text-body-2 text-center font-italic font-weight-light">The OG <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="font-weight-bold">"UX Sugar"</a></div>
                 </div>
-                <v-img src="https://raw.githubusercontent.com/june07/ghost-content/main/2024/08/image-1-.webp" height="200" class="ml-auto my-4"></v-img>
+                <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="d-flex my-4 mr-4">
+                    <img src="https://raw.githubusercontent.com/june07/ghost-content/main/2024/08/image-1-.webp" height="200" />
+                </a>
             </v-sheet>
             <NimUI class="nim-ui" />
             <v-container class="d-flex justify-center align-center">
