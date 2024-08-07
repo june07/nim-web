@@ -32,7 +32,7 @@
                 <v-spacer style="height: 200px"></v-spacer>
             </v-parallax>
 
-            <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="50vh">
+            <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="50vh" min-height="1024px">
                 <v-spacer style="height: 200px"></v-spacer>
                 <highlight-card ref="h-card-features" height="500" textClass="py-0 h-50 d-flex flex-column justify-end" titleClass="text-center anton-regular" subtitle="Large and Small, from Startups to Industry Leaders" subtitleClass="text-center font-weight-light" color="black">
                     <div class="d-flex justify-center flex-wrap">
