@@ -6,7 +6,15 @@
                     <v-img width="196" height="196" :src="iconNiM"></v-img>
                 </div>
                 <div style="font-size: 36px" class="font-weight-light animate__animated animate__lightSpeedInRight">
-                    <span class="font-weight-medium">N</span>ode --<span class="font-weight-medium">i</span>nspector <span class="font-weight-medium">M</span>anager</div>
+                    <span class="font-weight-medium">N</span>ode.js (V8
+                    <v-tooltip text="Besides Node.js, NiM works with other JavaScript V8 engines including Deno and potential others as well." location="top">
+                        <template v-slot:activator="{ props }">
+                            <v-icon style="cursor: pointer" v-bind="props" icon="info" color="green" size="20px" class="mx-n2 mb-4" id="v8-info-i" />
+                        </template>
+                    </v-tooltip>
+                    ) --<span class="font-weight-medium">i</span>nspector <span class="font-weight-medium">M</span>anager
+                </div>
+
             </v-col>
         </v-row>
         <v-tabs v-model="tab" grow class="mt-8" color="green-darken-1">
@@ -26,19 +34,29 @@
                     <v-row>
                         <v-col class="d-flex align-center justify-center pt-0">
                             <div class="ml-auto">
-                                <v-switch id="auto" name="auto" hide-details v-model="inputs.auto" :color="inputs.auto ? 'green' : ''">
-                                    <template v-slot:label>
-                                        <div class="text-no-wrap" style="width: 50px">{{ inputs.auto ? 'Auto' : 'Manual' }}</div>
+                                <v-tooltip :text="inputs.auto ? 'In auto mode, NiM will fully manage the lifecycle of the DevTools front-end.' : 'Manual mode lets you manage the DevTools front-end yourself.'" location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-switch v-bind="props" id="auto" name="auto" hide-details v-model="inputs.auto" :color="inputs.auto ? 'green' : ''">
+                                            <template v-slot:label>
+                                                <div class="text-no-wrap" style="width: 50px">{{ inputs.auto ? 'Auto' : 'Manual' }}</div>
+                                            </template>
+                                        </v-switch>
                                     </template>
-                                </v-switch>
+                                </v-tooltip>
                             </div>
                             <v-btn name="auto" class="mx-4 text-body-1" :color="inputs.auto ? '' : 'green'" :disabled="inputs.auto">Open DevTools</v-btn>
                             <div class="mr-auto ml-2">
-                                <v-switch name="autoResumeInspectBrk" hide-details v-model="inputs.autoResumeInspectBrk" :color="inputs.autoResumeInspectBrk ? 'green' : ''" id="autoResumeSwitch" class="text-no-wrap">
-                                    <template v-slot:label>
-                                        <div class="text-no-wrap">Auto Resume Stepping</div>
+                                <v-tooltip location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-switch v-bind="props" name="autoResumeInspectBrk" hide-details v-model="inputs.autoResumeInspectBrk" :color="inputs.autoResumeInspectBrk ? 'green' : ''" id="autoResumeSwitch" class="text-no-wrap">
+                                            <template v-slot:label>
+                                                <div class="text-no-wrap">Auto Resume Stepping</div>
+                                            </template>
+                                        </v-switch>
                                     </template>
-                                </v-switch>
+                                    When using --inspect-brk, NiM will automatically resume stepping to the first debugger statement.<br>
+                                    <a href="https://github.com/nodejs/node/issues/30911" target="_blank" rel="noopener">https://github.com/nodejs/node/issues/30911</a>
+                                </v-tooltip>
                             </div>
                         </v-col>
                     </v-row>
@@ -113,7 +131,7 @@
     border: 1px solid green;
     border-radius: 10px !important;
     color: black !important;
-    font-size: larger !important;
+    opacity: 0.9;
 }
 </style>
 <script setup>

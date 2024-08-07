@@ -26,8 +26,11 @@
             <v-tooltip no-click-animation location="top">
                 <v-card style="opacity: 0.8;" rounded="lg" color="black">
                     <v-card-title class="mb-0">Thank you for your support!</v-card-title>
-                    <v-card-subtitle class="mt-n2 mb-2">Please share NiM with your network.</v-card-subtitle>
-                    <div class="text-h5 text-end">👇</div>
+                    <v-card-subtitle class="mt-n2 mb-4">
+                        You can donate to NiM by using the donate button from the extension popup.
+                    </v-card-subtitle>
+                    <div class="text-end mr-4">In the meantime, please share NiM with your network.</div>
+                    <div class="text-h5 text-center" style="margin-left: 250px;">👇</div>
                 </v-card>
                 <template v-slot:activator="{ props }">
                     <v-btn v-bind="props" id="donate-btn" variant="flat" class="mx-2 text-white rounded-xl" color="green-lighten-2">
