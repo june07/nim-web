@@ -4,7 +4,7 @@
             <v-spacer style="height: 100px"></v-spacer>
             <v-sheet class="d-flex mb-16 mx-auto" flat width="800" rounded="lg" style="opacity: 0.9;">
                 <div class="d-flex flex-column flex-grow-1">
-                    <div class="px-8 text-body-1 pt-8 font-weight-bold">Serving DevTools UX Diabeetus Since 2016</div>
+                    <div class="px-8 text-body-1 pt-8 font-weight-bold">Serving Dev Tools UX Diabeetus Since 2016</div>
                     <div class="px-8 text-body-2 text-center font-italic font-weight-light">The OG <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="font-weight-bold">"UX Sugar"</a></div>
                 </div>
                 <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="d-flex my-4 mr-4">
