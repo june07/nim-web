@@ -111,28 +111,6 @@
     object-fit: contain;
 }
 
-.loved {
-    letter-spacing: -1em;
-    display: inline-flex;
-}
-
-.heart1 {
-    --animate-duration: 2s;
-    --animate-delay: 0.5s;
-    transform: rotate(-7deg);
-}
-
-.heart2 {
-    --animate-duration: 1s;
-    --animate-delay: 0.2s;
-    transform: rotate(7deg);
-}
-
-.heart3 {
-    --animate-duration: 3s;
-    --animate-delay: 1s;
-}
-
 .nim-ui {
     margin: auto;
     vertical-align: middle;
