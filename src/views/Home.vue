@@ -19,7 +19,7 @@
 				<v-card-text class="d-flex flex-column align-center justify-center">
 					<div class="text-h6"><span class="font-weight-bold text-h5 mr-2">Please Note:</span>Due to a bug in Google's Chromium browser that Google has refused to fix, you may need to open DevTools manually the first time you run the application:</div>
 
-					<div class="text-caption font-weight-bold mt-n4">Additional info:</div>
+					<div class="text-caption font-weight-bold" :class="smAndDown ? 'mt-0' : 'mt-n4'">Additional info:</div>
 					<ul class="text-caption">
 						<li><a href="https://blog.june07.com/chromium-bug-900945">https://blog.june07.com/chromium-bug-900945</a></li>
 						<li><a href="https://issues.chromium.org/issues/41423865" target="_blank" rel="noopener">https://issues.chromium.org/issues/41423865</a></li>
