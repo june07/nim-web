@@ -43,7 +43,7 @@
 
 					<div class="text-h5 font-weight-bold mt-8">Additional Resources</div>
 					<p class="text-body-1">
-						Don't forget to check the <a href="https://blog.june07.com" target="_blank" rel="noopener">Blog</a> regularly as well as <a href="https://github.com/june07/NiMV3" target="_blank" rel="noopener">GitHub</a> for updates and issues and/or the <router-link to="/faq">FAQ</router-link>!
+						Don't forget to check the <a href="https://blog.june07.com/tag/nim/" target="_blank" rel="noopener">Blog</a> regularly as well as <a href="https://github.com/june07/NiMV3" target="_blank" rel="noopener">GitHub</a> for updates and issues and/or the <router-link to="/faq">FAQ</router-link>!
 					</p>
 				</v-card-text>
 			</v-card>
