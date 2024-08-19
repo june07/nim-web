@@ -8,7 +8,7 @@
                     <div class="px-8 text-body-2 text-center font-italic font-weight-light">The OG <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="font-weight-bold">"UX Sugar"</a></div>
                 </div>
                 <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="d-flex my-4 mr-4">
-                    <img src="https://raw.githubusercontent.com/june07/ghost-content/main/2024/08/image-1-.webp" height="200" />
+                    <img src="/node-summit-paul-irish.webp" height="200" />
                 </a>
             </v-sheet>
             <NimUI class="nim-ui" />
