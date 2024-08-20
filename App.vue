@@ -67,7 +67,7 @@ const links = {
         { name: "Home", to: "/" },
         { name: "Docs", to: "/docs" },
         { name: "FAQ", to: "/faq" },
-        { name: "Blog", href: "https://blog.june07.com" },
+        { name: "Blog", href: "https://blog.june07.com/tag/nim" },
         { name: "GitHub", href: "https://github.com/june07", target: "_blank", rel: "noopener" },
     ],
     legal: [
