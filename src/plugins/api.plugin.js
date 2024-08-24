@@ -92,8 +92,8 @@ const apiService = () => {
             } catch (error) {
                 document.getElementById('release-info').textContent = `Error: ${error.message}`
             }
-        }
-
+        },
+        starStats: async () => await request({ url: `${VITE_APP_API_SERVER}/v1/github/stellar-reflection/stats` }),
     }
 }
 

@@ -23,6 +23,15 @@ export default (app) => {
                 },
                 component: () => import('@/views/Docs.vue')
             }, {
+                path: '/stars',
+                name: 'Stellar Reflection',
+                meta: {
+                    title: 'A GitHub App to Automatically Give a Star When One Is Received.',
+                    description: 'This name evokes the idea of reflecting back the recognition received, aligning perfectly with the concept of reciprocating stars. It has a poetic and celestial feel, emphasizing the notion of shining light back to those who shine on you.',
+                    menu: 'Stars'
+                },
+                component: () => import('@/views/Stars.vue')
+            }, {
                 path: '/:catchAll(.*)',
                 name: 'catchall',
                 component: () => import('@/views/Home.vue')
