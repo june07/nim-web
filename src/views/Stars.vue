@@ -1,7 +1,7 @@
 <template>
 	<v-container class="h-100 d-flex flex-column align-center justify-center">
 		<div class="title animate__animated animate__fadeIn text-center">
-			<div class="d-flex">
+			<div class="d-flex w-100">
 				Automatically give
 				<div @mouseleave="randomlyReanimate">
 					<div class="starred">
@@ -11,8 +11,21 @@
 					</div>
 				</div>
 				back those who give them to you.
+				<a class="font-weight-bold mr-2 ml-16" href="https://github.com/apps/stellar-reflection">
+					<v-chip size="x-small" color="green">
+						<span class="text-black">GitHub App</span>
+						<template v-slot:prepend>
+							<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
+						</template> </v-chip
+				></a>
+				<a class="font-weight-bold" href="https://june07.com/stellar-reflection">
+					<v-chip size="x-small" color="grey">
+						<span class="text-black">Blog Post</span>
+						<template v-slot:prepend>
+							<v-img class="mr-2" src="/SSPX0088.webp" width="16" height="16" />
+						</template> </v-chip
+				></a>
 			</div>
-			<div class="d-flex justify-center align-center">Install the <a class="text-caption font-weight-bold mx-2" href="https://github.com/apps/stellar-reflection" target="_blank" rel="noopener">Stellar Reflection</a> GitHub App</div>
 		</div>
 		<progress-star :stats="stats" />
 	</v-container>
@@ -25,8 +38,8 @@
 .starred {
 	letter-spacing: -1em;
 	display: inline-flex;
-    margin-right: 22px;
-    margin-left: 2px;
+	margin-right: 22px;
+	margin-left: 2px;
 }
 
 .star1 {
