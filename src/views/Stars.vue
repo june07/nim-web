@@ -40,12 +40,12 @@
 							</template>
 						</v-chip>
 					</a>
-                    <v-chip size="x-small" variant="text" class="mt-1">
-                        stargazers: {{ star.starred.stargazers_count }}
-                        <template v-slot:prepend>
-                            <v-icon icon="star" color="amber" class="mr-1" />
-                        </template>
-                    </v-chip>
+					<v-chip size="x-small" variant="text" class="mt-1">
+						stargazers: {{ star.starred.stargazers_count }}
+						<template v-slot:prepend>
+							<v-icon icon="star" color="amber" class="mr-1" />
+						</template>
+					</v-chip>
 				</v-list-item-title>
 				<v-list-item-subtitle class="d-flex align-center justify-center">
 					<span class="reflected">Starred by</span>
@@ -57,13 +57,16 @@
 							</template>
 						</v-chip>
 					</a>
-                    <v-chip size="x-small" variant="text" class="mt-1">
-                        stargazers: {{ star.reflected.stargazers_count }}
-                        <template v-slot:prepend>
-                            <v-icon icon="star" color="amber" class="mr-1" />
-                        </template>
-                    </v-chip>
+					<v-chip size="x-small" variant="text" class="mt-1">
+						stargazers: {{ star.reflected.stargazers_count }}
+						<template v-slot:prepend>
+							<v-icon icon="star" color="amber" class="mr-1" />
+						</template>
+					</v-chip>
 				</v-list-item-subtitle>
+				<template v-slot:append>
+					<div class="text-caption ml-8">{{ new Date(star.updatedAt || Date.now()).toLocaleString() }}</div>
+				</template>
 			</v-list-item>
 		</v-list>
 	</v-container>
@@ -137,7 +140,10 @@ sio.on('connect', () => {
 		emit('error', error.message)
 	})
 	.on('star', payload => {
-		recentStars.value.push(payload)
+		recentStars.value.push({
+            ...payload,
+            updatedAt: Date.now(),
+        })
 		stats.value.created = Number(stats.value.created) + 1
 		if (recentStars.value.length > 10) {
 			recentStars.value.shift()
