@@ -30,8 +30,8 @@
 		<progress-star :stats="stats" />
 		<v-list v-model="recentStars" class="recent-list text-center">
 			<v-list-item v-for="star in recentStars" :key="star.starred.id" class="animate__animated animate__fadeIn">
-				<v-list-item-title
-					>Starred by
+				<v-list-item-title class="d-flex align-center justify-center">
+					Starred by
 					<a :href="star.starred.html_url" target="_blank" rel="noopener">
 						<v-chip size="x-small" color="green">
 							<span class="text-black">{{ star.starred.full_name }}</span>
@@ -40,10 +40,16 @@
 							</template>
 						</v-chip>
 					</a>
+                    <v-chip size="x-small" variant="text" class="mt-1">
+                        stargazers: {{ star.starred.stargazers_count }}
+                        <template v-slot:prepend>
+                            <v-icon icon="star" color="amber" class="mr-1" />
+                        </template>
+                    </v-chip>
 				</v-list-item-title>
-				<v-list-item-subtitle
-					><span class="reflected">Starred by</span>
-					<a :href="star.starred.html_url" target="_blank" rel="noopener">
+				<v-list-item-subtitle class="d-flex align-center justify-center">
+					<span class="reflected">Starred by</span>
+					<a :href="star.reflected.html_url" target="_blank" rel="noopener">
 						<v-chip size="x-small" color="green">
 							<span class="text-black">{{ star.reflected.full_name }}</span>
 							<template v-slot:prepend>
@@ -51,6 +57,12 @@
 							</template>
 						</v-chip>
 					</a>
+                    <v-chip size="x-small" variant="text" class="mt-1">
+                        stargazers: {{ star.reflected.stargazers_count }}
+                        <template v-slot:prepend>
+                            <v-icon icon="star" color="amber" class="mr-1" />
+                        </template>
+                    </v-chip>
 				</v-list-item-subtitle>
 			</v-list-item>
 		</v-list>
@@ -72,7 +84,7 @@
 	top: 170px;
 	font-family: 'Shadows Into Light', cursive;
 	font-size: 1.5rem;
-    font-weight: bold;
+	font-weight: bold;
 }
 .starred {
 	letter-spacing: -1em;
