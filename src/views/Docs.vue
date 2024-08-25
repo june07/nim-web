@@ -59,7 +59,7 @@
 <script setup>
 import { h, ref, computed, render, getCurrentInstance, watch, onMounted } from 'vue'
 import { VSwitch } from 'vuetify/components'
-import algoliasearch from 'algoliasearch/lite'
+import { liteClient  } from 'algoliasearch/lite'
 import 'instantsearch.css/themes/satellite-min.css'
 import 'highlight.js/styles/github.css'
 import hljs from 'highlight.js'
@@ -89,7 +89,7 @@ const selectedAPIModel = ref(apis[0].id)
 const selectedAPIIndex = computed(() => apis.findIndex(api => api.id === selectedAPIModel.value))
 const selectedAPI = computed(() => apis[selectedAPIIndex.value])
 const canonicalDocsURL = computed(() => apis[selectedAPIIndex.value].canonicalDocsURL)
-const searchClient = algoliasearch('EUFO29W4LA', 'cd313d4204c72de9cbe7d9928efb215b')
+const searchClient = liteClient('EUFO29W4LA', 'cd313d4204c72de9cbe7d9928efb215b')
 const initialUiState = ref({
     [`${selectedAPIModel.value}`]: { query: '' }
 })
