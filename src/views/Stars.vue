@@ -1,6 +1,17 @@
 <template>
 	<v-container class="h-100 d-flex flex-column align-center justify-center">
-		<div class="title animate__animated animate__fadeIn text-center d-flex flex-wrap justify-center mt-8 mx-4" style="position: absolute; top: 0" v-if="smAndDown">
+		<div class="install-banner animate__animated animate__backInRight" style="position: absolute; top: 10px" v-if="lastInstall?.sender?.login">
+			<span class="text-caption text-capitalize">last install by</span>
+			<a class="font-weight-bold mx-2" :href="lastInstall.sender.html_url">
+				<v-chip size="small" color="green">
+					<span class="text-black">{{ lastInstall.sender.login }}</span>
+					<template v-slot:prepend>
+						<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
+					</template> </v-chip
+			></a>
+            <span class="text-caption text-capitalize">on {{ new Date(lastInstall.createdAt).toLocaleString() }}</span>
+		</div>
+		<div class="title animate__animated animate__fadeIn text-center d-flex flex-wrap justify-center mt-11 mx-4" style="position: absolute; top: 0" v-if="smAndDown">
 			Automatically give
 			<div @mouseleave="randomlyReanimate" @touchend="randomlyReanimate">
 				<div class="starred">
@@ -94,6 +105,9 @@
 	display: inline-block;
 	transform: scaleY(-1);
 }
+.install-banner {
+	z-index: 1;
+}
 .title {
 	z-index: 1;
 	position: absolute;
@@ -140,11 +154,17 @@ const { VITE_APP_API_SERVER } = import.meta.env
 const recentStars = ref([])
 const debounced = ref()
 const stats = ref()
+const lastInstall = ref()
 
 async function asyncInit() {
+	let index = 0
 	const updatedStats = await $api.starStats()
 
 	stats.value = updatedStats || stats.value
+	lastInstall.value = Object.values(stats.value.recentInstalls)?.[index]
+	if (lastInstall.value) {
+		lastInstall.value = JSON.parse(lastInstall.value)
+	}
 }
 const sio = io(VITE_APP_API_SERVER + '/stellar-reflection', {
 	transports: ['websocket'],
