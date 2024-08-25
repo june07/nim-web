@@ -1,25 +1,38 @@
 <template>
 	<v-container class="h-100 d-flex flex-column align-center justify-center">
-		<div class="title animate__animated animate__fadeIn text-center">
-			<div class="d-flex w-100">
-				Automatically give
-				<div @mouseleave="randomlyReanimate">
-					<div class="starred">
-						<div class="star1 animate__animated animate__heartBeat">⭐</div>
-						<div class="star2 animate__animated animate__heartBeat">⭐</div>
-						<div class="star3 animate__animated animate__heartBeat">⭐</div>
-					</div>
+		<div class="title animate__animated animate__fadeIn text-center d-flex flex-wrap justify-center mt-8 mx-4" style="position: absolute; top: 0" v-if="smAndDown">
+			Automatically give
+			<div @mouseleave="randomlyReanimate" @touchend="randomlyReanimate">
+				<div class="starred">
+					<div class="star1 animate__animated animate__heartBeat">⭐</div>
+					<div class="star2 animate__animated animate__heartBeat">⭐</div>
+					<div class="star3 animate__animated animate__heartBeat">⭐</div>
 				</div>
-				back to those who give them to you.
-				<a class="font-weight-bold mr-2 ml-16" href="https://github.com/apps/stellar-reflection">
-					<v-chip size="x-small" color="green">
+			</div>
+			back to those who give them to you.
+		</div>
+		<div class="title animate__animated animate__fadeIn text-center">
+			<div class="d-flex w-100" :style="smAndDown ? 'font-size: 1rem' : ''">
+				<div v-if="!smAndDown" class="d-flex">
+					Automatically give
+					<div @mouseleave="randomlyReanimate" @touchend="randomlyReanimate">
+						<div class="starred">
+							<div class="star1 animate__animated animate__heartBeat">⭐</div>
+							<div class="star2 animate__animated animate__heartBeat">⭐</div>
+							<div class="star3 animate__animated animate__heartBeat">⭐</div>
+						</div>
+					</div>
+					back to those who give them to you.
+				</div>
+				<a class="font-weight-bold mr-2" :class="smAndDown ? '' : 'ml-16'" href="https://github.com/apps/stellar-reflection">
+					<v-chip size="small" color="green">
 						<span class="text-black">GitHub App</span>
 						<template v-slot:prepend>
 							<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
 						</template> </v-chip
 				></a>
 				<a class="font-weight-bold" href="https://june07.com/stellar-reflection">
-					<v-chip size="x-small" color="grey">
+					<v-chip size="small" color="grey">
 						<span class="text-black">Blog Post</span>
 						<template v-slot:prepend>
 							<v-img class="mr-2" src="/SSPX0088.webp" width="16" height="16" />
@@ -117,13 +130,16 @@
 import 'animate.css'
 import { io } from 'socket.io-client'
 import { ref, getCurrentInstance, onMounted } from 'vue'
+import { useDisplay } from 'vuetify'
 
 import ProgressStar from '../components/ProgressStar.vue'
 
-const stats = ref()
+const { smAndDown } = useDisplay()
 const { $api } = getCurrentInstance().appContext.config.globalProperties
 const { VITE_APP_API_SERVER } = import.meta.env
 const recentStars = ref([])
+const debounced = ref()
+const stats = ref()
 
 async function asyncInit() {
 	const updatedStats = await $api.starStats()
@@ -141,14 +157,29 @@ sio.on('connect', () => {
 	})
 	.on('star', payload => {
 		recentStars.value.push({
-            ...payload,
-            updatedAt: Date.now(),
-        })
+			...payload,
+			updatedAt: Date.now(),
+		})
 		stats.value.created = Number(stats.value.created) + 1
 		if (recentStars.value.length > 10) {
 			recentStars.value.shift()
 		}
 	})
+async function randomlyReanimate() {
+	if (debounced.value) return
+	debounced.value = setTimeout(() => {
+		debounced.value = undefined
+	}, 7000)
+	const elements = document.querySelectorAll('.animate__animated.animate__heartBeat')
+
+	await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 4000) + 3000))
+	elements.forEach(element => {
+		element.classList.remove('animate__animated', 'animate__heartBeat')
+		setTimeout(() => {
+			element.classList.add('animate__animated', 'animate__heartBeat')
+		}, 50)
+	})
+}
 onMounted(() => {
 	asyncInit()
 })

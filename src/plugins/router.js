@@ -37,6 +37,10 @@ export default (app) => {
                     link.rel = 'stylesheet'
                     link.href = 'https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap'
                     document.head.appendChild(link)
+                    const meta = document.createElement('meta')
+                    meta.name = 'viewport'
+                    meta.content = 'width=device-width, initial-scale=1.0'
+                    document.head.appendChild(meta)
 
                     next()
                 },
