@@ -30,6 +30,16 @@ export default (app) => {
                     description: 'This name evokes the idea of reflecting back the recognition received, aligning perfectly with the concept of reciprocating stars. It has a poetic and celestial feel, emphasizing the notion of shining light back to those who shine on you.',
                     menu: 'Stars'
                 },
+                beforeEnter(to, from, next) {
+                    // Load or include your specific CSS file here
+                    // For example, you can add a link tag to the head of the document
+                    const link = document.createElement('link')
+                    link.rel = 'stylesheet'
+                    link.href = 'https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap'
+                    document.head.appendChild(link)
+
+                    next()
+                },
                 component: () => import('@/views/Stars.vue')
             }, {
                 path: '/:catchAll(.*)',

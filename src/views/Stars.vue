@@ -10,7 +10,7 @@
 						<div class="star3 animate__animated animate__heartBeat">⭐</div>
 					</div>
 				</div>
-				back those who give them to you.
+				back to those who give them to you.
 				<a class="font-weight-bold mr-2 ml-16" href="https://github.com/apps/stellar-reflection">
 					<v-chip size="x-small" color="green">
 						<span class="text-black">GitHub App</span>
@@ -30,48 +30,54 @@
 		<progress-star :stats="stats" />
 		<v-list v-model="recentStars" class="recent-list text-center">
 			<v-list-item v-for="star in recentStars" :key="star.starred.id" class="animate__animated animate__fadeIn">
-				<v-list-item-title>Starred by
-                    <a :href="star.starred.html_url" target="_blank" rel="noopener">
-                        <v-chip size="x-small" color="green">
-                            <span class="text-black">{{ star.starred.full_name }}</span>
-                            <template v-slot:prepend>
-                                <v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
-                            </template>
-                        </v-chip>
-                    </a>
-                </v-list-item-title>
-				<v-list-item-subtitle><span class="reflected">Starred by</span>
-                    <a :href="star.starred.html_url" target="_blank" rel="noopener">
-                        <v-chip size="x-small" color="green">
-                            <span class="text-black">{{ star.reflected.full_name }}</span>
-                            <template v-slot:prepend>
-                                <v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
-                            </template>
-                        </v-chip>
-                    </a>
-                </v-list-item-subtitle>
+				<v-list-item-title
+					>Starred by
+					<a :href="star.starred.html_url" target="_blank" rel="noopener">
+						<v-chip size="x-small" color="green">
+							<span class="text-black">{{ star.starred.full_name }}</span>
+							<template v-slot:prepend>
+								<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
+							</template>
+						</v-chip>
+					</a>
+				</v-list-item-title>
+				<v-list-item-subtitle
+					><span class="reflected">Starred by</span>
+					<a :href="star.starred.html_url" target="_blank" rel="noopener">
+						<v-chip size="x-small" color="green">
+							<span class="text-black">{{ star.reflected.full_name }}</span>
+							<template v-slot:prepend>
+								<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
+							</template>
+						</v-chip>
+					</a>
+				</v-list-item-subtitle>
 			</v-list-item>
 		</v-list>
 	</v-container>
 </template>
 <style scoped>
 .recent-list {
-    opacity: 0.9;
-    position: absolute;
-    bottom: 100px;
+	opacity: 0.9;
+	position: absolute;
+	bottom: 100px;
 }
 .reflected {
-    display: inline-block;
-    transform: scaleY(-1);
+	display: inline-block;
+	transform: scaleY(-1);
 }
 .title {
+	z-index: 1;
 	position: absolute;
 	top: 170px;
+	font-family: 'Shadows Into Light', cursive;
+	font-size: 1.5rem;
+    font-weight: bold;
 }
 .starred {
 	letter-spacing: -1em;
 	display: inline-flex;
-	margin-right: 22px;
+	margin-right: 40px;
 	margin-left: 2px;
 }
 
@@ -120,10 +126,10 @@ sio.on('connect', () => {
 	})
 	.on('star', payload => {
 		recentStars.value.push(payload)
-        stats.value.created = Number(stats.value.created) + 1
-        if (recentStars.value.length > 10) {
-            recentStars.value.shift()
-        }
+		stats.value.created = Number(stats.value.created) + 1
+		if (recentStars.value.length > 10) {
+			recentStars.value.shift()
+		}
 	})
 onMounted(() => {
 	asyncInit()
