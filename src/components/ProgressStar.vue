@@ -1,5 +1,5 @@
 <template>
-	<div class="d-flex align-center justify-center">
+	<div ref="starRef" class="d-flex align-center justify-center">
 		<div class="star-container">
 			<!-- Star strokes -->
 			<v-progress-linear v-for="(stroke, index) in strokes" :key="index" :model-value="strokeValues[`0-${index}`]" color="yellow" height="10" class="progress-bar" :style="stroke.style"></v-progress-linear>
@@ -51,6 +51,7 @@ import 'animate.css'
 import { ref, computed, onMounted, watch } from 'vue'
 
 const starCountRef = ref()
+const starRef = ref()
 const animationPercentage = ref(0)
 const starValue = computed(() => props.stats?.created ? Math.floor(animationPercentage.value * props.stats.created) : 0)
 const props = defineProps({
@@ -123,9 +124,13 @@ function updateStrokes() {
 onMounted(() => {
 	animate()
     watch(() => props.stats?.created, () => {
+        starRef.value.classList.remove('animate__bounceIn')
         starCountRef.value.classList.remove('animate__bounceIn')
         setTimeout(() => {
             starCountRef.value.classList.add('animate__bounceIn')
+            setTimeout(() => {
+                starRef.value.classList.add('animate__animated', 'animate__bounceIn')
+            })
         })
     })
 })
