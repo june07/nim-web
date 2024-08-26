@@ -10,6 +10,13 @@
 					</template> </v-chip
 			></a>
             <span class="text-caption text-capitalize">on {{ new Date(lastInstall.createdAt).toLocaleString() }}</span>
+            <a class="font-weight-bold mx-2" href="https://github.com/june07/stellar-reflection/discussions/categories/star-reflections">
+				<v-chip size="x-small" color="green">
+					<span class="text-black">discussions</span>
+					<template v-slot:prepend>
+						<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
+					</template> </v-chip
+			></a>
 		</div>
 		<div class="title animate__animated animate__fadeIn text-center d-flex flex-wrap justify-center mt-11 mx-4" style="position: absolute; top: 0" v-if="smAndDown">
 			Automatically give
