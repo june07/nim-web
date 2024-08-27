@@ -9,8 +9,8 @@
 						<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
 					</template> </v-chip
 			></a>
-            <span class="text-caption text-capitalize">on {{ new Date(lastInstall.createdAt).toLocaleString() }}</span>
-            <a class="font-weight-bold mx-2" href="https://github.com/june07/stellar-reflection/discussions/categories/star-reflections">
+			<span class="text-caption text-capitalize">on {{ new Date(lastInstall.createdAt).toLocaleString() }}</span>
+			<a class="font-weight-bold mx-2" href="https://github.com/june07/stellar-reflection/discussions/categories/star-reflections">
 				<v-chip size="x-small" color="green">
 					<span class="text-black">discussions</span>
 					<template v-slot:prepend>
@@ -177,20 +177,30 @@ const sio = io(VITE_APP_API_SERVER + '/stellar-reflection', {
 	transports: ['websocket'],
 })
 sio.on('connect', () => {
-	console.info('connected to account namespace')
+	console.info('connected to /stellar-reflection namespace')
 })
 	.on('connect_error', error => {
 		emit('error', error.message)
 	})
 	.on('star', payload => {
+		// Remove any existing item with the same id
+		const existingIndex = recentStars.value.findIndex(item => item.starred.id === payload.starred.id && item.reflected.id === payload.reflected.id)
+		if (existingIndex !== -1) {
+			recentStars.value.splice(existingIndex, 1) // Remove the existing item
+		}
+
+		// Ensure we maintain a maximum of 7 items
+		if (recentStars.value.length >= 7) {
+			recentStars.value.shift()
+		}
+
+		// Add the new item
 		recentStars.value.push({
 			...payload,
 			updatedAt: Date.now(),
 		})
+
 		stats.value.created = Number(stats.value.created) + 1
-		if (recentStars.value.length > 10) {
-			recentStars.value.shift()
-		}
 	})
 async function randomlyReanimate() {
 	if (debounced.value) return
