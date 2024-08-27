@@ -10,7 +10,7 @@
 					</template> </v-chip
 			></a>
 			<span class="text-caption text-capitalize">on {{ new Date(lastInstall.createdAt).toLocaleString() }}</span>
-			<a class="font-weight-bold mx-2" href="https://github.com/june07/stellar-reflection/discussions/categories/star-reflections">
+			<a v-if="!smAndDown" class="font-weight-bold mx-2" href="https://github.com/june07/stellar-reflection/discussions/categories/star-reflections">
 				<v-chip size="x-small" color="green">
 					<span class="text-black">discussions</span>
 					<template v-slot:prepend>
@@ -43,17 +43,24 @@
 					back to those who give them to you.
 				</div>
 				<a class="font-weight-bold mr-2" :class="smAndDown ? '' : 'ml-16'" href="https://github.com/apps/stellar-reflection">
-					<v-chip size="small" color="green">
+					<v-chip :size="smAndDown ? 'x-small' : 'small'" color="green">
 						<span class="text-black">GitHub App</span>
 						<template v-slot:prepend>
 							<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
 						</template> </v-chip
 				></a>
 				<a class="font-weight-bold" href="https://june07.com/stellar-reflection">
-					<v-chip size="small" color="grey">
+					<v-chip :size="smAndDown ? 'x-small' : 'small'" color="grey">
 						<span class="text-black">Blog Post</span>
 						<template v-slot:prepend>
 							<v-img class="mr-2" src="/SSPX0088.webp" width="16" height="16" />
+						</template> </v-chip
+				></a>
+				<a v-if="smAndDown" class="font-weight-bold mx-2" href="https://github.com/june07/stellar-reflection/discussions/categories/star-reflections">
+					<v-chip size="x-small" color="green">
+						<span class="text-black">discussions</span>
+						<template v-slot:prepend>
+							<v-img class="mr-2" src="/github-mark.svg" width="16" height="16" />
 						</template> </v-chip
 				></a>
 			</div>
