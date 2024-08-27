@@ -41,6 +41,8 @@ export default (app) => {
                     meta.name = 'viewport'
                     meta.content = 'width=device-width, initial-scale=1.0'
                     document.head.appendChild(meta)
+                    document.title = `${to.name} by June07 - ${to.meta.title}`
+                    Array.from(document.querySelectorAll('link[rel="icon"]')).forEach(link => link.href = '/stellar-reflection-icon.webp')
 
                     next()
                 },
