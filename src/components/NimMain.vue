@@ -2,7 +2,7 @@
     <v-container fluid class="py-0">
         <v-parallax :src="`/irvan-smith-5eBW5GomfhY-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh" min-height="2160px">
             <v-spacer style="height: 100px"></v-spacer>
-            <v-sheet class="d-flex mb-16 mx-auto" flat width="800" rounded="lg" style="opacity: 0.9;">
+            <v-sheet class="d-flex mb-16 mx-auto" flat width="800" rounded="lg" style="opacity: 0.9">
                 <div class="d-flex flex-column flex-grow-1">
                     <div class="px-8 text-body-1 pt-8 font-weight-bold">Serving Dev Tools UX Diabeetus Since 2016</div>
                     <div class="px-8 text-body-2 text-center font-italic font-weight-light">The OG <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="font-weight-bold">"UX Sugar"</a> for DevTools</div>
@@ -25,14 +25,15 @@
             <highlight-card ref="h-card-1" subtitle="" height="600" class="mr-16 rounded-e-lg" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, white, transparent 10%)' }">
                 <template v-slot:title>
                     <div @mouseleave="randomlyReanimate">
-                        <span class="text-red-darken-4 font-weight-bold text-uppercase anton-regular">Loved</span> by Developers<div class="loved">
+                        <span class="text-red-darken-4 font-weight-bold text-uppercase anton-regular">Loved</span> by Developers
+                        <div class="loved">
                             <div class="heart1 animate__animated animate__heartBeat">❤️</div>
                             <div class="heart2 animate__animated animate__heartBeat">❤️</div>
                             <div class="heart3 animate__animated animate__heartBeat">❤️</div>
                         </div>
                     </div>
                 </template>
-                <iframe src="https://asss.june07.com/app/nim?hideShare=1" frameborder="0" width="100%" height="450"></iframe>
+                <iframe ref="asssRef" src="https://asss.june07.com/app/nim?hideShare=1" frameborder="0" width="100%" height="450"></iframe>
             </highlight-card>
             <v-spacer style="height: 200px"></v-spacer>
         </v-parallax>
@@ -43,9 +44,7 @@
                 <div class="d-flex justify-center flex-wrap">
                     <img v-for="company of companies.filter(c => c.logo)" :key="company.id" :src="company?.logo" class="mx-2 company-logo" :style="company?.inverted ? 'filter: invert()' : ''" />
                 </div>
-                <template v-slot:title>
-                    <span class="text-blue-darken-4 font-weight-bold text-uppercase anton-regular">TRUSTED</span> by Companies
-                </template>
+                <template v-slot:title> <span class="text-blue-darken-4 font-weight-bold text-uppercase anton-regular">TRUSTED</span> by Companies </template>
             </highlight-card>
             <v-spacer style="height: 200px"></v-spacer>
         </v-parallax>
@@ -55,7 +54,8 @@
             <highlight-card ref="h-card-1" height="1600" class="ml-16 rounded-s-lg" opacity="0.9" subtitle="by Streamlining Development Workflows" subtitleClass="text-center font-weight-light" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
                 <template v-slot:title>
                     <div @mouseleave="randomlyReanimate">
-                        <span class="font-weight-bold anton-regular text-orange-darken-2">Igniting</span> Productivity<div class="loved">
+                        <span class="font-weight-bold anton-regular text-orange-darken-2">Igniting</span> Productivity
+                        <div class="loved">
                             <div class="heart1 animate__animated animate__heartBeat">🔥</div>
                             <div class="heart2 animate__animated animate__heartBeat">🔥</div>
                             <div class="heart3 animate__animated animate__heartBeat">🔥</div>
@@ -65,12 +65,12 @@
                 <!-- feature 1 -->
                 <v-card color="green-lighten-4 px-8 pb-8 ma-16" class="rounded-xl">
                     <v-card-text class="d-flex justify-center align-center font-weight-bold text-capitalize"><v-chip text="feature 🔥" class="mr-2 font-weight-bold" /> plugable DevTools</v-card-text>
-                    <v-img class="mx-auto opaque-image" height="600px" width="800" src="/features-devtools-switching.png" style="border-radius: 10%;" />
+                    <v-img class="mx-auto opaque-image" height="600px" width="800" src="/features-devtools-switching.png" style="border-radius: 10%" />
                 </v-card>
                 <!-- feature 2 -->
                 <v-card color="green-lighten-5 px-8 pb-8 ma-16" class="rounded-xl">
                     <v-card-text class="d-flex justify-center align-center font-weight-bold text-capitalize"><v-chip text="feature 🔥" class="mr-2 font-weight-bold" /> Multi-session Debugging management</v-card-text>
-                    <v-img class="mx-auto opaque-image" height="400px" width="800" src="/features-multisession.png" style="border-radius: 10%;" />
+                    <v-img class="mx-auto opaque-image" height="400px" width="800" src="/features-multisession.png" style="border-radius: 10%" />
                 </v-card>
                 <!-- feature 3 -->
             </highlight-card>
@@ -122,29 +122,46 @@
 import 'animate.css'
 import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify/lib/framework.mjs'
+import { useRoute } from 'vue-router'
 
 import HighlightCard from './HighlightCard.vue'
 import NimUI from './NimUI.vue'
 
+const asssRef = ref()
+const route = useRoute()
 const { smAndDown } = useDisplay()
 const debounced = ref(false)
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]] // Swap elements
+        const j = Math.floor(Math.random() * (i + 1))
+            ;[array[i], array[j]] = [array[j], array[i]] // Swap elements
     }
     return array
 }
 const hovered = ref({
-    hearts: false
+    hearts: false,
 })
-const installMethods = [{
-    name: 'Chrome Web Store', href: 'https://chromewebstore.google.com/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj', text: 'chrome', icon: '/chrome_32x32.png'
-}, {
-    name: 'Edge Add-ons', href: 'https://microsoftedge.microsoft.com/addons/detail/nodejs-v8-inspector-ma/injfmegnapmoakbmnmnecjabigpdjeme', text: 'edge', icon: '/edge_32x32.png'
-}, {
-    name: 'GitHub Release', href: 'https://github.com/june07/nimv3/releases', text: 'github', svg: '/github-mark.svg', inverted: true
-}]
+const installMethods = [
+    {
+        name: 'Chrome Web Store',
+        href: 'https://chromewebstore.google.com/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj',
+        text: 'chrome',
+        icon: '/chrome_32x32.png',
+    },
+    {
+        name: 'Edge Add-ons',
+        href: 'https://microsoftedge.microsoft.com/addons/detail/nodejs-v8-inspector-ma/injfmegnapmoakbmnmnecjabigpdjeme',
+        text: 'edge',
+        icon: '/edge_32x32.png',
+    },
+    {
+        name: 'GitHub Release',
+        href: 'https://github.com/june07/nimv3/releases',
+        text: 'github',
+        svg: '/github-mark.svg',
+        inverted: true,
+    },
+]
 const companies = shuffleArray([
     { id: 1, name: 'Salesforce', logo: '/logos/Salesforce.com_logo.svg' },
     { id: 2, name: 'Microsoft', logo: '/logos/microsoft-logo.svg' },
@@ -173,7 +190,7 @@ async function randomlyReanimate() {
     const elements = document.querySelectorAll('.animate__animated.animate__heartBeat')
 
     await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 4000) + 3000))
-    elements.forEach((element) => {
+    elements.forEach(element => {
         element.classList.remove('animate__animated', 'animate__heartBeat')
         setTimeout(() => {
             element.classList.add('animate__animated', 'animate__heartBeat')
@@ -181,6 +198,10 @@ async function randomlyReanimate() {
     })
 }
 onMounted(() => {
-
+    if (route.hash === '#asss') {
+        setTimeout(() => {
+            asssRef.value.scrollIntoView({ behavior: 'smooth' })
+        }, 1500)
+    }
 })
 </script>
