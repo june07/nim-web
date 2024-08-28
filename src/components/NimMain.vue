@@ -2,7 +2,7 @@
     <v-container fluid class="py-0">
         <v-parallax :src="`/irvan-smith-5eBW5GomfhY-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh" min-height="2160px">
             <v-spacer style="height: 100px"></v-spacer>
-            <v-sheet class="d-flex mb-16 mx-auto" flat width="800" rounded="lg" style="opacity: 0.9">
+            <v-sheet ref="ogRef" class="d-flex mb-16 mx-auto" flat width="800" rounded="lg" style="opacity: 0.9">
                 <div class="d-flex flex-column flex-grow-1">
                     <div class="px-8 text-body-1 pt-8 font-weight-bold">Serving Dev Tools UX Diabeetus Since 2016</div>
                     <div class="px-8 text-body-2 text-center font-italic font-weight-light">The OG <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="font-weight-bold">"UX Sugar"</a> for DevTools</div>
@@ -95,6 +95,10 @@
     </v-container>
 </template>
 <style scoped>
+body {
+    transition: transform 2s;
+}
+
 :deep() .v-card {
     border-radius: 0;
 }
@@ -128,6 +132,7 @@ import HighlightCard from './HighlightCard.vue'
 import NimUI from './NimUI.vue'
 
 const asssRef = ref()
+const ogRef = ref()
 const route = useRoute()
 const { smAndDown } = useDisplay()
 const debounced = ref(false)
@@ -202,6 +207,11 @@ onMounted(() => {
         setTimeout(() => {
             asssRef.value.scrollIntoView({ behavior: 'smooth' })
         }, 1500)
+    } else if (route.hash === '#og') {
+        setTimeout(() => {
+            document.body.style.transform = 'scale(2)'
+            document.body.style.transformOrigin = 'top'
+        }, 500)
     }
 })
 </script>
