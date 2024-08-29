@@ -205,8 +205,11 @@ async function randomlyReanimate() {
 onMounted(() => {
     if (route.hash === '#asss') {
         setTimeout(() => {
-            asssRef.value.scrollIntoView({ behavior: 'smooth' })
-        }, 1500)
+            window.scrollTo({
+                behavior: 'smooth',
+                top: asssRef.value.getBoundingClientRect().top - document.body.getBoundingClientRect().top - 100,
+            })
+        }, 500)
     } else if (route.hash === '#og') {
         setTimeout(() => {
             document.body.style.transform = 'scale(2)'
