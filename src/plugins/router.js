@@ -23,6 +23,22 @@ export default (app) => {
                 },
                 component: () => import('@/views/Docs.vue')
             }, {
+                path: '/ihotd',
+                name: 'indihackeroftheday',
+                meta: {
+                    title: 'Indi Hacker of the Day',
+                },
+                beforeEnter(to, from, next) {
+                    const meta = document.createElement('meta')
+                    meta.name = 'viewport'
+                    meta.content = 'width=device-width, initial-scale=1.0'
+                    document.head.appendChild(meta)
+                    document.title = `${to.name} by June07 - ${to.meta.title}`
+
+                    next()
+                },
+                component: () => import('@/views/IndiHacker.vue')
+            }, {
                 path: '/stars',
                 name: 'Stellar Reflection',
                 meta: {

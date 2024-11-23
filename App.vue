@@ -69,6 +69,7 @@ const links = {
         { name: "FAQ", to: "/faq" },
         { name: "Blog", href: "https://blog.june07.com/tag/nim" },
         { name: "GitHub", href: "https://github.com/june07", target: "_blank", rel: "noopener" },
+        { name: "IHotD", to: "ihotd" }
     ],
     legal: [
         { name: "Privacy", href: "https://privacy.june07.com" },
