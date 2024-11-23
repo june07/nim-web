@@ -13,7 +13,8 @@
                         <v-expansion-panels v-model="store.faq.category" accordian inset density="compact">
                             <v-expansion-panel v-for="(categoryFaqs, categoryName) in faqs" :key="categoryName" rounded="xl" bg-color="green-lighten-2">
                                 <!-- category -->
-                                <v-expansion-panel-title :class="smAndDown ? 'text-h4' : 'text-h2'">{{ categoryName.charAt(0).toUpperCase() + categoryName.slice(1) }}</v-expansion-panel-title>
+                                <v-expansion-panel-title :class="smAndDown ? 'text-h4' : 'text-h2'">{{ categoryName.charAt(0).toUpperCase() + categoryName.slice(1).split('_')[0] }}
+                                    {{ categoryName.slice(1).split('_')[1]?.charAt(0).toUpperCase() + categoryName.slice(1).split('_')[1]?.slice(1) || '' }}</v-expansion-panel-title>
                                 <v-expansion-panel-text>
                                     <v-expansion-panels v-model="store.faq.question" accordian inset>
                                         <v-expansion-panel v-for="(faq, index) in categoryFaqs" :key="faq.id" rounded="xl">
