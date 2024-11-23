@@ -19,7 +19,7 @@
             </v-list>
             <div class="text-caption" v-if="!!sold">Purchasing for {{ dayAfterTomorrow.toLocaleDateString() }} enabled in {{ countdown }}</div>
             <v-form ref="formRef" :disabled="!!sold">
-                <v-text-field class="mb-2" variant="outlined" placeholder="Your Project's Description (optional)" persistent-hint hint="Description is shown in Today's Project" v-model="form.description" density="compact" />
+                <v-text-field class="mb-2" variant="outlined" placeholder="Your Project's Description (optional, but recommended)" persistent-hint hint="Description is shown in Today's Project" v-model="form.description" density="compact" />
                 <v-text-field class="mt-2" variant="outlined" placeholder="Your Project's URL" persistent-hint hint="Where to send traffic tomorrow?" :rules="rules" v-model="form.url" density="compact">
                     <template v-slot:append-inner>
                         <v-btn size="small" variant="flat" color="primary" text="buy" v-if="!sold" @click="paymentHandler" />
@@ -81,7 +81,7 @@
         <v-card-text class="text-center font-weight-light font-italic text-start">
             <p class="mb-4">This page was built with a dual purpose. To give indie hackers a low cost alternative to traditional ad platforms and to buck the corporate ad pigs entirely... and also to support my own indie hacker tool <a href="https://june07.com/nim" target="_blank" rel="noreferrer noopener">NiM</a>.</p>
             <p class="mb-4">The target audience includes Node.js developers and NiM users. The ad barrier is effectively addressed, as these users have chosen to view <a target="_blank" href="https://blog.june07.com/nim-subscription">the ad message</a> in exchange for not purchasing a license—offering prime placement for your advertisement.</p>
-            <p class="mt-4">Visit the <router-link to="faq?category=indiHacker">FAQ</router-link> for answers to your questions and/or reach out to <a href="mailto:667@june07.com?subject=Ad%20Inquiry">me</a></p>
+            <p class="mt-4">Visit the <router-link to="faq?category=indi_hacker">FAQ</router-link> for answers to your questions and/or reach out to <a href="mailto:667@june07.com?subject=Ad%20Inquiry">me</a></p>
             <div v-if="todaysAd" class="text-caption">Todays Project</div>
         </v-card-text>
         <v-card-actions>
@@ -117,7 +117,7 @@ const dollarAmountSoldRef = ref()
 const { smAndDown } = useDisplay()
 const bulletPoints = [
     { icon: 'trending_down', text: `Price of the ad decreases $1 every hour of the day until sold.`, iconColor: 'green-darken-2' },
-    { icon: 'counter_1', text: `Only a single ad slot is sold per day, never over sold.`, iconColor: 'amber-darken-2' },
+    { icon: 'counter_1', text: `Only a single ad slot is sold per day, never oversold.`, iconColor: 'amber-darken-2' },
     { icon: 'calendar_clock', text: `New ad slot sale begins at the start of each day.`, iconColor: 'blue-darken-2' }
 ]
 const dollarAmount = computed(() => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(props.product?.default_price?.unit_amount / 100 || 29.99))
