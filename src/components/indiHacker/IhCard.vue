@@ -1,7 +1,7 @@
 <template>
     <v-card v-if="type === 'buy'" :width="width" rounded="lg" :elevation="elevation" class="ma-8 pa-8">
         <v-card-title>
-            <div v-if="!sold" class="d-flex flex-inline" style="position: relative">Tomorrows<div style="position: absolute; top: -10px; left: 14px" class="text-caption font-weight-light">({{ tomorrowLocaleString }})</div>
+            <div v-if="!sold" class="d-flex flex-inline" style="position: relative">Tomorrow's<div style="position: absolute; top: -10px; left: 14px" class="text-caption font-weight-light">({{ tomorrowLocaleString }})</div>
                 <div class="ml-2">ad slot only</div>
                 <div ref="dollarAmountRef" :style="dollarAmountStyle" class="font-weight-bold animate__animated animate__zoomInLeft ml-2" :class="animationEnded.dollarAmount ? 'text-green-darken-2' : ''">{{ dollarAmount }}</div>
             </div>
@@ -68,8 +68,8 @@
 
     <v-card v-else-if="type === 'current'" :width="width" :height="height" rounded="lg" :elevation="elevation" class="d-flex flex-column align-center ma-8 pa-8">
         <v-card-title>
-            <div v-if="!sold">Tomorrows ad spot is still available</div>
-            <div v-else class="d-flex flex-inline" style="position: relative">Tomorrows<div style="position: absolute; top: -10px; left: 14px" class="text-caption font-weight-light">({{ tomorrowLocaleString }})</div>
+            <div v-if="!sold">Tomorrow's ad spot is still available</div>
+            <div v-else class="d-flex flex-inline" style="position: relative">Tomorrow's<div style="position: absolute; top: -10px; left: 14px" class="text-caption font-weight-light">({{ tomorrowLocaleString }})</div>
                 <div class="ml-2">spot sold for</div>
                 <div ref="dollarAmountSoldRef" :style="dollarAmountStyle" class="font-weight-bold animate__animated animate__zoomInLeft ml-2" :class="animationEnded.dollarAmountSold ? 'text-green-darken-2' : ''">{{ dollarAmount }}</div>
             </div>
@@ -168,7 +168,7 @@ function toURL(_url) {
     try {
         return _url && new URL(_url)
     } catch (error) {
-        console.error(error)
+        console.warn(error)
     }
 }
 function cleanPayload(obj) {

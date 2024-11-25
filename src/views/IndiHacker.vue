@@ -43,6 +43,7 @@ const tomorrow = computed(() => {
 
     return date
 })
+const tomorrowISODate = computed(() => tomorrow.value.toISOString().split('T')[0])
 const product = ref()
 const lastAdPlaceholders = ref([{
     id: `prod_yaya-${new Date().toISOString().split('T')[0]}`,
@@ -56,7 +57,7 @@ const countdown = ref()
 const countdownInterval = ref()
 const randomLastAdPlaceholder = computed(() => lastAdPlaceholders.value[Math.floor(Math.random() * lastAdPlaceholders.value.length)])
 const lastAd = computed(() => [...Object.values(store.ihotd.adSales).sort((a, b) => a.date < b.date).splice(sold.value ? 1 : 0, 1), randomLastAdPlaceholder.value][0])
-const sold = computed(() => Object.values(store.ihotd.adSales)?.find(sale => !sale.active && sale.id?.substring(tomorrow.value?.toISOString().split('T')[0])))
+const sold = computed(() => Object.values(store.ihotd.adSales).find(sale => !sale.active && sale.id.includes(tomorrowISODate.value)))
 const todaysAd = computed(() => Object.values(store.ihotd.adSales).find(sale => sale.date === new Date().getDate()))
 async function asyncInit() {
     ioInit()
