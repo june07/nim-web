@@ -2,7 +2,7 @@
 	<v-container fluid class="py-0">
 		<NimMain />
 		<v-overlay :model-value="overlay" class="align-center justify-center" style="opacity: 0.98">
-			<v-card rounded width="70vw" height="50vh" class="px-16">
+			<v-card rounded width="70vw" height="50vh" class="px-16" style="overflow: auto">
 				<v-card-title class="d-flex align-center justify-center mb-n2"
 					><span class="text-uppercase text-red-darken-4 mr-1">Thank you</span>for using Node.js (V8) --inspector Manager
 					<div @mouseleave="randomlyReanimate">
