@@ -22,7 +22,7 @@
                 </div>
             </v-container>
             <v-spacer style="height: 400px"></v-spacer>
-            <highlight-card ref="h-card-1" subtitle="" height="600" class="mr-16 rounded-e-lg" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, white, transparent 10%)' }">
+            <highlight-card subtitle="" height="600" class="h-card-1 mr-16 rounded-e-lg" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, white, transparent 10%)' }">
                 <template v-slot:title>
                     <div @mouseleave="randomlyReanimate">
                         <span class="text-red-darken-4 font-weight-bold text-uppercase anton-regular">Loved</span> by Developers
@@ -33,7 +33,12 @@
                         </div>
                     </div>
                 </template>
-                <iframe ref="asssRef" src="https://asss.june07.com/app/nim?hideShare=1" frameborder="0" width="100%" height="450"></iframe>
+                <template v-slot:subtitle>
+                    <div v-intersect="showHaterMessage" style="position: relative; height: 60px">Or hated but <span class="font-weight-bold">strong</span> feelings are better than no feelings!
+                        <div ref="haterRef" class="text-h5 text-red-darken-4 animate__animated" style="position: absolute; top: 24px; right: 50%; display: none">"Haters gonna hate."</div>
+                    </div>
+                </template>
+                <iframe class="mt-n4" ref="asssRef" src="https://asss.june07.com/app/nim?hideShare=1" frameborder="0" width="100%" height="450"></iframe>
             </highlight-card>
             <v-spacer style="height: 200px"></v-spacer>
         </v-parallax>
@@ -51,7 +56,7 @@
 
         <v-parallax :src="`/tai-bui-QW89whdEClA-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="2200">
             <v-spacer style="height: 200px"></v-spacer>
-            <highlight-card ref="h-card-1" height="1600" class="ml-16 rounded-s-lg" opacity="0.9" subtitle="by Streamlining Development Workflows" subtitleClass="text-center font-weight-light" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
+            <highlight-card ref="h-card-2" height="1600" class="ml-16 rounded-s-lg" opacity="0.9" subtitle="by Streamlining Development Workflows" subtitleClass="text-center font-weight-light" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, transparent 10%, white)' }">
                 <template v-slot:title>
                     <div @mouseleave="randomlyReanimate">
                         <span class="font-weight-bold anton-regular text-orange-darken-2">Igniting</span> Productivity
@@ -121,6 +126,10 @@ body {
     max-height: 600px;
     max-width: 800px;
 }
+
+:deep() .h-card-1 .v-card-subtitle {
+    overflow: visible;
+}
 </style>
 <script setup>
 import 'animate.css'
@@ -131,6 +140,7 @@ import { useRoute } from 'vue-router'
 import HighlightCard from './HighlightCard.vue'
 import NimUI from './NimUI.vue'
 
+const haterRef = ref()
 const asssRef = ref()
 const ogRef = ref()
 const route = useRoute()
@@ -202,6 +212,12 @@ async function randomlyReanimate() {
         }, 50)
     })
 }
+function showHaterMessage(isIntersecting) {
+    if (isIntersecting) {
+        haterRef.value.style.display = 'inherit'
+        haterRef.value.classList.add('animate__zoomInLeft')
+    }
+}
 onMounted(() => {
     if (route.hash === '#asss') {
         setTimeout(() => {
@@ -216,5 +232,20 @@ onMounted(() => {
             document.body.style.transformOrigin = 'top'
         }, 500)
     }
+    function animationEndEvent2() {
+        haterRef.value.style.display = 'none'
+        haterRef.value.classList.remove('animate__hinge')
+        haterRef.value.removeEventListener('animationend', animationEndEvent2)
+        haterRef.value.addEventListener('animationend', animationEndEvent)
+    }
+    function animationEndEvent() {
+        setTimeout(() => {
+            haterRef.value.classList.remove('animate__zoomInLeft')
+            haterRef.value.classList.add('animate__hinge')
+            haterRef.value.removeEventListener('animationend', animationEndEvent)
+            haterRef.value.addEventListener('animationend', animationEndEvent2)
+        }, 1000)
+    }
+    haterRef.value.addEventListener('animationend', animationEndEvent)
 })
 </script>
