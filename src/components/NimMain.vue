@@ -14,7 +14,7 @@
             <NimUI class="nim-ui" />
             <v-container class="d-flex justify-center align-center">
                 <div class="install-buttons" v-for="method of installMethods">
-                    <v-btn variant="tonal" color="green-darken-2" :href="method.href" :text="method.name" rounded="lg" class="px-4 mr-2">
+                    <v-btn variant="flat" color="green-darken-2" :href="method.href" :text="method.name" rounded="lg" class="px-4 mr-2" size="large">
                         <template v-slot:prepend>
                             <v-img :src="method.icon || method.svg" width="32" height="32" class="mx-1" :style="method?.inverted ? 'filter: invert()' : ''" />
                         </template>
@@ -85,13 +85,22 @@
         <v-parallax :src="`/joan-gamell-XmZ4GDAp9G0-unsplash${smAndDown ? '.mobile' : ''}.webp`" height="100vh">
             <v-spacer style="height: 400px"></v-spacer>
             <highlight-card ref="h-card-2" height="300" title="Install Now for Free" subtitle="If you're a solo developer/student/or just don't have the budget for tools, you can still use NiM unrestricted." subtitleClass="text-center font-weight-light" class="mr-16 rounded-e-lg" titleClass="text-center anton-regular" :style2="{ background: 'linear-gradient(90deg, white, transparent 10%)' }">
-                <v-container class="d-flex justify-center align-center">
-                    <div class="install-buttons" v-for="method of installMethods">
-                        <v-btn variant="tonal" color="green-darken-2" :href="method.href" :text="method.name" rounded="lg" class="px-4 mr-2">
-                            <template v-slot:prepend>
-                                <v-img :src="method.icon || method.svg" width="32" height="32" class="mx-1" :style="method?.inverted ? 'filter: invert()' : ''" />
-                            </template>
-                        </v-btn>
+                <v-container class="d-flex flex-column justify-center align-center">
+                    <div class="d-flex mb-8">
+                        <div class="install-buttons" v-for="method of installMethods">
+                            <v-btn variant="tonal" color="green-darken-2" :href="method.href" :text="method.name" rounded="lg" class="px-4 mr-2">
+                                <template v-slot:prepend>
+                                    <v-img :src="method.icon || method.svg" width="32" height="32" class="mx-1" :style="method?.inverted ? 'filter: invert()' : ''" />
+                                </template>
+                            </v-btn>
+                        </div>
+                    </div>
+                    <div class="text-center text-caption">
+                        <v-btn variant="text" class="ml-2 text-caption" text="subscription info" href="https://june07.com/nim-subscription/?noredirect=1" prepend-icon="info" />
+                        <div class="d-flex align-center">
+                            <span class="font-weight-bold">Please NOTE:</span> After 30 days, an in browser reminder will be shown to non-subscribers.
+                            <v-btn variant="plain" class="text-caption" text="(read more)" href="https://june07.com/please-do-not-be-an-a55-hole/" :ripple="false" />
+                        </div>
                     </div>
                 </v-container>
             </highlight-card>
