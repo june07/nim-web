@@ -34,7 +34,7 @@
                     </div>
                 </template>
                 <template v-slot:subtitle>
-                    <div v-intersect="showHaterMessage" style="position: relative; height: 60px">Or hated but <span class="font-weight-bold">strong</span> feelings are better than no feelings!
+                    <div v-intersect="showHaterMessage" style="position: relative; height: 60px">Or <a href="https://june07.com/please-do-not-be-an-a55-hole/">hated</a> but <span class="font-weight-bold">strong</span> feelings are better than no feelings!
                         <div ref="haterRef" class="text-h5 text-red-darken-4 animate__animated" style="position: absolute; top: 24px; right: 50%; display: none">"Haters gonna hate."</div>
                     </div>
                 </template>
