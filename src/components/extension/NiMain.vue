@@ -6,15 +6,14 @@
                     <v-img width="196" height="196" :src="iconNiM" alt="NIM icon"></v-img>
                 </div>
                 <div style="font-size: 36px" class="font-weight-light animate__animated animate__lightSpeedInRight">
-                    <span class="font-weight-medium">N</span>ode.js (V8
-                    <v-tooltip text="Besides Node.js, NiM works with other JavaScript V8 engines including Deno and potential others as well." aria-label="Besides Node.js, NiM works with other JavaScript V8 engines including Deno and potential others as well." location="top">
-                        <template v-slot:activator="{ props }">
-                            <v-icon style="cursor: pointer" v-bind="props" icon="info" color="green" size="20px" class="mx-n2 mb-4" id="v8-info-i" />
-                        </template>
-                    </v-tooltip>
-                    ) --<span class="font-weight-medium">i</span>nspector <span class="font-weight-medium">M</span>anager
+                    <span class="font-weight-medium">N</span>ode
+                    <span class="font-weight-medium">I</span>nspector <span class="font-weight-medium">M</span>anager
                 </div>
-
+                <v-tooltip text="Besides Node.js, NIM works with other JavaScript V8 engines including Deno, Chromium browsers, and more." aria-label="Besides Node.js, NIM works with other JavaScript V8 engines including Deno, Chromium browsers, and more." location="top">
+                    <template v-slot:activator="{ props }">
+                        <v-icon style="cursor: pointer" v-bind="props" icon="info" color="green" size="20px" class="mx-2 mb-4" id="v8-info-i" />
+                    </template>
+                </v-tooltip>
             </v-col>
         </v-row>
         <v-tabs v-model="tab" grow class="mt-8" color="green-darken-1">

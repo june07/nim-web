@@ -4,7 +4,7 @@
 		<v-overlay :model-value="overlay" class="align-center justify-center" style="opacity: 0.98">
 			<v-card rounded width="70vw" height="50vh" class="px-16" style="overflow: auto">
 				<v-card-title class="d-flex align-center justify-center mb-n2"
-					><span class="text-uppercase text-red-darken-4 mr-1">Thank you</span>for using Node.js (V8) --inspector Manager
+					><span class="text-uppercase text-red-darken-4 mr-1">Thank you</span>for using Node Inspector Manager
 					<div @mouseleave="randomlyReanimate">
 						<div class="loved">
 							<div class="heart1 animate__animated animate__heartBeat">❤️</div>
