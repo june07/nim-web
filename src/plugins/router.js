@@ -7,6 +7,11 @@ export default (app) => {
 
         return [
             {
+                path: '/',
+                name: 'home',
+                component: () => import('@/views/Home.vue')
+            },
+            {
                 path: '/faq',
                 name: 'faq',
                 meta: {
@@ -63,10 +68,11 @@ export default (app) => {
                     next()
                 },
                 component: () => import('@/views/Stars.vue')
-            }, {
+            },
+            {
                 path: '/:catchAll(.*)',
                 name: 'catchall',
-                component: () => import('@/views/Home.vue')
+                component: () => import('@/views/NotFound.vue')
             },
         ]
     }
