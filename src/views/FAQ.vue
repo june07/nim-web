@@ -24,7 +24,7 @@
                                                     <span class="text-h6 text-green-darken-4">{{ faq.question }}</span>
                                                     <div class="ml-4" v-if="store.faq.question === index">
 
-                                                        <v-tooltip text="Copied Link" v-model="tooltip" :target="`#answer-${faq.id}`">
+                                                        <v-tooltip text="Copied Link" v-model="tooltip" :target="`#answer-${faq.id}`" aria-label="Copied Link tooltip">
                                                             <template v-slot:activator="{ props }">
                                                                 <a v-bind="props" :href="`${origin}/faq?category=${encodeURIComponent(categoryName)}&id=${faq.id}`" @mouseenter="copyHandler(`${origin}/faq?category=${encodeURIComponent(categoryName)}&id=${faq.id}`, faq.id)" title="NiM FAQ">
                                                                     <v-icon icon="content_copy" />

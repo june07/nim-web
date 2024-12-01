@@ -15,7 +15,7 @@ class Clipboard {
             console.log('copied to clipboard')
             return true
         } catch (error) {
-            console.error(error)
+            console.warn(error)
         }
     }
 }

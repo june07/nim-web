@@ -24,7 +24,7 @@ const keycloakPlugin = {
             // Initialize Keycloak and set it to keycloakRef
             keycloak.value.isAuthenticated = await keycloak.value.init(options)
         } catch (error) {
-            console.error('Failed to initialize adapter:', error);
+            console.warn('Failed to initialize adapter:', error);
         }
     },
 }

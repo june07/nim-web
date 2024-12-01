@@ -187,7 +187,7 @@ sio.on('connect', () => {
 	console.info('connected to /stellar-reflection namespace')
 })
 	.on('connect_error', error => {
-		console.error('error', error.message)
+		console.warn('error', error.message)
 	})
 	.on('star', payload => {
 		// Remove any existing item with the same id

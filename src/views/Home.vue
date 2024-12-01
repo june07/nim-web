@@ -30,12 +30,12 @@
 					<p class="text-body-1">NiM is easy to use, and there's not much to do after installation. To integrate it into your development workflow, simply start Node.js or Deno with the <code class="code">--inspect</code> flag. NiM will automatically open a new DevTools tab and handle everything for you.</p>
 					<ul class="text-caption mt-4">
 						<li class="mb-4">
-							<div class="d-flex align-center text-h6 ml-2"><v-img class="mr-2" src="/node-favicon.ico" max-width="24" max-height="24" contain></v-img>Node.js</div>
+							<div class="d-flex align-center text-h6 ml-2"><v-img class="mr-2" src="/node-favicon.ico" max-width="24" max-height="24" contain alt="Node.js logo"></v-img>Node.js</div>
 							<v-sheet color="grey-lighten-3" class="pa-2 pl-4 code" rounded="lg">> node --inspect app.js</v-sheet>
 							or any other --inspect like flag which are all listed here <a href="https://nodejs.org/en/learn/getting-started/debugging#command-line-options" target="_blank" rel="noopener">https://nodejs.org/en/learn/getting-started/debugging#command-line-options</a>
 						</li>
 						<li class="mb-4">
-							<div class="d-flex align-center text-h6 ml-2"><v-img class="mr-2" src="/deno-favicon.ico" max-width="24" max-height="24" contain></v-img>Deno.js</div>
+							<div class="d-flex align-center text-h6 ml-2"><v-img class="mr-2" src="/deno-favicon.ico" max-width="24" max-height="24" contain alt="Deno logo"></v-img>Deno.js</div>
 							<v-sheet color="grey-lighten-3" class="pa-2 pl-4 code" rounded="lg">> deno run --inspect your_script.ts</v-sheet>
 							or any other --inspect like flag which are all listed here <a href="https://docs.deno.com/runtime/manual/basics/debugging_your_code/" target="_blank" rel="noopener">https://docs.deno.com/runtime/manual/basics/debugging_your_code/</a>
 						</li>

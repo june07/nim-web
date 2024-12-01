@@ -3,11 +3,11 @@
         <v-row>
             <v-col class="d-flex align-center mt-n6 py-0">
                 <div>
-                    <v-img width="196" height="196" :src="iconNiM"></v-img>
+                    <v-img width="196" height="196" :src="iconNiM" alt="NIM icon"></v-img>
                 </div>
                 <div style="font-size: 36px" class="font-weight-light animate__animated animate__lightSpeedInRight">
                     <span class="font-weight-medium">N</span>ode.js (V8
-                    <v-tooltip text="Besides Node.js, NiM works with other JavaScript V8 engines including Deno and potential others as well." location="top">
+                    <v-tooltip text="Besides Node.js, NiM works with other JavaScript V8 engines including Deno and potential others as well." aria-label="Besides Node.js, NiM works with other JavaScript V8 engines including Deno and potential others as well." location="top">
                         <template v-slot:activator="{ props }">
                             <v-icon style="cursor: pointer" v-bind="props" icon="info" color="green" size="20px" class="mx-n2 mb-4" id="v8-info-i" />
                         </template>
@@ -34,7 +34,7 @@
                     <v-row>
                         <v-col class="d-flex align-center justify-center pt-0">
                             <div class="ml-auto">
-                                <v-tooltip :text="inputs.auto ? 'In auto mode, NiM will fully manage the lifecycle of the DevTools front-end.' : 'Manual mode lets you manage the DevTools front-end yourself.'" location="top">
+                                <v-tooltip :text="inputs.auto ? 'In auto mode, NiM will fully manage the lifecycle of the DevTools front-end.' : 'Manual mode lets you manage the DevTools front-end yourself.'" :aria-label="inputs.auto ? 'In auto mode, NiM will fully manage the lifecycle of the DevTools front-end.' : 'Manual mode lets you manage the DevTools front-end yourself.'" location="top">
                                     <template v-slot:activator="{ props }">
                                         <v-switch v-bind="props" id="auto" name="auto" hide-details v-model="inputs.auto" :color="inputs.auto ? 'green' : ''">
                                             <template v-slot:label>
@@ -46,7 +46,7 @@
                             </div>
                             <v-btn name="auto" class="mx-4 text-body-1" :color="inputs.auto ? '' : 'green'" :disabled="inputs.auto">Open DevTools</v-btn>
                             <div class="mr-auto ml-2">
-                                <v-tooltip location="top">
+                                <v-tooltip location="top" aria-label="When using --inspect-brk, NiM will automatically resume stepping to the first debugger statement.">
                                     <template v-slot:activator="{ props }">
                                         <v-switch v-bind="props" name="autoResumeInspectBrk" hide-details v-model="inputs.autoResumeInspectBrk" :color="inputs.autoResumeInspectBrk ? 'green' : ''" id="autoResumeSwitch" class="text-no-wrap">
                                             <template v-slot:label>
@@ -78,7 +78,7 @@
                             <div class="mr-2">
                                 <v-img width="16" height="16" :src="session?.info?.type === 'deno' ? iconDeno : iconNode" />
                             </div>
-                            <v-tooltip :close-delay="tooltips[`${id}`]" location="top">
+                            <v-tooltip :close-delay="tooltips[`${id}`]" location="top" :aria-label="tooltips[`${id}`]">
                                 <template v-slot:activator="{ props }">
                                     <div v-bind="props" @dblclick="tooltips[`${id}`] = 60000" class="text-no-wrap">
                                         <span class="mr-auto">{{ session?.info?.title }}</span>

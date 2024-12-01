@@ -2,13 +2,13 @@
     <v-app>
         <v-app-bar flat location="bottom" :collapse="collapse" style="opacity: 0.95;">
             <template v-slot:prepend>
-                <v-app-bar-nav-icon @click="collapse = !collapse"></v-app-bar-nav-icon>
+                <v-app-bar-nav-icon @click="collapse = !collapse" aria-label="app bar nav button"></v-app-bar-nav-icon>
             </template>
 
             <v-app-bar-title class="font-weight-light"></v-app-bar-title>
-            <v-btn v-show="!collapse" v-for="link of links.general" :to="link.to" :href="link.href" variant="text" :target="link.target" :rel="link.rel" class="text-capitalize">{{ link.name }}</v-btn>
+            <v-btn v-show="!collapse" v-for="link of links.general" :to="link.to" :href="link.href" variant="text" :target="link.target" :rel="link.rel" class="text-capitalize" :aria-label="link.name" :text="link.name" />
             <v-spacer></v-spacer>
-            <v-btn v-show="!collapse" v-for="link of links.legal" :to="link.to" :href="link.href" variant="text" size="small" class="pa-0 text-caption">{{ link.name }}</v-btn>
+            <v-btn v-show="!collapse" v-for="link of links.legal" :to="link.to" :href="link.href" variant="text" size="small" class="pa-0 text-caption" :aria-label="link.name" :text="link.name" />
             <div v-show="!collapse" class="mx-8 font-weight-light"><span style="font-family: sans-serif">©</span> 2024 June07</div>
         </v-app-bar>
         <v-navigation-drawer v-if="!smAndDown" order="2" width="200" floating location="left">
@@ -38,7 +38,7 @@
                     <span v-else @click="reload" class="font-weight-light" v-bind:class="smAndDown ? 'caption' : ''" style="cursor: pointer">App update available.</span>
                 </v-col>
                 <v-col cols="1" class="d-flex align-center justify-center">
-                    <v-btn variant="plain" :size="smAndDown ? 'x-small' : ''" @click="snackbarCloseHandler"> x </v-btn>
+                    <v-btn variant="plain" :size="smAndDown ? 'x-small' : ''" @click="snackbarCloseHandler" :aria-label="link.name" text=" x " />
                 </v-col>
             </v-row>
         </v-snackbar>

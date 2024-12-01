@@ -3,10 +3,10 @@
         <v-app-bar density="compact" flat>
             <v-spacer></v-spacer>
             <span id="nim-version" class="mx-8 text-body-2 font-weight-thin">v{{ version }}</span>
-            <v-btn variant="plain" icon size="x-small" id="theme" @click="theme === 'light' ? theme = 'dark' : theme = 'light'">
+            <v-btn variant="plain" icon size="x-small" id="theme" @click="theme === 'light' ? theme = 'dark' : theme = 'light'" aria-label="theme button">
                 <span class="material-icons small-icon">{{ theme === 'light' ? 'light_mode' : 'dark_mode' }}</span>
             </v-btn>
-            <v-btn variant="plain" icon density="compact" class="mr-6" id="settings-btn">
+            <v-btn variant="plain" icon density="compact" class="mr-6" id="settings-btn" aria-label="settings button">
                 <span class="material-icons">settings</span>
             </v-btn>
         </v-app-bar>
@@ -23,7 +23,7 @@
             <div class="text-body-1">
             </div>
             <v-spacer></v-spacer>
-            <v-tooltip no-click-animation location="top">
+            <v-tooltip no-click-animation location="top" aria-label="donate tooltip - Thank you for your support!">
                 <v-card style="opacity: 0.8;" rounded="lg" color="black">
                     <v-card-title class="mb-0">Thank you for your support!</v-card-title>
                     <v-card-subtitle class="mt-n2 mb-4">
@@ -33,7 +33,7 @@
                     <div class="text-h5 text-center" style="margin-left: 250px;">👇</div>
                 </v-card>
                 <template v-slot:activator="{ props }">
-                    <v-btn v-bind="props" id="donate-btn" variant="flat" class="mx-2 text-white rounded-xl" color="green-lighten-2">
+                    <v-btn v-bind="props" id="donate-btn" variant="flat" class="mx-2 text-white rounded-xl" color="green-lighten-2" aria-label="donate button">
                         <span class="material-icons mr-2">toll</span>donate
                     </v-btn>
                 </template>
