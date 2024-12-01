@@ -10,7 +10,6 @@
                 <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="d-flex my-4 mr-4">
                     <picture>
                         <source srcset="/node-summit-paul-irish-355x200.webp" media="(max-width: 355px)">
-                        <source srcset="/node-summit-paul-irish.webp">
                         <img src="/node-summit-paul-irish-355x200.webp" height="200" fetchpriority="high" alt="Google's Paul Irish recommending Node Inspector Manager (NIM)" />
                     </picture>
                 </a>

@@ -13,7 +13,7 @@
                 <v-list-item v-for="bullet of bulletPoints">
                     <div>{{ bullet.text }}</div>
                     <template v-slot:prepend>
-                        <v-icon class="mx-n4 material-symbols-outlined" :icon="bullet.icon" :size="bullet.iconSize || 40" :color="bullet.iconColor" />
+                        <v-icon class="mx-n4" :icon="bullet.icon" :size="bullet.iconSize || 40" :color="bullet.iconColor" />
                     </template>
                 </v-list-item>
             </v-list>
@@ -117,8 +117,8 @@ const dollarAmountSoldRef = ref()
 const { smAndDown } = useDisplay()
 const bulletPoints = [
     { icon: 'trending_down', text: `Price of the ad decreases $1 every hour of the day until sold.`, iconColor: 'green-darken-2' },
-    { icon: 'counter_1', text: `Only a single ad slot is sold per day, never oversold.`, iconColor: 'amber-darken-2' },
-    { icon: 'calendar_clock', text: `New ad slot sale begins at the start of each day.`, iconColor: 'blue-darken-2' }
+    { icon: 'looks_one', text: `Only a single ad slot is sold per day, never oversold.`, iconColor: 'amber-darken-2' },
+    { icon: 'calendar_today', text: `New ad slot sale begins at the start of each day.`, iconColor: 'blue-darken-2' }
 ]
 const dollarAmount = computed(() => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(props.product?.default_price?.unit_amount / 100 || 29.99))
 const dollarAmountSold = computed(() => props?.sold?.default_price?.unit_amount && new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(props.sold.default_price.unit_amount / 100))
