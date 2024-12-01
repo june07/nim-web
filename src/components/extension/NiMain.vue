@@ -135,7 +135,7 @@
 </style>
 <script setup>
 import { ref, computed } from 'vue'
-import iconNiM from "/icon128@3x.png"
+import iconNiM from "/icon128@3x.webp"
 import iconDeno from "/deno-favicon.ico"
 import iconNode from "/node-favicon.ico"
 
