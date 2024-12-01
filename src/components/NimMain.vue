@@ -8,10 +8,7 @@
                     <div class="px-8 text-body-2 text-center font-italic font-weight-light">The OG <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="font-weight-bold">"UX Sugar"</a> for DevTools</div>
                 </div>
                 <a href="https://www.youtube.com/watch?v=Xb_0awoShR8&t=524s" target="_blank" rel="noopener" class="d-flex my-4 mr-4">
-                    <picture>
-                        <source srcset="/node-summit-paul-irish-355x200.webp" media="(max-width: 355px)">
-                        <img src="/node-summit-paul-irish-355x200.webp" height="200" width="355" fetchpriority="high" alt="Google's Paul Irish recommending Node Inspector Manager (NIM)" />
-                    </picture>
+                    <img src="/node-summit-paul-irish-355x200.webp" height="200" width="355" fetchpriority="high" alt="Google's Paul Irish recommending Node Inspector Manager (NIM)" />
                 </a>
             </v-sheet>
             <NimUI class="nim-ui" />
