@@ -53,6 +53,9 @@ export default defineConfig({
             cert,
             key
         },
+        hmr: {
+            host: 'dev-nim.keycloak.june07.com',
+        }
     },
     build: {
         minify: 'terser',
