@@ -20,6 +20,14 @@ export default (app) => {
                 },
                 component: () => import('@/views/FAQ.vue')
             }, {
+                path: '/aname',
+                name: 'aname',
+                meta: {
+                    title: 'A Naming Tool',
+                    menu: 'Aname'
+                },
+                component: () => import('@/views/Aname.vue')
+            }, {
                 path: '/docs',
                 name: 'docs',
                 meta: {

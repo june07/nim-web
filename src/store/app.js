@@ -6,6 +6,13 @@ export const useAppStore = defineStore("app", {
         ihotd: {
             adSales: {},
             paymentIntent: undefined
+        },
+        aname: {
+            metadata: {},
+            separator: '-',
+            suffixLength: 2,
+            salt: `${Date.now()}`,
+            generated: {}
         }
     }),
     persist: true,

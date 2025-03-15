@@ -9,7 +9,7 @@
             <v-btn v-show="!collapse" v-for="link of links.general" :to="link.to" :href="link.href" variant="text" :target="link.target" :rel="link.rel" class="text-capitalize" :aria-label="link.name" :text="link.name" />
             <v-spacer></v-spacer>
             <v-btn v-show="!collapse" v-for="link of links.legal" :to="link.to" :href="link.href" variant="text" size="small" class="pa-0 text-caption" :aria-label="link.name" :text="link.name" />
-            <div v-show="!collapse" class="mx-8 font-weight-light"><span style="font-family: sans-serif">©</span> 2024 June07</div>
+            <div v-show="!collapse" class="mx-8 font-weight-light"><span style="font-family: sans-serif">©</span> 2025 June07</div>
         </v-app-bar>
         <v-navigation-drawer v-if="!smAndDown" order="2" width="200" floating location="left">
             <div class="h-100 d-flex align-center">
@@ -65,7 +65,7 @@ const buildInfo = ref()
 const links = {
     general: [
         { name: "Home", to: "/" },
-        { name: "Docs", to: "/docs" },
+        { name: "Aname", to: "/aname" },
         { name: "FAQ", to: "/faq" },
         { name: "Blog", href: "https://blog.june07.com/tag/nim" },
         { name: "GitHub", href: "https://github.com/june07", target: "_blank", rel: "noopener" },
