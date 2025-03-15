@@ -4,9 +4,10 @@
 			<v-card title="Aname" subtitle="What is in a name?" class="w-75 mx-auto" flat>
 				<v-card-text>
 					<p class="font-weight-light">
-						As a developer I'm sure naming comes up plenty. I can't count the number of times I've needed to name something particularly users. Often naming is just a side part (although an essential one) of a larger project and time writing a solution over and over again for each project is time wasted.
+						As a developer I'm sure naming comes up plenty. I can't count the number of times I've needed to name something particularly users. Often naming is just a small part (although an essential one) of a larger project and time writing a solution over and over again for each project is time wasted.
 					</p>
-					<p class="my-4">I finally decided to take the prior work I've done on naming and distilled it into a package of it's own... "Aname". It is a robust web API for which you can use to offload the tedious but essential job of naming to.</p>
+					<p class="my-4">I finally decided to take the prior work I've done on naming and distilled it into a project of it's own... <span class="font-weight-bold">Aname</span>. It is a robust web API for which you can use to offload the tedious but essential job of naming to.</p>
+                    <p class="my-4">Try it below<!--, read more about it <a href="" target="_blank" rel="noopener">here</a>.--></p>
 				</v-card-text>
 			</v-card>
 			<v-form ref="form">
@@ -91,6 +92,9 @@ import { v5 as uuidv5 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import 'animate.css'
 
+const {
+    VITE_APP_API_SERVER
+} = import.meta.env
 const form = ref()
 const canGenerate = computed(() => uuid.value && !store.aname.generated[uuid.value])
 const store = useAppStore()
@@ -130,7 +134,7 @@ const templateArr = computed(() => {
 const apiResponseData = ref()
 const url = ref()
 function updateURL() {
-	const urlBase = new URL('https://api.dev.june07.com/v1/ai/aname')
+	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
 
 	Object.keys(params.value || {}).forEach(key => {
 		let value
