@@ -35,7 +35,7 @@
 						<v-text-field variant="solo" flat v-model="store.aname.salt" label="salt" :rules="rules.salt" class="w-50" @keydown.enter="callAPI" />
 					</div>
 					<v-sheet height="100" rounded class="d-flex flex-column justify-end">
-						<div class="text-center mb-auto" v-if="apiResponseData?.username || store.aname.generated[uuid]" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData?.username || store.aname.generated[uuid]?.data?.username }}</div>
+						<div class="text-center mb-auto" v-if="apiResponseData?.username || store.aname.generated[uuid]" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.username }}</div>
 						<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" />
 					</v-sheet>
 					<div class="text-caption text-center mt-8">template</div>
@@ -45,6 +45,10 @@
 							<v-sheet color="green" rounded="lg" class="segment px-2 py-2" v-if="index < templateArr.length - 1">{{ params.separator }}</v-sheet>
 							<v-chip style="position: absolute; top: -40%; left: 6px" :text="index + 1" />
 						</div>
+					</div>
+                    <div class="text-caption text-center mt-8">API call</div>
+					<div style="font-size: 0.75rem" class="d-flex flex-wrap">
+						<url-visualizer :url="url" />
 					</div>
 					<div class="text-caption text-center mt-8">fetch output</div>
 					<v-sheet color="black" rounded class="my-2 pa-2" height="500px" style="overflow-y: auto">
@@ -92,6 +96,8 @@ import { v5 as uuidv5 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import 'animate.css'
 
+import UrlVisualizer from '../components/UrlVisualizer.vue'
+
 const {
     VITE_APP_API_SERVER
 } = import.meta.env
@@ -131,7 +137,7 @@ const templateArr = computed(() => {
 
 	return arr
 })
-const apiResponseData = ref()
+const apiResponseData = computed(() => uuid.value && store.aname.generated[uuid.value]?.data)
 const url = ref()
 function updateURL() {
 	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
@@ -165,7 +171,6 @@ async function callAPI() {
 	fetch(url.value)
 		.then(response => response.json())
 		.then(data => {
-			apiResponseData.value = data
 			if (!store.aname.generated[uuid.value]) {
 				store.aname.generated[uuid.value] = {
 					url: url.value,
