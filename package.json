@@ -30,6 +30,7 @@
     "vue-instantsearch": "^4.20.5",
     "vue-router": "^4.5.0",
     "vue-social-sharing": "^4.0.0-alpha4",
+    "vuedraggable": "^4.1.0",
     "vuetify": "^3.7.16"
   },
   "devDependencies": {
