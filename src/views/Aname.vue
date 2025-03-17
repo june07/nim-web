@@ -37,7 +37,12 @@
 					<div class="d-flex mb-2">
 						<v-text-field variant="solo" flat v-model="store.aname.publicKey" label="public key" :rules="rules.publicKey" class="w-50" id="publicKey" ref="keyRef" @keydown.enter="callAPI" :hint="keyHint" :persistent-hint="!!keyHint">
 							<template v-slot:append-inner>
-								<v-tooltip text="Copied" v-model="tooltip" location="top" :open-on-hover="false" aria-label="Copied Private Key tooltip">
+                                <v-tooltip text="Download key pair" v-model="tooltips['download']" location="top" aria-label="Download key pair tooltip">
+									<template v-slot:activator="{ props: tooltip }">
+										<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="download" class="mb-auto mt-2 mr-1" style="font-size: 0.5rem" @click="downloadHandler" />
+									</template>
+								</v-tooltip>
+								<v-tooltip text="Copied" v-model="tooltips['copy']" location="top" :open-on-hover="false" aria-label="Copied Private Key tooltip">
 									<template v-slot:activator="{ props: tooltip }">
 										<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="copy" class="mb-auto mt-2 mr-1" id="copyButton" style="font-size: 0.5rem" @click="copyHandler" />
 									</template>
@@ -205,7 +210,7 @@ const templateArr = computed(() => {
 	return arr
 })
 const apiResponseData = computed(() => uuid.value && store.aname.generated[uuid.value]?.data)
-const apiResponseData2 = computed(() => uuid.value && store.aname.lookups[uuid.value]?.data)
+const apiResponseData2 = computed(() => uuid.value && store.aname.lookups[uuid.value])
 const url = ref()
 const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.username || 'unique-name-placeholder'}?publicKey=${store.aname.publicKey}`)?.href)
 function updateURL() {
@@ -236,8 +241,8 @@ const uuid = computed(() => {
 
 	return uuid
 })
-async function callAPI(action = 'generate') {
-	if (action === 'generate') {
+async function callAPI(action) {
+	if (action !== 'lookup') {
 		fetch(url.value)
 			.then(response => response.json())
 			.then(data => {
@@ -259,7 +264,7 @@ async function callAPI(action = 'generate') {
                 const data = await response.text()
 
                 if (response.ok) {
-                    if (seed && !store.aname.lookups[uuid.value]) {
+                    if (data && !store.aname.lookups[uuid.value]) {
 					    store.aname.lookups[uuid.value] = data
                     }
                 } else {
@@ -324,14 +329,26 @@ function resetHandler() {
 
 	store.aname.publicKey = store.aname.keypair.pub
 }
-const tooltip = ref(false)
+const tooltips = ref({
+    download: false,
+    copy: false
+})
 function copyHandler() {
-	clipboard.copy(store.aname.keypair.priv).then(copied => {
-		tooltip.value = copied
+	clipboard.copy(store.aname.keypair.pub).then(copied => {
+		tooltips.value['copy'] = copied
 		if (copied) {
-			setTimeout(() => (tooltip.value = false), 1500)
+			setTimeout(() => (tooltips.value['copy'] = false), 1500)
 		}
 	})
+}
+function downloadHandler() {
+    const blob = new Blob([JSON.stringify(store.aname.keypair)], { type: 'text/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'keypair.json'
+    link.click()
+    URL.revokeObjectURL(url)
 }
 onBeforeMount(() => {
 	updateMetadata()
