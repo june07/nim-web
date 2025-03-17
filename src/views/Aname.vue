@@ -1,112 +1,101 @@
 <template>
 	<v-container fluid class="py-0 news-cycle-regular">
-		<v-parallax>
-			<v-card title="Aname" subtitle="What is in a name?" class="w-75 mx-auto" flat>
-				<v-card-text>
-					<p class="font-weight-light">
-						As a developer I'm sure naming comes up plenty. I can't count the number of times I've needed to name something particularly users. Often naming is just a small part (although an essential one) of a larger project and time writing a solution over and over again for each project is time wasted.
-					</p>
-					<p class="my-4">I finally decided to take the prior work I've done on naming and distilled it into a project of it's own... <span class="font-weight-bold">Aname</span>. It is a robust web API for which you can use to offload the tedious but essential job of naming to.</p>
-					<p class="my-4">Try it below<!--, read more about it <a href="" target="_blank" rel="noopener">here</a>.--></p>
-				</v-card-text>
-			</v-card>
-			<v-form ref="form">
-				<v-sheet color="grey-lighten-4 font-weight-bold w-75 mx-auto my-4 pa-4">
-					<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" />
-					<v-autocomplete variant="solo" flat chips closable-chips label="dictionaries" v-model="params.dictionaries" :items="availableDictionaries" :rules="rules.dictionaries" multiple @keydown.enter="callAPI">
-						<template v-slot:chip="{ item, index, props }">
-							<v-chip v-bind="props" draggable :text="typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value" style="cursor: pointer" class="outer">
-								<template v-slot:prepend>
-									<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1">
-										<template v-slot:close></template>
-									</v-chip>
-								</template>
-								<template v-slot:append>
-									<v-chip class="ml-auto font-weight-bold" label v-if="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value]?.words" size="x-small" :text="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value].words">
-										<template v-slot:close></template>
-									</v-chip>
-								</template>
-							</v-chip>
-						</template>
-					</v-autocomplete>
-					<div class="d-flex">
-						<v-text-field variant="solo" flat v-model="params.separator" label="separator" class="w-25 mr-2" :rules="rules.separator" @keydown.enter="callAPI" />
-						<v-text-field variant="solo" flat v-model="params.suffixLength" label="suffixLength" class="w-25 mr-2" :rules="rules.suffixLength" @keydown.enter="callAPI" />
-						<v-text-field variant="solo" flat v-model="store.aname.salt" label="salt" :rules="rules.salt" class="w-50" @keydown.enter="callAPI" />
-					</div>
-					<div class="d-flex mb-2">
-						<v-text-field variant="solo" flat v-model="store.aname.publicKey" label="public key" :rules="rules.publicKey" class="w-50" id="publicKey" ref="keyRef" @keydown.enter="callAPI" :hint="keyHint" :persistent-hint="!!keyHint">
-							<template v-slot:append-inner>
-                                <v-tooltip text="Download key pair" v-model="tooltips['download']" location="top" aria-label="Download key pair tooltip">
-									<template v-slot:activator="{ props: tooltip }">
-										<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="download" class="mb-auto mt-2 mr-1" style="font-size: 0.5rem" @click="downloadHandler" />
-									</template>
-								</v-tooltip>
-								<v-tooltip text="Copied" v-model="tooltips['copy']" location="top" :open-on-hover="false" aria-label="Copied Private Key tooltip">
-									<template v-slot:activator="{ props: tooltip }">
-										<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="copy" class="mb-auto mt-2 mr-1" id="copyButton" style="font-size: 0.5rem" @click="copyHandler" />
-									</template>
-								</v-tooltip>
-								<v-btn size="x-small" variant="tonal" text="reset" class="mb-auto mt-2" style="font-size: 0.5rem" @click="resetHandler" />
-							</template>
-						</v-text-field>
-					</div>
-					<v-sheet height="100" rounded class="d-flex flex-column justify-end">
-						<div class="text-center mb-auto" v-if="apiResponseData?.username" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.username }}</div>
-						<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" />
-						<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'completed'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else />
-					</v-sheet>
-					<v-tabs v-model="tabs" fixed-tabs>
-						<v-tab text="generate" value="generate"></v-tab>
-						<v-tab text="lookup" value="lookup"></v-tab>
-					</v-tabs>
-					<v-tabs-window v-model="tabs">
-						<v-tabs-window-item value="generate">
-							<div class="text-caption text-center mt-8">template</div>
-							<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-								<div v-for="(dictionary, index) of templateArr" class="d-flex align-center" style="position: relative">
-									<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ dictionary.href || dictionary.name }}</v-sheet>
-									<v-sheet color="green" rounded="lg" class="segment px-2 py-2" v-if="index < templateArr.length - 1">{{ params.separator }}</v-sheet>
-									<v-chip style="position: absolute; top: -40%; left: 6px" :text="index + 1" />
-								</div>
-							</div>
-							<div class="text-caption text-center mt-8">API call</div>
-							<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-								<url-visualizer :url="url" />
-							</div>
-							<div class="text-caption text-center mt-8">fetch output</div>
-							<v-sheet color="black" rounded class="my-2 pa-2" height="500px" style="overflow-y: auto">
-								<pre style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData, null, '  ') }}</pre>
-							</v-sheet>
-						</v-tabs-window-item>
-						<v-tabs-window-item value="lookup">
-							<div class="text-caption text-center my-8">retreived data</div>
-							<div class="d-flex flex-no-wrap justify-center">
-								<div class="d-flex align-center stint-ultra-condensed-regular">
-									<div style="position: relative">
-										<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ apiResponseData2?.slice(0, 13) || '<retreived salt placeholder>' }}</v-sheet>
-										<v-chip style="position: absolute; top: -40%; right: 6px" text="NaCl" />
-									</div>
-									<div style="position: relative">
-										<v-sheet color="green" rounded="lg" class="segment px-2 py-2">{{ apiResponseData2?.slice(13) || '<retreived seed placeholder>' }}</v-sheet>
-										<v-chip style="position: absolute; top: -40%; right: 6px" text="seed" />
-									</div>
-								</div>
-							</div>
-							<div class="text-caption text-center mt-8">API call</div>
-							<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-								<url-visualizer :url="url2" />
-							</div>
-							<div class="text-caption text-center mt-8">fetch output</div>
-							<v-sheet color="black" rounded class="my-2 pa-2" height="500px" style="overflow-y: auto">
-								<pre v-if="apiResponseData2" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData2, null, '  ') }}</pre>
-								<div v-else class="text-overline d-flex justify-center align-center h-100">no data</div>
-							</v-sheet>
-						</v-tabs-window-item>
-					</v-tabs-window>
-				</v-sheet>
-			</v-form>
-		</v-parallax>
+        <v-form ref="form">
+            <v-sheet color="grey-lighten-2 font-weight-bold w-75 mx-auto my-4 pa-4">
+                <v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" />
+                <v-autocomplete variant="solo" flat chips closable-chips label="dictionaries" v-model="params.dictionaries" :items="availableDictionaries" :rules="rules.dictionaries" multiple @keydown.enter="callAPI">
+                    <template v-slot:chip="{ item, index, props }">
+                        <v-chip v-bind="props" draggable :text="typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value" style="cursor: pointer" class="outer">
+                            <template v-slot:prepend>
+                                <v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1">
+                                    <template v-slot:close></template>
+                                </v-chip>
+                            </template>
+                            <template v-slot:append>
+                                <v-chip class="ml-auto font-weight-bold" label v-if="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value]?.words" size="x-small" :text="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value].words">
+                                    <template v-slot:close></template>
+                                </v-chip>
+                            </template>
+                        </v-chip>
+                    </template>
+                </v-autocomplete>
+                <div class="d-flex">
+                    <v-text-field variant="solo" flat v-model="params.separator" label="separator" class="w-25 mr-2" :rules="rules.separator" @keydown.enter="callAPI" />
+                    <v-text-field variant="solo" flat v-model="params.suffixLength" label="suffixLength" class="w-25 mr-2" :rules="rules.suffixLength" @keydown.enter="callAPI" />
+                    <v-text-field variant="solo" flat v-model="store.aname.salt" label="salt" :rules="rules.salt" class="w-50" @keydown.enter="callAPI" />
+                </div>
+                <div class="d-flex mb-2">
+                    <v-text-field variant="solo" flat v-model="store.aname.publicKey" label="public key" :rules="rules.publicKey" class="w-50" id="publicKey" ref="keyRef" @keydown.enter="callAPI" :hint="keyHint" :persistent-hint="!!keyHint">
+                        <template v-slot:append-inner>
+                            <v-tooltip text="Download key pair" v-model="tooltips['download']" location="top" aria-label="Download key pair tooltip">
+                                <template v-slot:activator="{ props: tooltip }">
+                                    <v-btn v-bind="tooltip" size="x-small" variant="tonal" text="download" class="mb-auto mt-2 mr-1" style="font-size: 0.5rem" @click="downloadHandler" />
+                                </template>
+                            </v-tooltip>
+                            <v-tooltip text="Copied" v-model="tooltips['copy']" location="top" :open-on-hover="false" aria-label="Copied Private Key tooltip">
+                                <template v-slot:activator="{ props: tooltip }">
+                                    <v-btn v-bind="tooltip" size="x-small" variant="tonal" text="copy" class="mb-auto mt-2 mr-1" id="copyButton" style="font-size: 0.5rem" @click="copyHandler" />
+                                </template>
+                            </v-tooltip>
+                            <v-btn size="x-small" variant="tonal" text="reset" class="mb-auto mt-2" style="font-size: 0.5rem" @click="resetHandler" />
+                        </template>
+                    </v-text-field>
+                </div>
+                <v-sheet height="100" rounded class="d-flex flex-column justify-end">
+                    <div class="text-center mb-auto" v-if="apiResponseData?.username" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''" style="position: relative">{{ apiResponseData.username }}</div>
+                    <v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
+                    <v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'completed'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else />
+                </v-sheet>
+                <v-tabs v-model="tabs" fixed-tabs>
+                    <v-tab text="generate" value="generate"></v-tab>
+                    <v-tab text="lookup" value="lookup"></v-tab>
+                </v-tabs>
+                <v-tabs-window v-model="tabs">
+                    <v-tabs-window-item value="generate">
+                        <div class="text-caption text-center mt-8">template</div>
+                        <div style="font-size: 0.75rem" class="d-flex flex-wrap">
+                            <div v-for="(dictionary, index) of templateArr" class="d-flex align-center" style="position: relative">
+                                <v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ dictionary.href || dictionary.name }}</v-sheet>
+                                <v-sheet color="green" rounded="lg" class="segment px-2 py-2" v-if="index < templateArr.length - 1">{{ params.separator }}</v-sheet>
+                                <v-chip style="position: absolute; top: -40%; left: 6px" :text="index + 1" />
+                            </div>
+                        </div>
+                        <div class="text-caption text-center mt-8">API call</div>
+                        <div style="font-size: 0.75rem" class="d-flex flex-wrap">
+                            <url-visualizer :url="url" />
+                        </div>
+                        <div class="text-caption text-center mt-8">fetch output</div>
+                        <v-sheet color="black" rounded class="my-2 pa-2" height="500px" style="overflow-y: auto">
+                            <pre style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData, null, '  ') }}</pre>
+                        </v-sheet>
+                    </v-tabs-window-item>
+                    <v-tabs-window-item value="lookup">
+                        <div class="text-caption text-center my-8">retreived data</div>
+                        <div class="d-flex flex-no-wrap justify-center">
+                            <div class="d-flex align-center stint-ultra-condensed-regular">
+                                <div style="position: relative">
+                                    <v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ apiResponseData2?.slice(0, 13) || '<retreived salt placeholder>' }}</v-sheet>
+                                    <v-chip style="position: absolute; top: -40%; right: 6px" text="NaCl" />
+                                </div>
+                                <div style="position: relative">
+                                    <v-sheet color="green" rounded="lg" class="segment px-2 py-2">{{ apiResponseData2?.slice(13) || '<retreived seed placeholder>' }}</v-sheet>
+                                    <v-chip style="position: absolute; top: -40%; right: 6px" text="seed" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-caption text-center mt-8">API call</div>
+                        <div style="font-size: 0.75rem" class="d-flex flex-wrap">
+                            <url-visualizer :url="url2" />
+                        </div>
+                        <div class="text-caption text-center mt-8">fetch output</div>
+                        <v-sheet color="black" rounded class="my-2 pa-2" height="500px" style="overflow-y: auto">
+                            <pre v-if="apiResponseData2" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData2, null, '  ') }}</pre>
+                            <div v-else class="text-overline d-flex justify-center align-center h-100">no data</div>
+                        </v-sheet>
+                    </v-tabs-window-item>
+                </v-tabs-window>
+            </v-sheet>
+        </v-form>
 		<v-snackbar v-model="snackbar.active" multi-line :timeout="snackbar.timeout" @mouseenter="snackbar.timeout = -1" @mouseleave="snackbar.timeout = 5000">
 			<div class="text-caption">{{ snackbar.text }}</div>
 			<template v-slot:actions>
@@ -166,6 +155,14 @@ const tabs = ref()
 const clipboard = inject('clipboard')
 const { MODE, VITE_APP_API_SERVER } = import.meta.env
 const form = ref()
+const url = ref()
+const uuid = computed(() => {
+	if (!url.value) return
+
+	const uuid = uuidv5(url.value, uuidv5.URL)
+
+	return uuid
+})
 const canGenerate = computed(() => uuid.value && !store.aname.generated[uuid.value])
 const didLookup = computed(() => uuid.value && !!store.aname.lookups[uuid.value])
 const store = useAppStore()
@@ -183,6 +180,14 @@ const rules = ref({
 	separator: [v => !!v || 'Separator is required', v => !!v || (v && v.length == 1) || 'Separator must be exactly 1 character', v => (v && /^[-_:.|,;+# ]$/.test(v)) || 'Separator must be one of the following: - _ : . | , ; + # space'],
 	suffixLength: [v => !!v || 'Suffix Length is required', v => (v && v >= 0 && v <= 21) || 'Suffix Length must be a positive number between 0 and 21 inclusive'],
 	publicKey: [v => !!v || 'Public key is required', v => v.length === 64 || 'Public key must be 32 bytes (Hex: 64 chars)'],
+})
+const styleObjs = ref({
+    generatedBtn: canGenerate.value ? {
+    } : {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+    }
 })
 const availableDictionaries = ref(['https://github.june07.com/dictionary/adjs', 'https://github.june07.com/dictionary/colors', 'https://github.june07.com/dictionary/nouns'])
 const params = ref({
@@ -211,7 +216,6 @@ const templateArr = computed(() => {
 })
 const apiResponseData = computed(() => uuid.value && store.aname.generated[uuid.value]?.data)
 const apiResponseData2 = computed(() => uuid.value && store.aname.lookups[uuid.value])
-const url = ref()
 const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.username || 'unique-name-placeholder'}?publicKey=${store.aname.publicKey}`)?.href)
 function updateURL() {
 	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
@@ -234,13 +238,6 @@ function updateURL() {
 
 	url.value = urlBase.href
 }
-const uuid = computed(() => {
-	if (!url.value) return
-
-	const uuid = uuidv5(url.value, uuidv5.URL)
-
-	return uuid
-})
 async function callAPI(action) {
 	if (action !== 'lookup') {
 		fetch(url.value)
