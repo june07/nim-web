@@ -7,6 +7,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@noble/curves": "^1.8.1",
     "@stripe/stripe-js": "^6.0.0",
     "@tryghost/content-api": "^1.11.21",
     "algoliasearch": "^5.21.0",
