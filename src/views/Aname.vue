@@ -75,15 +75,15 @@
 							</v-sheet>
 						</v-tabs-window-item>
 						<v-tabs-window-item value="lookup">
-							<div class="text-caption text-center mt-8">retreived data</div>
+							<div class="text-caption text-center my-8">retreived data</div>
 							<div class="d-flex flex-no-wrap justify-center">
 								<div class="d-flex align-center stint-ultra-condensed-regular">
 									<div style="position: relative">
-										<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ apiResponseData2.slice(0, 13) }}</v-sheet>
+										<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ apiResponseData2?.slice(0, 13) || '<retreived salt placeholder>' }}</v-sheet>
 										<v-chip style="position: absolute; top: -40%; right: 6px" text="NaCl" />
 									</div>
 									<div style="position: relative">
-										<v-sheet color="green" rounded="lg" class="segment px-2 py-2">{{ apiResponseData2.slice(13) }}</v-sheet>
+										<v-sheet color="green" rounded="lg" class="segment px-2 py-2">{{ apiResponseData2?.slice(13) || '<retreived seed placeholder>' }}</v-sheet>
 										<v-chip style="position: absolute; top: -40%; right: 6px" text="seed" />
 									</div>
 								</div>
@@ -255,11 +255,16 @@ async function callAPI(action = 'generate') {
 			})
 	} else {
 		fetch(url2.value)
-			.then(response => response.text())
-			.then(seed => {
-				if (!store.aname.lookups[uuid.value]) {
-					store.aname.lookups[uuid.value] = seed
-				}
+			.then(async response => {
+                const data = await response.text()
+
+                if (response.ok) {
+                    if (seed && !store.aname.lookups[uuid.value]) {
+					    store.aname.lookups[uuid.value] = data
+                    }
+                } else {
+                    console.warn(data)
+                }
 			})
 			.catch(error => {
 				console.error('Error fetching data:', error)
