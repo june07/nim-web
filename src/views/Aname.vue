@@ -17,10 +17,10 @@
 					</v-tooltip>
 					<v-chip-group column @drop="dropHandler" @dragover.prevent>
 						<!-- prettier-ignore -->
-						<v-chip class="dictionary" v-for="(item, index) of params.dictionaries" closable draggable :data-name="typeof item === 'object' ? Object.keys(item)[0] : item" :text="typeof item === 'object' ? Object.keys(item)[0] : item"
+						<v-chip class="dictionary" v-for="(item, index) of params.dictionaries" :key="item" closable draggable :data-name="typeof item === 'object' ? Object.keys(item)[0] : item" :text="typeof item === 'object' ? Object.keys(item)[0] : item"
                             :ripple="false"
                             @dragstart="dragstartHandler($event, index)"
-                            @click:close="params.dictionaries = params.dictionaries.filter(dict => dict !== item)">
+                            @click:close="closeDictionaryHandler(item)">
 							<template v-slot:prepend>
 								<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
 							</template>
@@ -140,6 +140,10 @@ html {
 }
 </style>
 <style scoped>
+:deep(.v-chip__content) {
+	overflow: hidden;
+	font-size: 0.75rem;
+}
 .segment {
 	margin: 1px;
 }
@@ -412,6 +416,11 @@ function reorderItems(items, fromIndex, toIndex) {
 		const [movedItem] = items.splice(fromIndex, 1)
 		items.splice(adjustedToIndex, 0, movedItem)
 	}
+}
+function closeDictionaryHandler(item) {
+    const index = params.value.dictionaries.findIndex(dict => dict === item)
+	
+    params.value.dictionaries.splice(index, 1)
 }
 onBeforeMount(() => {
 	updateMetadata()
