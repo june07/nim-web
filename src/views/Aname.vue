@@ -146,7 +146,7 @@
 				</v-tabs-window>
 			</v-sheet>
 		</v-form>
-		<v-card ref="swalHtmlRef">
+		<v-card ref="swalHtmlRef" v-show="swalActive" rounded="xl" elevation="12" class="mb-8">
 			<v-card-title>{{ store.aname.generated[uuid]?.data?.username || 'fake-transparent-name-placeholder' }}</v-card-title>
 			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower">Congratulations on your first generated name!</v-card-subtitle>
 			<v-card-text class="text-start">
@@ -209,7 +209,7 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject, withDirectives } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch, inject } from 'vue'
 import { v5 as uuidv5 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
@@ -285,6 +285,7 @@ const templateArr = computed(() => {
 
 	return arr
 })
+const swalActive = ref(false)
 const apiResponseData = computed(() => uuid.value && store.aname.generated[uuid.value]?.data)
 const apiResponseData2 = computed(() => uuid.value && store.aname.lookups[uuid.value])
 const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.username || 'unique-name-placeholder'}?publicKey=${store.aname.publicKey}`)?.href)
@@ -459,6 +460,7 @@ function closeDictionaryHandler(item) {
 	params.value.dictionaries.splice(index, 1)
 }
 function swal(options = {}, func) {
+    swalActive.value = true
 	const effectiveOptions = {
 		icon: 'success',
 		color: 'white',
@@ -468,13 +470,17 @@ function swal(options = {}, func) {
 		html: swalHtmlRef.value.$el,
 		...options,
 	}
-	Swal.fire(effectiveOptions).then(func)
+    Swal.fire(effectiveOptions).then(() => {
+        swalActive.value = false
+        func && func()
+    })
 }
 onBeforeMount(() => {
 	updateMetadata()
 	generateKeyPair()
 })
 onMounted(() => {
+    // swal()
 	resetHandler()
 	watch(() => params.value, updateURL, { immediate: true, deep: true })
 })
