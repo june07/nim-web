@@ -3,35 +3,33 @@
 		<v-form ref="form">
 			<v-sheet color="grey-lighten-2 font-weight-bold w-75 mx-auto my-4 pa-4">
 				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" />
-				<v-autocomplete variant="solo" flat chips closable-chips v-model="params.dictionaries" :items="availableDictionaries" :rules="rules.dictionaries" multiple @keydown.enter="callAPI">
-					<template v-slot:label>
-						<v-tooltip location="top" aria-label="dictionaries tooltip">
-							<p class="my-4">Dicionaries can be passed in as objects or strings.</p>
-							<p class="my-4">Objects shall be in the format of { ['dictionary name']: 'wsv list of terms where compound terms are separated by a hyphen' }.</p>
-							<p class="my-4">Strings should be hrefs to plaintext files following the same format as above (wsv list of terms where compound terms are separated by a hyphen), with the added detail that the file should be a single line.</p>
-							<template v-slot:activator="{ props: tooltip }">
+				<v-sheet rounded="lg" class="mb-4 pa-2">
+					<v-tooltip location="top" aria-label="dictionaries tooltip">
+						<p class="my-4">Dicionaries can be passed in as objects or strings.</p>
+						<p class="my-4">Objects shall be in the format of { ['dictionary name']: 'wsv list of terms where compound terms are separated by a hyphen' }.</p>
+						<p class="my-4">Strings should be hrefs to plaintext files following the same format as above (wsv list of terms where compound terms are separated by a hyphen), with the added detail that the file should be a single line.</p>
+						<template v-slot:activator="{ props: tooltip }">
+							<div class="font-weight-light text-grey-darken-1 ml-2" style="font-size: 0.5rem">
 								dictionaries
 								<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" class="ml-2" style="cursor: pointer; pointer-events: auto" />
+							</div>
+						</template>
+					</v-tooltip>
+					<v-chip-group column @drop="dropHandler" @dragover.prevent>
+						<!-- prettier-ignore -->
+						<v-chip class="dictionary" v-for="(item, index) of params.dictionaries" closable draggable :data-name="typeof item === 'object' ? Object.keys(item)[0] : item" :text="typeof item === 'object' ? Object.keys(item)[0] : item"
+                            :ripple="false"
+                            @dragstart="dragstartHandler($event, index)"
+                            @click:close="params.dictionaries = params.dictionaries.filter(dict => dict !== item)">
+							<template v-slot:prepend>
+								<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
 							</template>
-						</v-tooltip>
-					</template>
-					<template v-slot:chip="{ item, index, props }">
-						<div draggable="true" class="draggable-chip-wrapper" @dragstart="dragHandler(item, index)" @dragover.prevent @drop="dropHandler(index)">
-							<v-chip v-bind="props" :text="typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value" style="cursor: pointer" class="outer">
-								<template v-slot:prepend>
-									<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1">
-										<template v-slot:close></template>
-									</v-chip>
-								</template>
-								<template v-slot:append>
-									<v-chip class="ml-auto font-weight-bold" label v-if="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value]?.words" size="x-small" :text="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value].words">
-										<template v-slot:close></template>
-									</v-chip>
-								</template>
-							</v-chip>
-						</div>
-					</template>
-				</v-autocomplete>
+							<template v-slot:append>
+								<v-chip class="ml-auto font-weight-bold" label v-if="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value]?.words" size="x-small" :text="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value].words" />
+							</template>
+						</v-chip>
+					</v-chip-group>
+				</v-sheet>
 				<div class="d-flex">
 					<v-text-field variant="solo" flat v-model="params.separator" label="separator" class="w-25 mr-2" :rules="rules.separator" @keydown.enter="callAPI" />
 					<v-text-field variant="solo" flat v-model="params.suffixLength" label="suffixLength" class="w-25 mr-2" :rules="rules.suffixLength" @keydown.enter="callAPI" />
@@ -63,7 +61,7 @@
 						</template>
 					</v-text-field>
 				</div>
-				<v-sheet height="100" rounded class="d-flex flex-column justify-end" style="position: relative">
+				<v-sheet height="100" rounded="lg" class="d-flex flex-column justify-end" style="position: relative">
 					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.username" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.username }}</div>
 					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
 					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'completed'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else />
@@ -97,7 +95,7 @@
 							<url-visualizer :url="url" />
 						</div>
 						<div class="text-caption text-center mt-8">fetch response data</div>
-						<v-sheet color="black" rounded class="my-2 pa-2" height="500px" style="overflow-y: auto">
+						<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
 							<pre style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData, null, '  ') }}</pre>
 						</v-sheet>
 					</v-tabs-window-item>
@@ -120,7 +118,7 @@
 							<url-visualizer :url="url2" />
 						</div>
 						<div class="text-caption text-center mt-8">fetch response data</div>
-						<v-sheet color="black" rounded class="my-2 pa-2" height="500px" style="overflow-y: auto">
+						<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
 							<pre v-if="apiResponseData2" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData2, null, '  ') }}</pre>
 							<div v-else class="text-overline d-flex justify-center align-center h-100">no data</div>
 						</v-sheet>
@@ -383,14 +381,37 @@ function downloadHandler() {
 	link.click()
 	URL.revokeObjectURL(url)
 }
-function dragHandler(e) {
-	console.log(e)
-	e.preventDefault()
+const drag = ref({
+	startY: -1,
+	endY: -1,
+	startIndex: -1,
+	endIndex: -1,
+})
+function dragstartHandler(event, index) {
+	drag.value.startY = event.clientY
+	drag.value.startIndex = index
+	console.log('Drag start: ', drag.value.startIndex)
 }
-function handleDrop(e) {
-	const item = this.params.dictionaries.splice(this.index, 1)[0]
-	// Update the position of the item in the array
-	this.params.dictionaries.splice(this.newIndex, 0, item)
+
+function dropHandler(event) {
+	drag.value.endY = event.clientY
+	drag.value.endIndex = (drag.value.endY - drag.value.startY) / document.querySelector('.dictionary.v-chip').clientHeight
+
+	if (drag.value.startIndex !== -1 && drag.value.endIndex !== -1) {
+		reorderItems(params.value.dictionaries, drag.value.startIndex, drag.value.endIndex)
+	}
+}
+
+function reorderItems(items, fromIndex, toIndex) {
+	let adjustedToIndex = Math.round(toIndex)
+
+	// Ensure the target index stays within valid bounds
+	adjustedToIndex = Math.max(0, Math.min(items.length - 1, adjustedToIndex))
+
+	if (fromIndex !== adjustedToIndex) {
+		const [movedItem] = items.splice(fromIndex, 1)
+		items.splice(adjustedToIndex, 0, movedItem)
+	}
 }
 onBeforeMount(() => {
 	updateMetadata()
