@@ -32,7 +32,27 @@
 				</v-sheet>
 				<div class="d-flex">
 					<v-text-field variant="solo" flat v-model="params.separator" label="separator" class="w-25 mr-2" :rules="rules.separator" @keydown.enter="callAPI" />
-					<v-text-field variant="solo" flat v-model="params.suffixLength" label="suffixLength" class="w-25 mr-2" :rules="rules.suffixLength" @keydown.enter="callAPI" />
+
+					<div style="position: relative" class="d-flex w-25 mr-2">
+						<v-text-field variant="solo" flat v-model="params.suffixLength" :rules="rules.suffixLength" @keydown.enter="callAPI">
+							<template v-slot:label>
+								<v-tooltip location="top" aria-label="dictionaries tooltip">
+									<p class="my-4">Entropy mode controls how the suffix length is determined.</p>
+									<p class="my-4">When disabled, the suffix length represents the exact number of digits in base 10, ensuring predictable and user-friendly output.</p>
+									<p class="my-4">When enabled, the suffix length is directly tied to the entropy of the underlying hash, preserving randomness by selecting a fixed number of hex characters before conversion.</p>
+									<p class="my-4">This mode is useful for applications requiring precise entropy retention rather than strictly formatted numerical suffixes.</p>
+									<template v-slot:activator="{ props: tooltip }">
+										<div class="font-weight-light text-grey-darken-1" style="font-size: 0.5rem">
+											suffixLength
+											<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" style="cursor: pointer; pointer-events: auto" />
+										</div>
+									</template>
+								</v-tooltip>
+							</template>
+						</v-text-field>
+						<v-checkbox-btn style="position: absolute; bottom: 30px; right: 6px" density="compact" v-model="params.entropyMode" />
+					</div>
+
 					<v-text-field variant="solo" flat v-model="store.aname.salt" label="salt" :rules="rules.salt" class="w-50" @keydown.enter="callAPI" />
 				</div>
 				<div class="d-flex mb-2">
@@ -64,7 +84,7 @@
 				<v-sheet height="100" rounded="lg" class="d-flex flex-column justify-end" style="position: relative">
 					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.username" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.username }}</div>
 					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
-					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'completed'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else />
+					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['generatedBtn']" />
 				</v-sheet>
 				<v-tabs v-model="tabs" fixed-tabs>
 					<v-tab text="generate" value="generate"></v-tab>
@@ -126,6 +146,16 @@
 				</v-tabs-window>
 			</v-sheet>
 		</v-form>
+		<v-card ref="swalHtmlRef">
+			<v-card-title>{{ store.aname.generated[uuid]?.data?.username || 'fake-transparent-name-placeholder' }}</v-card-title>
+			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower">Congratulations on your first generated name!</v-card-subtitle>
+			<v-card-text class="text-start">
+				<p class="my-4">Your unique name has been <span class="font-weight-bold">deterministically</span> generated! 🔥</p>
+				<p class="my-4">This means that as long as you provide the same input, you'll always get the same name—no randomness, no duplicates, no hassle! ✨</p>
+				<p class="my-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, and branding</span> without the hassle of tracking usernames manually. 🔗</p>
+				<p class="my-4">Want even <span class="font-weight-bold">more control</span>? Unlock advanced features like <span class="font-weight-bold">more API calls, shorter names, and more</span> with Aname Pro! 🗝️</p>
+			</v-card-text>
+		</v-card>
 		<v-snackbar v-model="snackbar.active" multi-line :timeout="snackbar.timeout" @mouseenter="snackbar.timeout = -1" @mouseleave="snackbar.timeout = 5000">
 			<div class="text-caption">{{ snackbar.text }}</div>
 			<template v-slot:actions>
@@ -179,15 +209,17 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch, inject, withDirectives } from 'vue'
 import { v5 as uuidv5 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
 import { bytesToHex } from '@noble/curves/abstract/utils'
+import Swal from 'sweetalert2'
 import 'animate.css'
 
 import UrlVisualizer from '../components/UrlVisualizer.vue'
 
+const swalHtmlRef = ref()
 const tabs = ref()
 const clipboard = inject('clipboard')
 const { MODE, VITE_APP_API_SERVER } = import.meta.env
@@ -229,6 +261,7 @@ const styleObjs = computed(() => ({
 }))
 const availableDictionaries = ref(['https://github.june07.com/dictionary/adjs', 'https://github.june07.com/dictionary/colors', 'https://github.june07.com/dictionary/nouns'])
 const params = ref({
+	entropyMode: store.aname.entropyMode,
 	dictionaries: [
 		'https://github.june07.com/dictionary/adjs',
 		// prettier-ignore
@@ -282,6 +315,16 @@ async function callAPI(action) {
 			.then(response => response.json())
 			.then(data => {
 				if (!store.aname.generated[uuid.value]) {
+					if (!Object.keys(store.aname.generated).length) {
+						swal(
+							{
+								icon: 'info',
+							},
+							() => {
+								console.log('Generate a name first')
+							}
+						)
+					}
 					store.aname.generated[uuid.value] = {
 						url: url.value,
 						data,
@@ -418,18 +461,29 @@ function reorderItems(items, fromIndex, toIndex) {
 	}
 }
 function closeDictionaryHandler(item) {
-    const index = params.value.dictionaries.findIndex(dict => dict === item)
-	
-    params.value.dictionaries.splice(index, 1)
+	const index = params.value.dictionaries.findIndex(dict => dict === item)
+
+	params.value.dictionaries.splice(index, 1)
+}
+function swal(options = {}, func) {
+	const effectiveOptions = {
+		icon: 'success',
+		color: 'white',
+		background: 'rgba(255, 255, 255, 1)',
+		confirmButtonColor: 'green',
+		confirmButtonText: 'OK',
+		html: swalHtmlRef.value.$el,
+		...options,
+	}
+	Swal.fire(effectiveOptions).then(func)
 }
 onBeforeMount(() => {
 	updateMetadata()
 	generateKeyPair()
-	if (!store.aname.publicKey && store.aname.keypair.pub) {
-		store.aname.publicKey = store.aname.keypair.pub
-	}
 })
 onMounted(() => {
+	swal()
+	resetHandler()
 	watch(() => params.value, updateURL, { immediate: true, deep: true })
 })
 </script>
