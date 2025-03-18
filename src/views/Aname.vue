@@ -316,14 +316,7 @@ async function callAPI(action) {
 			.then(data => {
 				if (!store.aname.generated[uuid.value]) {
 					if (!Object.keys(store.aname.generated).length) {
-						swal(
-							{
-								icon: 'info',
-							},
-							() => {
-								console.log('Generate a name first')
-							}
-						)
+						swal()
 					}
 					store.aname.generated[uuid.value] = {
 						url: url.value,
@@ -482,7 +475,6 @@ onBeforeMount(() => {
 	generateKeyPair()
 })
 onMounted(() => {
-	swal()
 	resetHandler()
 	watch(() => params.value, updateURL, { immediate: true, deep: true })
 })
