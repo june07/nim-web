@@ -543,7 +543,7 @@ onBeforeMount(() => {
 	generateKeyPair()
 })
 onMounted(() => {
-	swal()
+	if (MODE !== 'production') swal()
 	resetHandler()
 	watch(() => params.value, updateURL, { immediate: true, deep: true })
 })
