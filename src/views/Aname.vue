@@ -146,7 +146,7 @@
 				</v-tabs-window>
 			</v-sheet>
 		</v-form>
-		<v-card ref="swalHtmlRef" v-show="swalActive" rounded="xl" elevation="12" class="mb-8">
+		<v-card ref="swalHtmlRef" v-show="swalActive" rounded="xl" flat class="mb-8">
 			<v-card-title>{{ store.aname.generated[uuid]?.data?.username || 'fake-transparent-name-placeholder' }}</v-card-title>
 			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower">Congratulations on your first generated name!</v-card-subtitle>
 			<v-card-text class="text-start">
@@ -154,6 +154,35 @@
 				<p class="my-4">This means that as long as you provide the same input, you'll always get the same name—no randomness, no duplicates, no hassle! ✨</p>
 				<p class="my-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, and branding</span> without the hassle of tracking usernames manually. 🔗</p>
 				<p class="my-4">Want even <span class="font-weight-bold">more control</span>? Unlock advanced features like <span class="font-weight-bold">more API calls, shorter names, and more</span> with Aname Pro! 🗝️</p>
+
+				<v-item-group v-model="plans" mandatory>
+					<v-container>
+						<v-row>
+							<v-col class="pa-0" :cols="4" v-for="plan of plans" :key="plan">
+								<v-item v-slot="{ active, toggle }">
+									<v-card class="d-flex flex-column mr-1 h-100" :color="active ? 'primary' : undefined" @click="toggle" rounded="xl">
+										<v-card-title class="text-h6 text-center font-weight-bold">
+											{{ plan.name }}
+										</v-card-title>
+										<v-card-subtitle>
+											{{ plan.description }}
+										</v-card-subtitle>
+										<v-card-text style="font-size: 0.65rem" class="ml-2 text-capitalize">
+											<ul>
+												<li v-for="feature of plan.features" :key="feature">
+													<span v-html="feature"></span>
+												</li>
+											</ul>
+										</v-card-text>
+										<v-card-actions class="d-flex flex-column justify-end">
+											<v-btn rounded variant="tonal" color="primary" block :href="plan.href" target="_blank" rel="noopener" :text="plan.buttonText" @click.stop />
+										</v-card-actions>
+									</v-card>
+								</v-item>
+							</v-col>
+						</v-row>
+					</v-container>
+				</v-item-group>
 			</v-card-text>
 		</v-card>
 		<v-snackbar v-model="snackbar.active" multi-line :timeout="snackbar.timeout" @mouseenter="snackbar.timeout = -1" @mouseleave="snackbar.timeout = 5000">
@@ -275,6 +304,32 @@ const params = ref({
 	publicKey: store.aname.publicKey,
 	nocache: MODE === 'production' ? false : true,
 })
+const plans = ref([
+	{
+		name: 'Free',
+		price: 0,
+		type: 'free',
+		features: ['up to <b>100</b> deterministicly generated unique names', 'unlimited lookups'],
+		href: `${window.location.origin}/signin?action=register&redirect=${window.location.origin}/aname`,
+        buttonText: 'Get Started',
+	},
+	{
+		name: 'Developer',
+		price: 1000,
+		type: 'developer',
+		features: ['<b>Everything in free version</b>', 'up to <b>1,000</b> names', 'developer sandbox', 'custom namespaces'],
+		href: 'https://buy.stripe.com/14k7vw4Nn0pP4ZafZ1',
+        buttonText: 'Get Started',
+	},
+	{
+		name: 'Pro',
+		price: 1999,
+		type: 'pro',
+		features: ['<b>Everything in developer version</b>', 'up to <b>10,000</b> names'],
+		href: 'https://buy.stripe.com/00g3fg3JjgoN9fq6os',
+        buttonText: 'Get Started',
+	},
+])
 const keyRef = ref()
 const templateArr = computed(() => {
 	const arr = params.value.dictionaries?.map(dictionary => ({
@@ -424,6 +479,8 @@ function downloadHandler() {
 }
 const drag = ref({
 	startY: -1,
+	startX: -1,
+	endX: -1,
 	endY: -1,
 	startIndex: -1,
 	endIndex: -1,
@@ -436,7 +493,12 @@ function dragstartHandler(event, index) {
 
 function dropHandler(event) {
 	drag.value.endY = event.clientY
-	drag.value.endIndex = (drag.value.endY - drag.value.startY) / document.querySelector('.dictionary.v-chip').clientHeight
+	drag.value.endX = event.clientX
+
+	const yEndIndex = (drag.value.endY - drag.value.startY) / document.querySelector('.dictionary.v-chip').clientHeight
+	const xEndIndex = (drag.value.endX - drag.value.startX) / document.querySelector('.dictionary.v-chip').clientWidth
+
+	drag.value.endIndex = Math.max(xEndIndex, yEndIndex)
 
 	if (drag.value.startIndex !== -1 && drag.value.endIndex !== -1) {
 		reorderItems(params.value.dictionaries, drag.value.startIndex, drag.value.endIndex)
@@ -460,7 +522,7 @@ function closeDictionaryHandler(item) {
 	params.value.dictionaries.splice(index, 1)
 }
 function swal(options = {}, func) {
-    swalActive.value = true
+	swalActive.value = true
 	const effectiveOptions = {
 		icon: 'success',
 		color: 'white',
@@ -470,17 +532,18 @@ function swal(options = {}, func) {
 		html: swalHtmlRef.value.$el,
 		...options,
 	}
-    Swal.fire(effectiveOptions).then(() => {
-        swalActive.value = false
-        func && func()
-    })
+	Swal.fire(effectiveOptions).then(() => {
+		swalActive.value = false
+		func && func()
+	})
 }
+
 onBeforeMount(() => {
 	updateMetadata()
 	generateKeyPair()
 })
 onMounted(() => {
-    // swal()
+	swal()
 	resetHandler()
 	watch(() => params.value, updateURL, { immediate: true, deep: true })
 })

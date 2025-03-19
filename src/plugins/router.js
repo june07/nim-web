@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 export default (app) => {
     const setupRoutes = $keycloak => {
-        const { isAuthenticated, isLoading } = $keycloak
+        const { login, logout } = $keycloak.value
 
         return [
             {
@@ -35,6 +35,25 @@ export default (app) => {
                     menu: 'Docs'
                 },
                 component: () => import('@/views/Docs.vue')
+            }, {
+                path: '/signin',
+                name: 'Web App Sign In',
+                component: () => import('@/views/Aname.vue'),
+                beforeEnter: (to) => {
+                    login({
+                        action: to.query.action,
+                        redirectUri: to.query.redirectUri || window.location.origin
+                    })
+                },
+                alias: ['/login']
+            }, {
+                path: '/signout',
+                name: 'Web App Sign Out',
+                component: () => import('@/views/Aname.vue'),
+                beforeEnter: () => {
+                    logout({ redirectUri: document.location.origin })
+                },
+                alias: ['/logout']
             }, {
                 path: '/ihotd',
                 name: 'indihackeroftheday',
