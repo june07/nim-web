@@ -1,6 +1,6 @@
 <template>
 	<v-container fluid class="py-0 news-cycle-regular">
-		<v-form ref="form">
+		<v-form ref="form" validate-on="eager">
 			<v-sheet color="grey-lighten-2 font-weight-bold w-75 mx-auto my-4 pa-4">
 				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" />
 				<v-sheet rounded="lg" class="mb-4 pa-2">
@@ -155,12 +155,12 @@
 				<p class="my-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, and branding</span> without the hassle of tracking usernames manually. 🔗</p>
 				<p class="my-4">Want even <span class="font-weight-bold">more control</span>? Unlock advanced features like <span class="font-weight-bold">more API calls, shorter names, and more</span> with Aname Pro! 🗝️</p>
 
-				<v-item-group v-model="plans" mandatory>
+				<v-item-group v-model="plansGroup" mandatory>
 					<v-container>
 						<v-row>
 							<v-col class="pa-0" :cols="4" v-for="plan of plans" :key="plan">
-								<v-item v-slot="{ active, toggle }">
-									<v-card class="d-flex flex-column mr-1 h-100" :color="active ? 'primary' : undefined" @click="toggle" rounded="xl">
+								<v-item v-slot="{ isSelected, selectedClass, toggle }">
+									<v-card class="d-flex flex-column mr-1 h-100" :color="isSelected ? 'blue-darken-4' : undefined" @click="toggle" rounded="xl" :class="selectedClass">
 										<v-card-title class="text-h6 text-center font-weight-bold">
 											{{ plan.name }}
 										</v-card-title>
@@ -175,7 +175,7 @@
 											</ul>
 										</v-card-text>
 										<v-card-actions class="d-flex flex-column justify-end">
-											<v-btn rounded variant="tonal" color="primary" block :href="plan.href" target="_blank" rel="noopener" :text="plan.buttonText" @click.stop />
+											<v-btn rounded variant="tonal" :color="isSelected ? 'white' : undefined" block :to="plan.to" :href="plan.href" :target="plan.href  && '_blank'" :rel="plan.href && 'noopener'" :text="plan.buttonText" :disabled="plan.disabled" @click.stop />
 										</v-card-actions>
 									</v-card>
 								</v-item>
@@ -238,8 +238,8 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject } from 'vue'
-import { v5 as uuidv5 } from 'uuid'
+import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance } from 'vue'
+import { v5 as uuidv5, v4 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
 import { bytesToHex } from '@noble/curves/abstract/utils'
@@ -248,6 +248,7 @@ import 'animate.css'
 
 import UrlVisualizer from '../components/UrlVisualizer.vue'
 
+const { $keycloak } = getCurrentInstance().appContext.config.globalProperties
 const swalHtmlRef = ref()
 const tabs = ref()
 const clipboard = inject('clipboard')
@@ -261,6 +262,7 @@ const uuid = computed(() => {
 
 	return uuid
 })
+const plansGroup = ref(0)
 const canGenerate = computed(() => uuid.value && !store.aname.generated[uuid.value])
 const didLookup = computed(() => uuid.value && !!store.aname.lookups[uuid.value])
 const store = useAppStore()
@@ -273,7 +275,7 @@ const keyHint = computed(() => {
 })
 const rules = ref({
 	salt: [v => !v || (v && v.length <= 21) || 'Salt must be less than 21 characters'],
-	seed: [v => !!v || 'Seed is required', v => (v && v.length <= 100) || 'Seed must be less than 100 characters'],
+	seed: [v => !!v || 'Seed is required', v => (v && `${v}`.length <= 100) || 'Seed must be less than 100 characters'],
 	dictionaries: [v => !!v || 'At least one dictionary is required', v => (v && v.length > 0 && v.length <= 5) || 'A maximum of 5 dictionaries is supported.'],
 	separator: [v => !!v || 'Separator is required', v => !!v || (v && v.length == 1) || 'Separator must be exactly 1 character', v => (v && /^[-_:.|,;+# ]$/.test(v)) || 'Separator must be one of the following: - _ : . | , ; + # space'],
 	suffixLength: [v => !!v || 'Suffix Length is required', v => (v && v >= 0 && v <= 21) || 'Suffix Length must be a positive number between 0 and 21 inclusive'],
@@ -300,18 +302,20 @@ const params = ref({
 	template: `${encodeURIComponent('https://github.june07.com/dictionary/adjs')}-${encodeURIComponent('colors')}-${encodeURIComponent('https://github.june07.com/dictionary/nouns')}`,
 	separator: store.aname.separator,
 	suffixLength: store.aname.suffixLength,
-	seed: '8f729b1f-68c0-5e07-ba95-c99920d329df',
+	seed: v4(),
 	publicKey: store.aname.publicKey,
 	nocache: MODE === 'production' ? false : true,
 })
-const plans = ref([
+const role = computed(() => $keycloak.value?.isAuthenticated && $keycloak.value.resourceAccess?.['ai'].roles.find(role => role.startsWith('aname')))
+const plans = computed(() => [
 	{
 		name: 'Free',
 		price: 0,
 		type: 'free',
-		features: ['up to <b>100</b> deterministicly generated unique names', 'unlimited lookups'],
-		href: `${window.location.origin}/signin?action=register&redirect=${window.location.origin}/aname`,
-        buttonText: 'Get Started',
+		features: ['up to <b>100</b> guaranteed unique names', 'unlimited lookups'],
+		to: `/signin?action=register&redirect=${window.location.origin}/aname`,
+		buttonText: /free/i.test(role.value) ? '' : 'Get Started',
+        disabled: !!role.value
 	},
 	{
 		name: 'Developer',
@@ -319,7 +323,8 @@ const plans = ref([
 		type: 'developer',
 		features: ['<b>Everything in free version</b>', 'up to <b>1,000</b> names', 'developer sandbox', 'custom namespaces'],
 		href: 'https://buy.stripe.com/14k7vw4Nn0pP4ZafZ1',
-        buttonText: 'Get Started',
+		buttonText: /free/i.test(role.value) ? 'Upgrade' : 'Get Started',
+        disabled: /developer|pro/i.test(role.value)
 	},
 	{
 		name: 'Pro',
@@ -327,7 +332,8 @@ const plans = ref([
 		type: 'pro',
 		features: ['<b>Everything in developer version</b>', 'up to <b>10,000</b> names'],
 		href: 'https://buy.stripe.com/00g3fg3JjgoN9fq6os',
-        buttonText: 'Get Started',
+		buttonText: /free|developer/i.test(role.value) ? 'Upgrade' : 'Get Started',
+        disabled: /pro/i.test(role.value)
 	},
 ])
 const keyRef = ref()
@@ -366,10 +372,22 @@ function updateURL() {
 	url.value = urlBase.href
 }
 async function callAPI(action) {
+    await $keycloak.value.isLoaded
+    const token = await $keycloak.value.token
+
 	if (action !== 'lookup') {
-		fetch(url.value)
+        fetch(url.value, {
+            headers: token ? {
+                Authorization: `Bearer ${token}`,
+            } : {},
+        })
 			.then(response => response.json())
 			.then(data => {
+				if (data.error) {
+					snackbar.value.text = data.error
+					snackbar.value.active = true
+					return
+				}
 				if (!store.aname.generated[uuid.value]) {
 					if (!Object.keys(store.aname.generated).length) {
 						swal()
@@ -543,7 +561,7 @@ onBeforeMount(() => {
 	generateKeyPair()
 })
 onMounted(() => {
-	if (MODE !== 'production') swal()
+    // swal()
 	resetHandler()
 	watch(() => params.value, updateURL, { immediate: true, deep: true })
 })

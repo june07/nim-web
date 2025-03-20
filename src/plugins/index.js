@@ -19,7 +19,7 @@ import InstantSearch from 'vue-instantsearch/vue3/es'
 const {
     VITE_APP_KEYCLOAK_URL,
     VITE_APP_KEYCLOAK_REALM,
-    VITE_APP_KEYCLOAK_CLIENT_ID
+    VITE_APP_KEYCLOAK_CLIENT_ID,
 } = import.meta.env
 
 pinia.use(piniaPluginPersistedstate)
@@ -33,7 +33,7 @@ export function registerPlugins(app) {
                 clientId: VITE_APP_KEYCLOAK_CLIENT_ID
             },
             onLoad: 'check-sso',
-            silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`
+            silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
         })
         .use(InstantSearch)
         .use(pinia)

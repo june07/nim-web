@@ -4,7 +4,8 @@ import { ref } from 'vue'
 
 const keycloakPlugin = {
     async install(app, options) {
-        const keycloak = ref(new Keycloak(options.keycloakConfig))
+        const { keycloakConfig } = options
+        const keycloak = ref(new Keycloak(keycloakConfig))
 
         delete options.keycloakConfig
 
@@ -17,16 +18,16 @@ const keycloakPlugin = {
                 resolve(true)
             }
         ))
-        // Expose $keycloak as a computed property
+
         app.config.globalProperties.$keycloak = keycloak
 
         try {
             // Initialize Keycloak and set it to keycloakRef
             keycloak.value.isAuthenticated = await keycloak.value.init(options)
         } catch (error) {
-            console.warn('Failed to initialize adapter:', error);
+            console.warn('Failed to initialize adapter:', error)
         }
-    },
+    }
 }
 
 export default keycloakPlugin

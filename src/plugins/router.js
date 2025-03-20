@@ -2,8 +2,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 export default (app) => {
-    const setupRoutes = $keycloak => {
-        const { login, logout } = $keycloak.value
+    const setupRoutes = () => {
+        const { login, logout } = app.config.globalProperties.$keycloak.value
 
         return [
             {
@@ -103,9 +103,10 @@ export default (app) => {
             },
         ]
     }
+
     const router = createRouter({
         history: createWebHistory(process.env.BASE_URL),
-        routes: setupRoutes(app.config.globalProperties.$keycloak),
+        routes: setupRoutes(),
     })
 
     app.use(router)
