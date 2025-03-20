@@ -56,7 +56,7 @@
 					<v-text-field variant="solo" flat v-model="store.aname.salt" label="salt" :rules="rules.salt" class="w-50" @keydown.enter="callAPI" />
 				</div>
 				<div class="d-flex mb-2">
-					<v-text-field variant="solo" flat v-model="store.aname.publicKey" :rules="rules.publicKey" class="w-50" id="publicKey" ref="keyRef" @keydown.enter="callAPI" :hint="keyHint" :persistent-hint="!!keyHint">
+					<v-text-field variant="solo" flat v-model="params.publicKey" :rules="rules.publicKey" class="w-50" id="publicKey" ref="keyRef" @keydown.enter="callAPI" :hint="keyHint" :persistent-hint="!!keyHint">
 						<template v-slot:label>
 							<span>public key</span>
 							<v-tooltip location="top" aria-label="Public key input tooltip">
@@ -271,7 +271,7 @@ const snackbar = ref({
 	text: '',
 })
 const keyHint = computed(() => {
-	return store.aname.publicKey && store.aname.keypair.pub && store.aname.publicKey !== store.aname.keypair.pub ? 'Note: This public key does not match the stored keypair.' : undefined
+	return params.value.publicKey && store.aname.keypair.pub && params.value.publicKey !== store.aname.keypair.pub ? 'Note: This public key does not match the stored keypair.' : undefined
 })
 const rules = ref({
 	salt: [v => !v || (v && v.length <= 21) || 'Salt must be less than 21 characters'],
@@ -349,7 +349,7 @@ const templateArr = computed(() => {
 const swalActive = ref(false)
 const apiResponseData = computed(() => uuid.value && store.aname.generated[uuid.value]?.data)
 const apiResponseData2 = computed(() => uuid.value && store.aname.lookups[uuid.value])
-const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.username || 'unique-name-placeholder'}?publicKey=${store.aname.publicKey}`)?.href)
+const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.username || 'unique-name-placeholder'}?publicKey=${params.value.publicKey}`)?.href)
 function updateURL() {
 	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
 
@@ -472,7 +472,7 @@ function resetHandler() {
 		keyRef.value.classList.remove('text-green')
 	}, 1000)
 
-	store.aname.publicKey = store.aname.keypair.pub
+    params.value.publicKey = store.aname.keypair.pub
 }
 const tooltips = ref({
 	download: false,
