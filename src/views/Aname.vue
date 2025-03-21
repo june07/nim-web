@@ -499,7 +499,7 @@ async function callAPI(action) {
 	}
 }
 async function updateMetadata() {
-	availableDictionaries.value.forEach(dictionary => {
+	availableDictionaries.value.filter(dictionary => typeof dictionary === 'string').forEach(dictionary => {
 		if (store.aname.metadata[dictionary]?.words?.length) return
 
 		fetch(dictionary)
