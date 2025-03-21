@@ -1,6 +1,31 @@
 <template>
-	<v-sheet width="100%" rounded="lg" class="pl-8 text-wrap">
-		<input v-model="url" @input="parseURL" placeholder="Enter URL here" class="url-input" />
+	<v-sheet width="100%" rounded="lg" class="pl-8 text-wrap ubuntu-condensed-regular" style="position: relative">
+		<v-text-field v-model="url" @input="parseURL" placeholder="Enter URL here" class="url-input" readonly variant="solo" density="compact" hide-details flat style="position: absolute; top: 0; left: 0">
+			<template v-slot:prepend-inner>
+				<v-tooltip text="Copied command to the clipboard" v-model="tooltip" aria-label="Copied Command Tooltip" attach location="top">
+					<template v-slot:activator="{ props: tooltip }">
+						<v-menu>
+							<template v-slot:activator="{ props, isActive }">
+								<v-btn variant="tonal" v-bind="props" :append-icon="isActive ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" size="small">
+									<span class="text-caption text-uppercase">cli</span>
+									<template v-slot:prepend>
+										<v-icon icon="content_copy" size="small"></v-icon>
+									</template>
+								</v-btn>
+							</template>
+							<v-list>
+								<v-list-item v-for="(command, index) in commands" :key="index" :value="index" density="compact" @click="copyHandler(command.command)">
+									<template v-slot:prepend>
+										<v-img :src="command.icon" width="20" class="mr-4" />
+									</template>
+									<v-list-item-title class="text-body-2">{{ command.title }}</v-list-item-title>
+								</v-list-item>
+							</v-list>
+						</v-menu>
+					</template>
+				</v-tooltip>
+			</template>
+		</v-text-field>
 		<div v-if="urlParts" class="details">
 			<div class="section">
 				<span class="label">Protocol:</span> <span class="value">{{ urlParts.protocol }}</span>
@@ -31,24 +56,28 @@
 </template>
 
 <style>
+.ubuntu-condensed-regular {
+	font-family: 'Ubuntu Condensed', sans-serif;
+	font-weight: 400;
+	font-style: normal;
+}
 .url-input {
 	width: 100%;
 	padding: 5px;
 	margin-bottom: 10px;
 }
 .section {
-    display: flex;
+	display: flex;
 	margin-bottom: 8px;
-    cursor: pointer;
+	cursor: pointer;
 }
 .label {
-    margin-right: 6px;
+	margin-right: 6px;
 	font-weight: bold;
 	color: #007acc;
 }
 .value {
-    overflow-wrap: anywhere;
-	font-family: monospace;
+	overflow-wrap: anywhere;
 }
 .error {
 	color: red;
@@ -56,21 +85,26 @@
 </style>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, inject, computed } from 'vue'
 
+const {
+    MODE
+} = import.meta.env
 const emit = defineEmits(['update'])
 const props = defineProps({
 	url: String,
+	apikey: String,
 })
+const clipboard = inject('clipboard')
 const url = ref(props.url)
 const urlParts = ref()
 const condensed = ref({
-    query: true,
-    qp: true
+	query: true,
+	qp: true,
 })
 
 function parseURL(url) {
-    if (!url) return
+	if (!url) return
 
 	try {
 		const parsed = new URL(url)
@@ -88,7 +122,32 @@ function parseURL(url) {
 		urlParts.value = null
 	}
 }
-
+const commands = computed(() => [
+	{
+		title: 'Copy as curl (bash)',
+		icon: 'terminal.svg',
+		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} '${url.value}' \\\n  -H 'x-api-key: ${props.apikey}'`,
+	},
+	{
+		title: 'Copy as curl (cmd)',
+		icon: 'cmd.svg',
+		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} ^"${url.value}^" ^\n  -H ^"x-api-key: ${props.apikey}^"`,
+	},
+	{
+		title: 'Copy as fetch',
+		icon: 'fetch.svg',
+		command: !url.value.endsWith('/stats') && `fetch("${url.value}", {\n  method: "GET",\n  headers: {\n    "x-api-key": "${props.apikey}"\n  }\n})`,
+	},
+])
+const tooltip = ref(false)
+function copyHandler(command) {
+	clipboard.copy(command).then(copied => {
+		tooltip.value = copied
+		if (copied) {
+			setTimeout(() => (tooltip.value = false), 1500)
+		}
+	})
+}
 onMounted(() => {
 	watch(() => props.url, parseURL, { immediate: true })
 })

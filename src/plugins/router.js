@@ -26,7 +26,17 @@ export default (app) => {
                     title: 'A Naming Tool',
                     menu: 'Aname'
                 },
-                component: () => import('@/views/Aname.vue')
+                component: () => import('@/views/Aname.vue'),
+                beforeEnter(to, from, next) {
+                    const meta = document.createElement('meta')
+                    
+                    meta.name = 'viewport'
+                    meta.content = 'width=device-width, initial-scale=1.0'
+                    document.head.appendChild(meta)
+                    document.title = `${to.name} by June07 - ${to.meta.title}`
+
+                    next()
+                },
             }, {
                 path: '/docs',
                 name: 'docs',

@@ -1,15 +1,16 @@
 <template>
 	<v-container fluid class="py-0 news-cycle-regular">
-		<v-form ref="form" validate-on="eager">
-			<v-sheet color="grey-lighten-2 font-weight-bold w-75 mx-auto my-4 pa-4">
+		<aname-header />
+		<v-form ref="form">
+			<v-sheet color="grey-lighten-2" class="font-weight-bold mx-auto my-4 pa-4" :class="smAndDown ? 'w-100' : 'w-75'">
 				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" />
 				<v-sheet rounded="lg" class="mb-4 pa-2">
-					<v-tooltip location="top" aria-label="dictionaries tooltip">
+					<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
 						<p class="my-4">Dicionaries can be passed in as objects or strings.</p>
 						<p class="my-4">Objects shall be in the format of { ['dictionary name']: 'wsv list of terms where compound terms are separated by a hyphen' }.</p>
 						<p class="my-4">Strings should be hrefs to plaintext files following the same format as above (wsv list of terms where compound terms are separated by a hyphen), with the added detail that the file should be a single line.</p>
 						<template v-slot:activator="{ props: tooltip }">
-							<div class="font-weight-light text-grey-darken-1 ml-2" style="font-size: 0.5rem">
+							<div class="font-weight-light text-grey-darken-2 ml-2 alabel">
 								dictionaries
 								<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" class="ml-2" style="cursor: pointer; pointer-events: auto" />
 							</div>
@@ -36,7 +37,7 @@
 					<div style="position: relative" class="d-flex w-25 mr-2">
 						<v-text-field variant="solo" flat v-model="params.suffixLength" :rules="rules.suffixLength" @keydown.enter="callAPI">
 							<template v-slot:label>
-								<v-tooltip location="top" aria-label="dictionaries tooltip">
+								<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
 									<p class="my-4">Entropy mode controls how the suffix length is determined.</p>
 									<p class="my-4">When disabled, the suffix length represents the exact number of digits in base 10, ensuring predictable and user-friendly output.</p>
 									<p class="my-4">When enabled, the suffix length is directly tied to the entropy of the underlying hash, preserving randomness by selecting a fixed number of hex characters before conversion.</p>
@@ -59,7 +60,7 @@
 					<v-text-field variant="solo" flat v-model="params.publicKey" :rules="rules.publicKey" class="w-50" id="publicKey" ref="keyRef" @keydown.enter="callAPI" :hint="keyHint" :persistent-hint="!!keyHint">
 						<template v-slot:label>
 							<span>public key</span>
-							<v-tooltip location="top" aria-label="Public key input tooltip">
+							<v-tooltip location="top" aria-label="Public key input tooltip" :open-on-click="smAndDown">
 								You can <span class="text-uppercase text-grey">download</span> your key pair as a json file, <span class="text-uppercase text-grey">copy</span> the public key, or <span class="text-uppercase text-grey">reset</span> the public key to match the stored public key.
 								<template v-slot:activator="{ props: tooltip }">
 									<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" class="ml-2" style="cursor: pointer; pointer-events: auto" />
@@ -85,6 +86,14 @@
 					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.username" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.username }}</div>
 					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
 					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['generatedBtn']" />
+					<v-chip style="position: absolute; top: 6px; left: 6px" color="green" class="d-flex align-center animate__animated animate__bounceIn" label v-if="stats?.count">
+						<div class="text-caption">Used {{ stats.count }}/{{ stats.max }}</div>
+						<template v-slot:append>
+							<v-progress-circular class="ml-2" width="2" :model-value="(stats?.count / stats?.max) * 100" size="20"
+								><div style="font-size: 0.4rem; font-weight: bold">{{ (stats?.count / stats?.max) * 100 }}%</div></v-progress-circular
+							>
+						</template>
+					</v-chip>
 				</v-sheet>
 				<v-tabs v-model="tabs" fixed-tabs>
 					<v-tab text="generate" value="generate"></v-tab>
@@ -93,13 +102,15 @@
 				<v-tabs-window v-model="tabs">
 					<v-tabs-window-item value="generate">
 						<div class="text-caption text-center mt-8">
-							<v-tooltip location="top" aria-label="Public key input tooltip">
+							<v-tooltip location="top" aria-label="Public key input tooltip" :open-on-click="smAndDown">
 								<p>The template flag is used to define the format of your generated name, including which dictionary(s) to use and in what order, and the separator between each dictionary term.</p>
 								<p class="my-4">Each template segment should be a string that references either the name of the included dictionary or an href to the dictionary.</p>
 								<p class="my-4">Dicionaries can be passed in as objects or strings.</p>
 								<template v-slot:activator="{ props: tooltip }">
-									template
-									<v-icon v-bind="tooltip" color="yellow-darken-2" size="small" icon="info" class="ml-2" style="cursor: pointer; pointer-events: auto" />
+									<div class="alabel mb-4">
+										template
+										<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" class="ml-2" style="cursor: pointer; pointer-events: auto" />
+									</div>
 								</template>
 							</v-tooltip>
 						</div>
@@ -112,7 +123,7 @@
 						</div>
 						<div class="text-caption text-center mt-8">API call</div>
 						<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-							<url-visualizer :url="url" />
+							<url-visualizer :url="url" :apikey="store.aname.apikeyData.key" />
 						</div>
 						<div class="text-caption text-center mt-8">fetch response data</div>
 						<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
@@ -175,7 +186,7 @@
 											</ul>
 										</v-card-text>
 										<v-card-actions class="d-flex flex-column justify-end">
-											<v-btn rounded variant="tonal" :color="isSelected ? 'white' : undefined" block :to="plan.to" :href="plan.href" :target="plan.href  && '_blank'" :rel="plan.href && 'noopener'" :text="plan.buttonText" :disabled="plan.disabled" @click.stop />
+											<v-btn rounded variant="tonal" :color="isSelected ? 'white' : undefined" block :to="plan.to" :href="plan.href" :target="plan.href && '_blank'" :rel="plan.href && 'noopener'" :text="plan.buttonText" :disabled="plan.disabled" @click.stop />
 										</v-card-actions>
 									</v-card>
 								</v-item>
@@ -197,19 +208,6 @@
 html {
 	font-size: 1.5rem;
 }
-</style>
-<style scoped>
-:deep(.v-chip__content) {
-	overflow: hidden;
-	font-size: 0.75rem;
-}
-.segment {
-	margin: 1px;
-}
-:deep(.outer .v-chip__append) {
-	margin-right: -6px;
-	margin-left: 6px;
-}
 .news-cycle-regular {
 	font-family: 'News Cycle', sans-serif;
 	font-weight: 400;
@@ -225,6 +223,76 @@ html {
 	font-family: 'Stint Ultra Condensed', serif;
 	font-weight: 400;
 	font-style: normal;
+}
+.saira-extra-condensed-thin {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 100;
+	font-style: normal;
+}
+
+.saira-extra-condensed-extralight {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 200;
+	font-style: normal;
+}
+
+.saira-extra-condensed-light {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 300;
+	font-style: normal;
+}
+
+.saira-extra-condensed-regular {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.saira-extra-condensed-medium {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 500;
+	font-style: normal;
+}
+
+.saira-extra-condensed-semibold {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 600;
+	font-style: normal;
+}
+
+.saira-extra-condensed-bold {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 700;
+	font-style: normal;
+}
+
+.saira-extra-condensed-extrabold {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 800;
+	font-style: normal;
+}
+
+.saira-extra-condensed-black {
+	font-family: 'Saira Extra Condensed', sans-serif;
+	font-weight: 900;
+	font-style: normal;
+}
+</style>
+<style scoped>
+.alabel {
+	font-size: 0.5rem;
+	opacity: 0.6;
+}
+:deep(.v-chip__content) {
+	overflow: hidden;
+	font-size: 0.75rem;
+}
+.segment {
+	margin: 1px;
+}
+:deep(.outer .v-chip__append) {
+	margin-right: -6px;
+	margin-left: 6px;
 }
 :deep(input#publicKey.text-green) {
 	transition: color 1s ease;
@@ -243,11 +311,14 @@ import { v5 as uuidv5, v4 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
 import { bytesToHex } from '@noble/curves/abstract/utils'
+import { useDisplay } from 'vuetify/lib/framework.mjs'
 import Swal from 'sweetalert2'
 import 'animate.css'
 
 import UrlVisualizer from '../components/UrlVisualizer.vue'
+import AnameHeader from '../components/AnameHeader.vue'
 
+const { smAndDown } = useDisplay()
 const { $keycloak } = getCurrentInstance().appContext.config.globalProperties
 const swalHtmlRef = ref()
 const tabs = ref()
@@ -273,6 +344,7 @@ const snackbar = ref({
 const keyHint = computed(() => {
 	return params.value.publicKey && store.aname.keypair.pub && params.value.publicKey !== store.aname.keypair.pub ? 'Note: This public key does not match the stored keypair.' : undefined
 })
+const stats = ref({})
 const rules = ref({
 	salt: [v => !v || (v && v.length <= 21) || 'Salt must be less than 21 characters'],
 	seed: [v => !!v || 'Seed is required', v => (v && `${v}`.length <= 100) || 'Seed must be less than 100 characters'],
@@ -290,13 +362,14 @@ const styleObjs = computed(() => ({
 				right: 0,
 		  },
 }))
-const availableDictionaries = ref(['https://github.june07.com/dictionary/adjs', 'https://github.june07.com/dictionary/colors', 'https://github.june07.com/dictionary/nouns'])
+const availableDictionaries = ref(['https://github.june07.com/dictionary/adjs', 'https://github.june07.com/dictionary/colors', 'https://github.june07.com/dictionary/nouns', {
+    colors: ['red', 'green', 'blue']
+}])
 const params = ref({
 	entropyMode: store.aname.entropyMode,
 	dictionaries: [
 		'https://github.june07.com/dictionary/adjs',
-		// prettier-ignore
-		{ colors: ['aliceblue', 'almond', 'amaranth', 'amber', 'amethyst', 'apricot', 'aquamarine', 'azure', 'babyblue', 'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'bluegray', 'bluegreen', 'blueviolet', 'blush', 'brass', 'brickred', 'bronze', 'brown', 'buff', 'burgundy', 'burlywood', 'burntsienna', 'burntorange', 'cadetblue', 'camel', 'caramel', 'carnationpink', 'carolina', 'blue', 'celadon', 'cerise', 'cerulean', 'champagne', 'charcoal', 'chartreuse', 'cherryblossompink', 'chestnut', 'chocolate', 'cinnabar', 'cinnamon', 'cobalt', 'cobaltblue', 'coffee', 'coolgray', 'copper', 'coral', 'cornflowerblue', 'cornsilk', 'cream', 'crimson', 'cyan', 'dandelion', 'darkblue', 'darkbrown', 'darkbyzantium', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkpink', 'darkpurple', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkspringgreen', 'darkturquoise', 'darkviolet', 'deepblue', 'deepfuchsia', 'deepgreen', 'deeplilac', 'deepmagenta', 'deeporange', 'deeppink', 'deeppurple', 'deepskyblue', 'deepteal', 'deepviolet', 'denim', 'desert', 'dimgrey', 'dodgerblue', 'eggshell', 'electricblue', 'emerald', 'erin', 'fallow', 'fawn', 'fern', 'greenfieldfieldfloralwhite', 'forestgreen', 'frenchbeige', 'frenchblue', 'frenchlilac', 'fuchsia', 'gainsboro', 'gamboge', 'ghostwhite', 'gold', 'golden', 'goldenbrown', 'goldenrod', 'goldenyellow', 'gray', 'green', 'greenblue', 'greengray', 'greenyellow', 'gunmetal', 'hanblue', 'harlequin', 'harvestgold', 'heliotrope', 'honeydew', 'hotpink', 'iceblue', 'icterine', 'imperialred', 'inchworm', 'indiared', 'indigo', 'infrared', 'internationalorange', 'iris', 'isabelline', 'jade', 'jasmine', 'jazzberryjam', 'jonquil', 'junglegreen', 'kellygreen', 'khaki', 'lapislazuli', 'laserlemon', 'lavender', 'lavenderblush', 'lawngreen', 'lemon', 'lemonchiffon', 'lemonlime', 'lightblue', 'lightbrown', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightorange', 'lightpink', 'lightred', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightsteelblue', 'lightyellow', 'lilac', 'lime', 'limegreen', 'lincoln', 'green', 'linen', 'lion', 'liver', 'liveryellow', 'macaroniandcheese', 'magenta', 'magicmint', 'magnolia', 'mahogany', 'maize', 'malachite', 'manatee', 'mandarin', 'mango', 'mantis', 'marigold', 'maroon', 'mauve', 'mauve', 'taupe', 'maygreen', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mikado', 'yellow', 'mintcream', 'mint', 'green', 'mistyrose', 'moccasin', 'moonstone', 'mossgreen', 'mountainmeadow', 'mulberry', 'mustard', 'myrtle', 'navajowhite', 'navy', 'navyblue', 'neon', 'neonblue', 'neongreen', 'neonorange', 'neonpink', 'neonpurple', 'neonyellow', 'nonphoto', 'blue', 'ochre', 'oldgold', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orangeyellow', 'orchid', 'outerspace', 'outrageousorange', 'oxblood', 'oxfordblue', 'paleblue', 'palebrown', 'palecarmine', 'palecerulean', 'palegold', 'palegoldenrod', 'palegreen', 'paleleaf', 'palemagenta', 'palepink', 'palesilver', 'paleskyblue', 'palespringbud', 'paletaupe', 'palevioletred', 'papayawhip', 'parisgreen', 'pastelblue', 'pastelgreen', 'pastelpink', 'pastelpurple', 'pastelred', 'pastelyellow', 'paynesgray', 'peach', 'peachcream', 'peachorange', 'peachpuff', 'peachesandcream', 'pear', 'pearl', 'periwinkle', 'persianblue', 'persiangreen', 'persianindigo', 'persianorange', 'persianpink', 'persianplum', 'persianred', 'persianrose', 'persimmon', 'pewter', 'phlox', 'phthalo', 'blue', 'phthalo', 'green', 'pictonblue', 'pink', 'pinklavender', 'pistachio', 'platinum', 'plum', 'portlandorange', 'powderblue', 'prussianblue', 'puce', 'pumpkin', 'purple', 'purpleblue', 'purplegray', 'purplemountainmajesty', 'purplered', 'purplesand', 'purpletaupe', 'quartz', 'queenblue', 'rackley', 'radicalred', 'raisinblack', 'raspberry', 'rawumber', 'razzle', 'dazzle', 'rose', 'razzmatazz', 'red', 'redbrown', 'redorange', 'redpurple', 'redviolet', 'richblack', 'richblue', 'richcarmine', 'richlavender', 'richlilac', 'richmaroon', 'riflegreen', 'robinseggblue', 'rose', 'rosebonbon', 'roseebony', 'rosegold', 'rosemadder', 'rosemist', 'rosepink', 'rosequartz', 'rosevale', 'rosewood', 'rosso', 'corsa', 'royalazure', 'royalblue', 'royalfuchsia', 'royalpurple', 'rubine', 'red', 'ruby', 'ruddy', 'ruddybrown', 'ruddypink', 'rufous', 'russet', 'rust', 'rustyred', 'sacramento', 'state', 'blue', 'saffron', 'sage', 'green', 'salmon', 'sand', 'sandstone', 'sandy', 'brown', 'sangria', 'sap', 'green', 'sapphire', 'scarlet', 'schoolbusyellow', 'sea', 'green', 'seagreen', 'sealbrown', 'seashell', 'selectiveyellow', 'sepia', 'shadow', 'shamrock', 'green', 'shockingpink', 'sienna', 'silver', 'sinopia', 'skobeloff', 'sky', 'blue', 'skymagenta', 'slateblue', 'slategray', 'smalt', 'smokeytopaz', 'smokybrown', 'snow', 'spacecadet', 'spanishbistre', 'spanishblue', 'spanishcarmine', 'spanishcrimson', 'spanishgray', 'spanishgreen', 'spanishorange', 'spanishpink', 'spanishpurple', 'spanishred', 'spanishskyblue', 'spanishviolet', 'spanishviridian', 'spring', 'bud', 'springgreen', 'steelblue', 'stil', 'de', 'grainyellow', 'straw', 'strawberry', 'suffolkpink', 'sunglow', 'sunset', 'tangelo', 'tangerine', 'tangerineyellow', 'taupe', 'taupegray', 'tawny', 'tea', 'teal', 'tealblue', 'tealgreen', 'tenne', 'terracotta', 'thistle', 'tiffanyblue', 'tomato', 'toolbox', 'tropicalrainforest', 'trueblue', 'tuftsblue', 'tulip', 'twilight', 'ultramarine', 'ultramarineblue', 'ultrared', 'umber', 'unitednationsblue', 'upforestgreen', 'upmaroon', 'utahcrimson', 'vanilla', 'vegasgold', 'venetianred', 'verdigris', 'vermilion', 'veronica', 'violet', 'violetblue', 'violetred', 'viridian', 'vividburgundy', 'vividauburn', 'vividcerise', 'vividtangerine', 'vividviolet', 'warmblack', 'waterspout', 'wenge', 'wheat', 'white', 'wildblueyonder', 'wildstrawberry', 'wildwatermelon', 'wisteria', 'xanadu', 'yale', 'blue', 'yellow', 'yellowgreen', 'yelloworange', 'yellowrose', 'zaffre', 'zomp', 'black', 'white', 'gray', 'navy', 'red', 'pink', 'orange', 'yellow', 'green', 'blue', 'purple', 'brown', 'beige', 'cream', 'gold', 'silver', 'aqua', 'azure', 'bisque', 'bronze', 'burgundy', 'cerulean', 'charcoal', 'cherry', 'chestnut', 'citrine', 'cobalt', 'copper', 'coral', 'crimson', 'cyan', 'ebony', 'eggshell', 'emerald', 'fuchsia', 'garnet', 'ginger', 'gold', 'grape', 'hazel', 'indigo', 'ivory', 'jade', 'khaki', 'lavender', 'lemon', 'lilac', 'lime', 'magenta', 'mahogany', 'maroon', 'mauve', 'mustard', 'olive', 'onyx', 'peach', 'periwinkle', 'pine', 'pink', 'plum', 'pumpkin', 'raspberry', 'rose', 'rust', 'saffron', 'sage', 'salmon', 'sand', 'sapphire', 'scarlet', 'silver', 'slate', 'tan', 'tangerine', 'taupe', 'teal', 'terracotta', 'turquoise', 'vermilion', 'violet', 'wheat', 'wine', 'yellow']},
+        'https://github.june07.com/dictionary/colors',
 		'https://github.june07.com/dictionary/nouns',
 	],
 	template: `${encodeURIComponent('https://github.june07.com/dictionary/adjs')}-${encodeURIComponent('colors')}-${encodeURIComponent('https://github.june07.com/dictionary/nouns')}`,
@@ -315,7 +388,7 @@ const plans = computed(() => [
 		features: ['up to <b>100</b> guaranteed unique names', 'unlimited lookups'],
 		to: `/signin?action=register&redirect=${window.location.origin}/aname`,
 		buttonText: /free/i.test(role.value) ? '' : 'Get Started',
-        disabled: !!role.value
+		disabled: !!role.value,
 	},
 	{
 		name: 'Developer',
@@ -324,7 +397,7 @@ const plans = computed(() => [
 		features: ['<b>Everything in free version</b>', 'up to <b>1,000</b> names', 'developer sandbox', 'custom namespaces'],
 		href: 'https://buy.stripe.com/14k7vw4Nn0pP4ZafZ1',
 		buttonText: /free/i.test(role.value) ? 'Upgrade' : 'Get Started',
-        disabled: /developer|pro/i.test(role.value)
+		disabled: /developer|pro/i.test(role.value),
 	},
 	{
 		name: 'Pro',
@@ -333,7 +406,7 @@ const plans = computed(() => [
 		features: ['<b>Everything in developer version</b>', 'up to <b>10,000</b> names'],
 		href: 'https://buy.stripe.com/00g3fg3JjgoN9fq6os',
 		buttonText: /free|developer/i.test(role.value) ? 'Upgrade' : 'Get Started',
-        disabled: /pro/i.test(role.value)
+		disabled: /pro/i.test(role.value),
 	},
 ])
 const keyRef = ref()
@@ -372,15 +445,17 @@ function updateURL() {
 	url.value = urlBase.href
 }
 async function callAPI(action) {
-    await $keycloak.value.isLoaded
-    const token = await $keycloak.value.token
+	await $keycloak.value.isLoaded
+	const token = await $keycloak.value.token
 
 	if (action !== 'lookup') {
-        fetch(url.value, {
-            headers: token ? {
-                Authorization: `Bearer ${token}`,
-            } : {},
-        })
+		fetch(url.value, {
+			headers: token
+				? {
+						Authorization: `Bearer ${token}`,
+				  }
+				: {},
+		})
 			.then(response => response.json())
 			.then(data => {
 				if (data.error) {
@@ -472,7 +547,7 @@ function resetHandler() {
 		keyRef.value.classList.remove('text-green')
 	}, 1000)
 
-    params.value.publicKey = store.aname.keypair.pub
+	params.value.publicKey = store.aname.keypair.pub
 }
 const tooltips = ref({
 	download: false,
@@ -555,13 +630,49 @@ function swal(options = {}, func) {
 		func && func()
 	})
 }
+async function asyncInit() {
+	await $keycloak.value.isLoaded
 
+    if (!$keycloak.value.isAuthenticated) return
+
+	const { token } = await $keycloak.value
+    
+	// get count stats
+	fetch(token && `${VITE_APP_API_SERVER}/v1/ai/aname/stats`, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+		.then(response => response.json())
+		.then(data => {
+			stats.value = data.stats
+		})
+		.catch(error => {
+			console.error('Error fetching metadata:', error)
+		})
+
+	if (token && !store.aname.apikeyData.key) {
+		fetch(`${VITE_APP_API_SERVER}/v1/ai/aname/apikey`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+			.then(response => response.json())
+			.then(data => {
+				store.aname.apikeyData = data.apikey
+			})
+			.catch(error => {
+				console.error('Error fetching metadata:', error)
+			})
+	}
+}
 onBeforeMount(() => {
 	updateMetadata()
 	generateKeyPair()
 })
 onMounted(() => {
-    // swal()
+	// swal()
+	asyncInit()
 	resetHandler()
 	watch(() => params.value, updateURL, { immediate: true, deep: true })
 })
