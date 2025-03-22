@@ -16,20 +16,20 @@
 							</div>
 						</template>
 					</v-tooltip>
-					<v-chip-group column @drop="dropHandler" @dragover.prevent>
-						<!-- prettier-ignore -->
-						<v-chip class="dictionary" v-for="(item, index) of params.dictionaries.filter(dict => !unvalidatedDictionaries.includes(typeof dict === 'object' ? Object.keys(dict)[0] : dict))" :key="item" closable draggable :data-name="typeof item === 'object' ? Object.keys(item)[0] : item"
-                            :ripple="false"
-                            @dragstart="dragstartHandler($event, index)"
-                            @click:close="closeDictionaryHandler(item)">
-                            <div class="text-caption">{{ dictionaryAsName(item) }}</div>
-							<template v-slot:prepend>
-								<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
+					<v-chip-group column>
+						<draggable v-model="validDictionaries" @change="dictionaryOrderChanged" class="d-flex flex-column" item-key="name">
+							<template #item="{ element: item, index }">
+								<v-chip class="dictionary" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
+									<div class="text-caption">{{ dictionaryAsName(item) }}</div>
+									<template v-slot:prepend>
+										<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
+									</template>
+									<template v-slot:append>
+										<v-chip class="ml-1 mr-n1 font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
+									</template>
+								</v-chip>
 							</template>
-							<template v-slot:append>
-								<v-chip class="ml-1 mr-n1 font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
-							</template>
-						</v-chip>
+						</draggable>
 						<v-progress-linear
 							class="my-auto mr-2"
 							ref="dictionaryValidationProgressRef"
@@ -133,9 +133,9 @@
 							</v-tooltip>
 						</div>
 						<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-							<div v-for="(dictionary, index) of templateArr" class="d-flex align-center" style="position: relative">
-								<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ dictionary.href || dictionary.name }}</v-sheet>
-								<v-sheet color="green" rounded="lg" class="segment px-2 py-2" v-if="index < templateArr.length - 1">{{ params.separator }}</v-sheet>
+							<div v-for="(dictionary, index) of templateArr" class="d-flex align-center" :key="`${dictionary.name}-${index}`" style="position: relative">
+								<v-sheet color="green" rounded="lg" class="segment px-1 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${1000/(templateArr.length - 1) * index}ms`">{{ dictionary.href || dictionary.name }}</v-sheet>
+								<v-sheet color="green" rounded="lg" class="segment px-2 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${1000/(templateArr.length - 1) * index}ms`" v-if="index < templateArr.length - 1" :key="params.separator">{{ params.separator }}</v-sheet>
 								<v-chip style="position: absolute; top: -40%; left: 6px" :text="index + 1" />
 							</div>
 						</div>
@@ -356,6 +356,7 @@ const url = ref()
 const username = ref()
 const unvalidatedDictionaries = ref([])
 const dictionaryValidationStatus = ref({})
+const validDictionaries = computed(() => params.value.dictionaries.filter(dict => !unvalidatedDictionaries.value.includes(dictionaryAsName(dict))))
 const uuid = computed(() => {
 	if (!url.value) return
 
@@ -651,44 +652,12 @@ function downloadHandler() {
 	link.click()
 	URL.revokeObjectURL(url)
 }
-const drag = ref({
-	startY: -1,
-	startX: -1,
-	endX: -1,
-	endY: -1,
-	startIndex: -1,
-	endIndex: -1,
-})
-function dragstartHandler(event, index) {
-	drag.value.startY = event.clientY
-	drag.value.startIndex = index
-	console.log('Drag start: ', drag.value.startIndex)
-}
+function dictionaryOrderChanged({ moved }) {
+	if (!moved) return
+	const { newIndex, oldIndex } = moved
 
-function dropHandler(event) {
-	drag.value.endY = event.clientY
-	drag.value.endX = event.clientX
-
-	const yEndIndex = (drag.value.endY - drag.value.startY) / document.querySelector('.dictionary.v-chip').clientHeight
-	const xEndIndex = (drag.value.endX - drag.value.startX) / document.querySelector('.dictionary.v-chip').clientWidth
-
-	drag.value.endIndex = Math.max(xEndIndex, yEndIndex)
-
-	if (drag.value.startIndex !== -1 && drag.value.endIndex !== -1) {
-		reorderItems(params.value.dictionaries, drag.value.startIndex, drag.value.endIndex)
-	}
-}
-
-function reorderItems(items, fromIndex, toIndex) {
-	let adjustedToIndex = Math.round(toIndex)
-
-	// Ensure the target index stays within valid bounds
-	adjustedToIndex = Math.max(0, Math.min(items.length - 1, adjustedToIndex))
-
-	if (fromIndex !== adjustedToIndex) {
-		const [movedItem] = items.splice(fromIndex, 1)
-		items.splice(adjustedToIndex, 0, movedItem)
-	}
+	const [movedItem] = params.value.dictionaries.splice(oldIndex, 1)
+	params.value.dictionaries.splice(newIndex, 0, movedItem)
 }
 function closeDictionaryHandler(item) {
 	const index = params.value.dictionaries.findIndex(dict => dict === item)
