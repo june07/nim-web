@@ -103,7 +103,7 @@
 				<v-sheet height="100" rounded="lg" class="d-flex flex-column justify-end" style="position: relative">
 					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.username" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.username }}</div>
 					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
-					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['generatedBtn']" />
+					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" />
 					<v-chip style="position: absolute; top: 6px; left: 6px" color="green" class="d-flex align-center animate__animated animate__bounceIn" label v-if="stats?.count">
 						<div class="text-caption">Used {{ stats.count }}/{{ stats.max }}</div>
 						<template v-slot:append>
@@ -180,10 +180,13 @@
 			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower">Congratulations on your first generated name!</v-card-subtitle>
 			<v-card-text class="text-start">
 				<p class="mb-4">Your unique name has been <span class="font-weight-bold">deterministically</span> generated!🔥</p>
-				<p class="mb-4">This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real user IDs private and opting for personalized usernames instead with zero managment effort. Say goodbye to the hassle and extra processing required to track/store name data.</p>
+				<p class="mb-4">
+					This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real user IDs private and opting for personalized usernames instead with zero managment effort. Say goodbye to the hassle and extra processing
+					required to track/store name data.
+				</p>
 				<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, and branding</span>🔗</p>
 				<p>Create a <b>free</b> account to keep your name and unlock more features like <span class="font-weight-bold">additional API calls, shorter names, and more</span>!🗝️</p>
-                <div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: your username will be recycled after 24 hours if you don't create an account)</div>
+				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: your username will be recycled after 24 hours if you don't create an account)</div>
 
 				<v-item-group v-model="plansGroup" mandatory>
 					<v-container>
@@ -380,7 +383,7 @@ const rules = ref({
         v => (v && `${v}`.length <= 100) || 'Seed must be less than 100 characters'
     ],
 	dictionaries: [
-        v => !!v || 'At least one dictionary is required', 
+        v => !!v || 'At least one dictionary is required',
         v => (v && v.length > 0 && v.length <= 5) || 'A maximum of 5 dictionaries is supported.'
     ],
 	separator: [
@@ -402,9 +405,16 @@ const styleObjs = computed(() => ({
 		? {}
 		: {
 				position: 'absolute',
-				top: 0,
-				right: 0,
+				top: '6px',
+				right: '6px',
 		  },
+	didLookupBtn: didLookup.value
+		? {
+				position: 'absolute',
+				top: '6px',
+				right: '6px',
+		  }
+		: {},
 }))
 const params = ref({
 	entropyMode: store.aname.entropyMode,
@@ -429,7 +439,7 @@ const plans = computed(() => [
             'up to <b>100</b> guaranteed unique names',
             'unlimited lookups',
             'use up to 5 custom dictionaries',
-            'API token support for use with other services', 
+            'API token support for use with other services',
         ],
 		to: `/signin?action=register&redirect=${window.location.origin}/aname`,
 		buttonText: /free/i.test(role.value) ? '' : 'Get Started',
