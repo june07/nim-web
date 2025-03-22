@@ -1,5 +1,5 @@
 <template>
-	<v-dialog :model-value="modelValue" width="600" @update:modelValue="$emit('update:modelValue', $event)" style="opacity: 0.9">
+	<v-dialog :model-value="modelValue" width="600" @update:modelValue="$emit('update:modelValue', $event)" style="opacity: 0.95">
 		<v-data-table :items="names" density="compact" />
 	</v-dialog>
 </template>
@@ -12,7 +12,14 @@ const props = defineProps({
 	names: Array,
 	modelValue: Boolean,
 })
-const names = computed(() => props.names.map(name => ({
-    name,
-})))
+const names = computed(() =>
+	props.names.map(name => {
+        const cols = {
+            ...name,
+            added: new Date(name.addedAt).toLocaleString(),
+        }
+        delete cols.addedAt
+        return cols
+    })
+)
 </script>
