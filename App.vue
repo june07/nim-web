@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <v-app-bar flat location="bottom" :collapse="collapse" style="opacity: 0.95;">
+        <v-app-bar flat location="bottom" :collapse="collapse" style="opacity: 0.95;" v-if="!smAndDown && !/\/aname/.test($route.path)">
             <template v-slot:prepend>
                 <v-app-bar-nav-icon @click="collapse = !collapse" aria-label="app bar nav button"></v-app-bar-nav-icon>
             </template>

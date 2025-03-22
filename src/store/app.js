@@ -17,7 +17,15 @@ export const useAppStore = defineStore("app", {
             keypair: {},
             publicKey: undefined,
             entropyMode: false,
-            apikeyData: {}
+            apikeyData: {},
+            availableDictionaries: [
+                'https://github.june07.com/dictionary/adjs.txt',
+                'https://github.june07.com/dictionary/colors.txt',
+                'https://github.june07.com/dictionary/nouns.txt',
+                {
+                    colors: ['red', 'green', 'blue'],
+                }
+            ]
         }
     }),
     persist: true,

@@ -3,12 +3,12 @@
 		<aname-header />
 		<v-form ref="form">
 			<v-sheet color="grey-lighten-2" class="font-weight-bold mx-auto my-4 pa-4" :class="smAndDown ? 'w-100' : 'w-75'">
-				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" />
+				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" :placeholder="v4()" />
 				<v-sheet rounded="lg" class="mb-4 pa-2">
 					<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
-						<p class="my-4">Dicionaries can be passed in as objects or strings.</p>
-						<p class="my-4">Objects shall be in the format of { ['dictionary name']: 'wsv list of terms where compound terms are separated by a hyphen' }.</p>
-						<p class="my-4">Strings should be hrefs to plaintext files following the same format as above (wsv list of terms where compound terms are separated by a hyphen), with the added detail that the file should be a single line.</p>
+						<p class="mb-2">Dicionaries can be passed in as objects or strings.</p>
+						<p class="mb-2">Objects shall be in the format of { ['dictionary name']: 'wsv list of terms where compound terms are separated by a hyphen' }.</p>
+						<p class="mb-2">Strings should be hrefs to plaintext files following the same format as above (wsv list of terms where compound terms are separated by a hyphen), with the added detail that the file should be a single line.</p>
 						<template v-slot:activator="{ props: tooltip }">
 							<div class="font-weight-light text-grey-darken-2 ml-2 alabel">
 								dictionaries
@@ -18,15 +18,32 @@
 					</v-tooltip>
 					<v-chip-group column @drop="dropHandler" @dragover.prevent>
 						<!-- prettier-ignore -->
-						<v-chip class="dictionary" v-for="(item, index) of params.dictionaries" :key="item" closable draggable :data-name="typeof item === 'object' ? Object.keys(item)[0] : item" :text="typeof item === 'object' ? Object.keys(item)[0] : item"
+						<v-chip class="dictionary" v-for="(item, index) of params.dictionaries.filter(dict => !unvalidatedDictionaries.includes(typeof dict === 'object' ? Object.keys(dict)[0] : dict))" :key="item" closable draggable :data-name="typeof item === 'object' ? Object.keys(item)[0] : item"
                             :ripple="false"
                             @dragstart="dragstartHandler($event, index)"
                             @click:close="closeDictionaryHandler(item)">
+                            <div class="text-caption">{{ dictionaryAsName(item) }}</div>
 							<template v-slot:prepend>
 								<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
 							</template>
 							<template v-slot:append>
-								<v-chip class="ml-auto font-weight-bold" label v-if="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value]?.words" size="x-small" :text="store.aname.metadata[typeof item.value === 'object' ? Object.keys(item.value)[0] : item.value].words" />
+								<v-chip class="ml-1 mr-n1 font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
+							</template>
+						</v-chip>
+						<v-progress-linear
+							class="my-auto mr-2"
+							ref="dictionaryValidationProgressRef"
+							v-for="dict of [...params.dictionaries.filter(dict => unvalidatedDictionaries.includes(dictionaryAsName(dict)))]"
+							style="height: 30px; max-width: 200px"
+							rounded
+							:indeterminate="!dictionaryValidationStatus[dict]"
+							:color="dictionaryValidationStatus[dict] === 'failed' ? 'red' : 'green'"
+							:id="dictionaryAsName(dict)">
+							<div class="text-caption validation-progress-label">validating dictionary</div>
+						</v-progress-linear>
+						<v-chip key="control" class="text-uppercase dictionary-control text-blue-darken-2" :ripple="false" @click="dialogs.addDictionary = true" text="add" prepend-icon="add">
+							<template v-slot:append>
+								<v-chip class="mx-2 font-weight-bold text-caption" label size="x-small" :text="`${store.aname.availableDictionaries?.filter(dict => typeof dict === 'string').length} available`" />
 							</template>
 						</v-chip>
 					</v-chip-group>
@@ -38,10 +55,10 @@
 						<v-text-field variant="solo" flat v-model="params.suffixLength" :rules="rules.suffixLength" @keydown.enter="callAPI">
 							<template v-slot:label>
 								<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
-									<p class="my-4">Entropy mode controls how the suffix length is determined.</p>
-									<p class="my-4">When disabled, the suffix length represents the exact number of digits in base 10, ensuring predictable and user-friendly output.</p>
-									<p class="my-4">When enabled, the suffix length is directly tied to the entropy of the underlying hash, preserving randomness by selecting a fixed number of hex characters before conversion.</p>
-									<p class="my-4">This mode is useful for applications requiring precise entropy retention rather than strictly formatted numerical suffixes.</p>
+									<p class="mb-2">Entropy mode controls how the suffix length is determined.</p>
+									<p class="mb-2">When disabled, the suffix length represents the exact number of digits in base 10, ensuring predictable and user-friendly output.</p>
+									<p class="mb-2">When enabled, the suffix length is directly tied to the entropy of the underlying hash, preserving randomness by selecting a fixed number of hex characters before conversion.</p>
+									<p class="mb-2">This mode is useful for applications requiring precise entropy retention rather than strictly formatted numerical suffixes.</p>
 									<template v-slot:activator="{ props: tooltip }">
 										<div class="font-weight-light text-grey-darken-1" style="font-size: 0.5rem">
 											suffixLength
@@ -61,7 +78,8 @@
 						<template v-slot:label>
 							<span>public key</span>
 							<v-tooltip location="top" aria-label="Public key input tooltip" :open-on-click="smAndDown">
-								You can <span class="text-uppercase text-grey">download</span> your key pair as a json file, <span class="text-uppercase text-grey">copy</span> the public key, or <span class="text-uppercase text-grey">reset</span> the public key to match the stored public key.
+								<p class="mb-2">You can <span class="text-uppercase text-grey">download</span> your key pair as a json file, <span class="text-uppercase text-grey">copy</span> the public key, or <span class="text-uppercase text-grey">reset</span> the public key to match the stored public key.</p>
+								<p class="mb-2">Your private key is unique to your device, is not shared between devices, and does not leave your device.</p>
 								<template v-slot:activator="{ props: tooltip }">
 									<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" class="ml-2" style="cursor: pointer; pointer-events: auto" />
 								</template>
@@ -73,7 +91,7 @@
 									<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="download" class="mb-auto mt-2 mr-1" style="font-size: 0.5rem" @click="downloadHandler" />
 								</template>
 							</v-tooltip>
-							<v-tooltip text="Copied" v-model="tooltips['copy']" location="top" :open-on-hover="false" aria-label="Copied Private Key tooltip">
+							<v-tooltip text="Copied public key to clipboard" v-model="tooltips['copy']" location="top" :open-on-hover="false" aria-label="Copied public key tooltip">
 								<template v-slot:activator="{ props: tooltip }">
 									<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="copy" class="mb-auto mt-2 mr-1" id="copyButton" style="font-size: 0.5rem" @click="copyHandler" />
 								</template>
@@ -103,9 +121,9 @@
 					<v-tabs-window-item value="generate">
 						<div class="text-caption text-center mt-8">
 							<v-tooltip location="top" aria-label="Public key input tooltip" :open-on-click="smAndDown">
-								<p>The template flag is used to define the format of your generated name, including which dictionary(s) to use and in what order, and the separator between each dictionary term.</p>
-								<p class="my-4">Each template segment should be a string that references either the name of the included dictionary or an href to the dictionary.</p>
-								<p class="my-4">Dicionaries can be passed in as objects or strings.</p>
+								<p class="mb-2">The template flag is used to define the format of your generated name, including which dictionary(s) to use and in what order, and the separator between each dictionary term.</p>
+								<p class="mb-2">Each template segment should be a string that references either the name of the included dictionary or an href to the dictionary.</p>
+								<p class="mb-2">Dicionaries can be passed in as objects or strings.</p>
 								<template v-slot:activator="{ props: tooltip }">
 									<div class="alabel mb-4">
 										template
@@ -161,10 +179,11 @@
 			<v-card-title>{{ store.aname.generated[uuid]?.data?.username || 'fake-transparent-name-placeholder' }}</v-card-title>
 			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower">Congratulations on your first generated name!</v-card-subtitle>
 			<v-card-text class="text-start">
-				<p class="my-4">Your unique name has been <span class="font-weight-bold">deterministically</span> generated! 🔥</p>
-				<p class="my-4">This means that as long as you provide the same input, you'll always get the same name—no randomness, no duplicates, no hassle! ✨</p>
-				<p class="my-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, and branding</span> without the hassle of tracking usernames manually. 🔗</p>
-				<p class="my-4">Want even <span class="font-weight-bold">more control</span>? Unlock advanced features like <span class="font-weight-bold">more API calls, shorter names, and more</span> with Aname Pro! 🗝️</p>
+				<p class="mb-4">Your unique name has been <span class="font-weight-bold">deterministically</span> generated!🔥</p>
+				<p class="mb-4">This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real user IDs private and opting for personalized usernames instead with zero managment effort. Say goodbye to the hassle and extra processing required to track/store name data.</p>
+				<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, and branding</span>🔗</p>
+				<p>Create a <b>free</b> account to keep your name and unlock more features like <span class="font-weight-bold">additional API calls, shorter names, and more</span>!🗝️</p>
+                <div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: your username will be recycled after 24 hours if you don't create an account)</div>
 
 				<v-item-group v-model="plansGroup" mandatory>
 					<v-container>
@@ -196,6 +215,7 @@
 				</v-item-group>
 			</v-card-text>
 		</v-card>
+		<add-dictionary-dialog v-model="dialogs.addDictionary" :selected="params.dictionaries" @update:modelValue="value => (dialogs.addDictionary = value)" @update:dictionary="dictionary => addDictionary(dictionary)" />
 		<v-snackbar v-model="snackbar.active" multi-line :timeout="snackbar.timeout" @mouseenter="snackbar.timeout = -1" @mouseleave="snackbar.timeout = 5000">
 			<div class="text-caption">{{ snackbar.text }}</div>
 			<template v-slot:actions>
@@ -306,7 +326,7 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance, nextTick } from 'vue'
 import { v5 as uuidv5, v4 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
@@ -317,6 +337,7 @@ import 'animate.css'
 
 import UrlVisualizer from '../components/UrlVisualizer.vue'
 import AnameHeader from '../components/AnameHeader.vue'
+import AddDictionaryDialog from '../components/aname/AddDictionaryDialog.vue'
 
 const { smAndDown } = useDisplay()
 const { $keycloak } = getCurrentInstance().appContext.config.globalProperties
@@ -326,6 +347,8 @@ const clipboard = inject('clipboard')
 const { MODE, VITE_APP_API_SERVER } = import.meta.env
 const form = ref()
 const url = ref()
+const unvalidatedDictionaries = ref([])
+const dictionaryValidationStatus = ref({})
 const uuid = computed(() => {
 	if (!url.value) return
 
@@ -333,6 +356,10 @@ const uuid = computed(() => {
 
 	return uuid
 })
+const dialogs = ref({
+	addDictionary: false,
+})
+const dictionaryValidationProgressRef = ref([])
 const plansGroup = ref(0)
 const canGenerate = computed(() => uuid.value && !store.aname.generated[uuid.value])
 const didLookup = computed(() => uuid.value && !!store.aname.lookups[uuid.value])
@@ -345,13 +372,30 @@ const keyHint = computed(() => {
 	return params.value.publicKey && store.aname.keypair.pub && params.value.publicKey !== store.aname.keypair.pub ? 'Note: This public key does not match the stored keypair.' : undefined
 })
 const stats = ref({})
+// prettier-ignore
 const rules = ref({
 	salt: [v => !v || (v && v.length <= 21) || 'Salt must be less than 21 characters'],
-	seed: [v => !!v || 'Seed is required', v => (v && `${v}`.length <= 100) || 'Seed must be less than 100 characters'],
-	dictionaries: [v => !!v || 'At least one dictionary is required', v => (v && v.length > 0 && v.length <= 5) || 'A maximum of 5 dictionaries is supported.'],
-	separator: [v => !!v || 'Separator is required', v => !!v || (v && v.length == 1) || 'Separator must be exactly 1 character', v => (v && /^[-_:.|,;+# ]$/.test(v)) || 'Separator must be one of the following: - _ : . | , ; + # space'],
-	suffixLength: [v => !!v || 'Suffix Length is required', v => (v && v >= 0 && v <= 21) || 'Suffix Length must be a positive number between 0 and 21 inclusive'],
-	publicKey: [v => !!v || 'Public key is required', v => v.length === 64 || 'Public key must be 32 bytes (Hex: 64 chars)'],
+	seed: [
+        v => !!v || 'Seed is required',
+        v => (v && `${v}`.length <= 100) || 'Seed must be less than 100 characters'
+    ],
+	dictionaries: [
+        v => !!v || 'At least one dictionary is required', 
+        v => (v && v.length > 0 && v.length <= 5) || 'A maximum of 5 dictionaries is supported.'
+    ],
+	separator: [
+        v => !!v || 'Separator is required',
+        v => !!v || (v && v.length == 1) || 'Separator must be exactly 1 character',
+        v => (v && /^[-_:.|,;+# ]$/.test(v)) || 'Separator must be one of the following: - _ : . | , ; + # space'
+    ],
+	suffixLength: [
+        v => !!v || 'Suffix Length is required',
+        v => (v && v >= 0 && v <= 21) || 'Suffix Length must be a positive number between 0 and 21 inclusive'
+    ],
+	publicKey: [
+        v => !!v || 'Public key is required',
+        v => v.length === 64 || 'Public key must be 32 bytes (Hex: 64 chars)'
+    ],
 })
 const styleObjs = computed(() => ({
 	generatedBtn: canGenerate.value
@@ -362,30 +406,31 @@ const styleObjs = computed(() => ({
 				right: 0,
 		  },
 }))
-const availableDictionaries = ref(['https://github.june07.com/dictionary/adjs', 'https://github.june07.com/dictionary/colors', 'https://github.june07.com/dictionary/nouns', {
-    colors: ['red', 'green', 'blue']
-}])
 const params = ref({
 	entropyMode: store.aname.entropyMode,
-	dictionaries: [
-		'https://github.june07.com/dictionary/adjs',
-        'https://github.june07.com/dictionary/colors',
-		'https://github.june07.com/dictionary/nouns',
-	],
-	template: `${encodeURIComponent('https://github.june07.com/dictionary/adjs')}-${encodeURIComponent('colors')}-${encodeURIComponent('https://github.june07.com/dictionary/nouns')}`,
+	dictionaries: ['https://github.june07.com/dictionary/adjs.txt', 'https://github.june07.com/dictionary/colors.txt', 'https://github.june07.com/dictionary/nouns.txt'],
+	template: `${encodeURIComponent('https://github.june07.com/dictionary/adjs.txt')}-${encodeURIComponent('colors')}-${encodeURIComponent('https://github.june07.com/dictionary/nouns.txt')}`,
 	separator: store.aname.separator,
 	suffixLength: store.aname.suffixLength,
-	seed: v4(),
+	seed: store.aname.generated.length ? '' : store.aname.seed,
 	publicKey: store.aname.publicKey,
 	nocache: MODE === 'production' ? false : true,
 })
 const role = computed(() => $keycloak.value?.isAuthenticated && $keycloak.value.resourceAccess?.['ai'].roles.find(role => role.startsWith('aname')))
+// prettier-ignore
 const plans = computed(() => [
 	{
 		name: 'Free',
 		price: 0,
 		type: 'free',
-		features: ['up to <b>100</b> guaranteed unique names', 'unlimited lookups'],
+		features: [
+            'permanent names',
+            'CDN name caching',
+            'up to <b>100</b> guaranteed unique names',
+            'unlimited lookups',
+            'use up to 5 custom dictionaries',
+            'API token support for use with other services', 
+        ],
 		to: `/signin?action=register&redirect=${window.location.origin}/aname`,
 		buttonText: /free/i.test(role.value) ? '' : 'Get Started',
 		disabled: !!role.value,
@@ -394,7 +439,13 @@ const plans = computed(() => [
 		name: 'Developer',
 		price: 1000,
 		type: 'developer',
-		features: ['<b>Everything in free version</b>', 'up to <b>1,000</b> names', 'developer sandbox', 'custom namespaces'],
+		features: [
+            '<b>Everything in free version</b>',
+            'up to <b>1,000</b> names',
+            'developer sandbox',
+            'custom namespaces',
+            'multiple key pairs per account'
+        ],
 		href: 'https://buy.stripe.com/14k7vw4Nn0pP4ZafZ1',
 		buttonText: /free/i.test(role.value) ? 'Upgrade' : 'Get Started',
 		disabled: /developer|pro/i.test(role.value),
@@ -403,7 +454,11 @@ const plans = computed(() => [
 		name: 'Pro',
 		price: 1999,
 		type: 'pro',
-		features: ['<b>Everything in developer version</b>', 'up to <b>10,000</b> names'],
+		features: [
+            '<b>Everything in developer version</b>',
+            'up to <b>10,000</b> names',
+            'priority support',
+        ],
 		href: 'https://buy.stripe.com/00g3fg3JjgoN9fq6os',
 		buttonText: /free|developer/i.test(role.value) ? 'Upgrade' : 'Get Started',
 		disabled: /pro/i.test(role.value),
@@ -499,20 +554,31 @@ async function callAPI(action) {
 	}
 }
 async function updateMetadata() {
-	availableDictionaries.value.filter(dictionary => typeof dictionary === 'string').forEach(dictionary => {
-		if (store.aname.metadata[dictionary]?.words?.length) return
+	store.aname.availableDictionaries
+		.filter(dictionary => typeof dictionary === 'string')
+		.forEach(dictionary => {
+			if (store.aname.metadata[dictionary]?.words?.length) return
 
-		fetch(dictionary)
-			.then(response => response.text())
-			.then(str => {
-				store.aname.metadata[dictionary] = {
-					words: str.split(/\s/).length,
-				}
-			})
-			.catch(error => {
-				console.error('Error fetching metadata:', error)
-			})
-	})
+			fetch(dictionary)
+				.then(response => response.text())
+				.then(str => {
+					// Allow a single trailing newline but remove it before validation
+					str = str.trimEnd()
+
+					// Ensure only valid word characters, hyphens, and whitespace exist
+					if (!/^[\w-]+(\s[\w-]+)*$/.test(str)) {
+						console.error('Invalid format: Contains invalid characters or incorrect spacing')
+						return
+					}
+
+					store.aname.metadata[dictionary] = {
+						words: str.split(/\s/).length,
+					}
+				})
+				.catch(error => {
+					console.error('Error fetching metadata:', error)
+				})
+		})
 	params.value.dictionaries
 		.filter(dictionary => typeof dictionary === 'object')
 		.forEach(localDictionary => {
@@ -614,6 +680,77 @@ function closeDictionaryHandler(item) {
 
 	params.value.dictionaries.splice(index, 1)
 }
+function validateDictionary(dictionary) {
+	unvalidatedDictionaries.value.push(dictionary)
+
+	return new Promise((resolve, reject) => {
+		fetch(dictionary)
+			.then(response => response.text())
+			.then(str => {
+				// Allow a single trailing newline but remove it before validation
+				str = str.trimEnd()
+
+				// Ensure only valid word characters, hyphens, and whitespace exist
+				if (!/^[\w-]+(\s[\w-]+)*$/.test(str)) {
+					console.error('Invalid format: Contains invalid characters or incorrect spacing')
+					return
+				}
+
+				setTimeout(() => {
+					unvalidatedDictionaries.value.splice(unvalidatedDictionaries.value.indexOf(dictionary), 1)
+					// timeout to allow the dictionaryValidationProgressRef.value index element to be found
+				}, 50)
+
+				dictionaryValidationStatus.value[dictionary] = 'succeded'
+			})
+			.catch(error => {
+				console.log('error: ', error)
+				dictionaryValidationStatus.value[dictionary] = 'failed'
+			})
+			.finally(() => {
+				const index = dictionaryValidationProgressRef.value.findIndex(({ $el: el }) => el.id === dictionaryAsName(dictionary))
+				const el = dictionaryValidationProgressRef.value[index].$el
+
+				function animationendEvent() {
+					el.removeEventListener('animationend', animationendEvent)
+					dictionaryValidationStatus.value[dictionary] === 'succeded' ? resolve() : reject()
+					setTimeout(() => {
+						params.value.dictionaries = params.value.dictionaries.filter(dict => dict !== dictionary)
+						unvalidatedDictionaries.value.splice(unvalidatedDictionaries.value.indexOf(dictionary), 1)
+						dictionaryValidationStatus.value[dictionary] = undefined
+					}, 3000)
+				}
+				el.addEventListener('animationend', animationendEvent)
+				el.querySelector('.validation-progress-label').innerHTML = dictionaryValidationStatus.value[dictionary] === 'succeded' ? 'validated' : 'invalid'
+				el.querySelector('.validation-progress-label').classList.add('animate__animated', 'animate__bounceIn')
+			})
+	})
+}
+function dictionaryAsName(dictionary) {
+	return typeof dictionary === 'string' ? dictionary : Object.keys(dictionary)[0]
+}
+async function addDictionary(dictionary) {
+	dialogs.value.addDictionary = false
+
+	// add it to the dictionaries list while we try to fetch it
+	if (!params.value.dictionaries.includes(dictionary)) {
+		params.value.dictionaries = [...params.value.dictionaries, dictionary]
+	}
+
+	try {
+		// confirm that the fetch was successful and it's a valid dictionary
+		await validateDictionary(dictionaryAsName(dictionary))
+
+		// if it's valid then add it to the store
+		const availableDictionaries = new Set(store.aname.availableDictionaries)
+
+		availableDictionaries.add(dictionary)
+
+		store.aname.availableDictionaries = Array.from(availableDictionaries)
+	} catch (error) {
+		console.error('Error fetching dictionary metadata:', error)
+	}
+}
 function swal(options = {}, func) {
 	swalActive.value = true
 	const effectiveOptions = {
@@ -633,10 +770,10 @@ function swal(options = {}, func) {
 async function asyncInit() {
 	await $keycloak.value.isLoaded
 
-    if (!$keycloak.value.isAuthenticated) return
+	if (!$keycloak.value.isAuthenticated) return
 
 	const { token } = await $keycloak.value
-    
+
 	// get count stats
 	fetch(token && `${VITE_APP_API_SERVER}/v1/ai/aname/stats`, {
 		headers: {
@@ -674,6 +811,13 @@ onMounted(() => {
 	// swal()
 	asyncInit()
 	resetHandler()
-	watch(() => params.value, updateURL, { immediate: true, deep: true })
+	watch(
+		() => params.value,
+		params => {
+			updateURL()
+			store.aname.seed = params.seed
+		},
+		{ immediate: true, deep: true }
+	)
 })
 </script>
