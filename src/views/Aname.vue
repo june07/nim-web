@@ -1,6 +1,6 @@
 <template>
 	<v-container fluid class="py-0 news-cycle-regular">
-		<aname-header />
+		<aname-header :username="username" />
 		<v-form ref="form">
 			<v-sheet color="grey-lighten-2" class="font-weight-bold mx-auto my-4 pa-4" :class="smAndDown ? 'w-100' : 'w-75'">
 				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" :placeholder="v4()" />
@@ -350,6 +350,7 @@ const clipboard = inject('clipboard')
 const { MODE, VITE_APP_API_SERVER } = import.meta.env
 const form = ref()
 const url = ref()
+const username = ref()
 const unvalidatedDictionaries = ref([])
 const dictionaryValidationStatus = ref({})
 const uuid = computed(() => {
@@ -782,6 +783,7 @@ async function asyncInit() {
 
 	if (!$keycloak.value.isAuthenticated) return
 
+    username.value = $keycloak.value.tokenParsed.preferred_username
 	const { token } = await $keycloak.value
 
 	// get count stats
