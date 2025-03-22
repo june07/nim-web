@@ -5,8 +5,6 @@
 
 			<v-toolbar-title class="saira-extra-condensed-light text-body-1">aName - unique deterministic names</v-toolbar-title>
 
-			<v-spacer></v-spacer>
-
 			<template v-if="!xs">
 				<div v-for="menu of menus" class="d-flex align-center mr-2">
 					<v-menu v-if="menu.name === 'info'">

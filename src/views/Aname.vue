@@ -105,7 +105,7 @@
 					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
 					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" />
 					<v-chip style="position: absolute; top: 6px; left: 6px" color="green" class="d-flex align-center animate__animated animate__bounceIn" label v-if="stats?.count">
-						<div class="text-caption">Used {{ stats.count }}/{{ stats.max }}</div>
+						<v-btn class="text-caption" variant="text" :text="`Used ${ stats.count }/${ stats.max }`" @click="dialogs.names = true" />
 						<template v-slot:append>
 							<v-progress-circular class="ml-2" width="2" :model-value="(stats?.count / stats?.max) * 100" size="20"
 								><div style="font-size: 0.4rem; font-weight: bold">{{ (stats?.count / stats?.max) * 100 }}%</div></v-progress-circular
@@ -219,6 +219,7 @@
 			</v-card-text>
 		</v-card>
 		<add-dictionary-dialog v-model="dialogs.addDictionary" :selected="params.dictionaries" @update:modelValue="value => (dialogs.addDictionary = value)" @update:dictionary="dictionary => addDictionary(dictionary)" />
+        <names-dialog v-model="dialogs.names" :names="stats.names" />
 		<v-snackbar v-model="snackbar.active" multi-line :timeout="snackbar.timeout" @mouseenter="snackbar.timeout = -1" @mouseleave="snackbar.timeout = 5000">
 			<div class="text-caption">{{ snackbar.text }}</div>
 			<template v-slot:actions>
@@ -335,12 +336,14 @@ import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
 import { bytesToHex } from '@noble/curves/abstract/utils'
 import { useDisplay } from 'vuetify/lib/framework.mjs'
+import draggable from "vuedraggable"
 import Swal from 'sweetalert2'
 import 'animate.css'
 
 import UrlVisualizer from '../components/UrlVisualizer.vue'
 import AnameHeader from '../components/AnameHeader.vue'
 import AddDictionaryDialog from '../components/aname/AddDictionaryDialog.vue'
+import NamesDialog from '../components/aname/NamesDialog.vue'
 
 const { smAndDown } = useDisplay()
 const { $keycloak } = getCurrentInstance().appContext.config.globalProperties
@@ -362,6 +365,7 @@ const uuid = computed(() => {
 })
 const dialogs = ref({
 	addDictionary: false,
+    names: false
 })
 const dictionaryValidationProgressRef = ref([])
 const plansGroup = ref(0)

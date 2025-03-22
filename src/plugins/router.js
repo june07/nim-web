@@ -21,10 +21,10 @@ export default (app) => {
                 component: () => import('@/views/FAQ.vue')
             }, {
                 path: '/aname',
-                name: 'aname',
+                name: 'aName',
                 meta: {
-                    title: 'A Naming Tool',
-                    menu: 'Aname'
+                    title: 'A Deterministic Naming Tool',
+                    menu: 'aName'
                 },
                 component: () => import('@/views/Aname.vue'),
                 beforeEnter(to, from, next) {
