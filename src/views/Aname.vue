@@ -16,37 +16,39 @@
 							</div>
 						</template>
 					</v-tooltip>
-					<v-chip-group column>
-						<draggable v-model="validDictionaries" @change="dictionaryOrderChanged" class="d-flex flex-column" item-key="name">
-							<template #item="{ element: item, index }">
-								<v-chip class="dictionary" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
-									<div class="text-caption">{{ dictionaryAsName(item) }}</div>
-									<template v-slot:prepend>
-										<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
-									</template>
-									<template v-slot:append>
-										<v-chip class="ml-1 mr-n1 font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
-									</template>
-								</v-chip>
-							</template>
-						</draggable>
-						<v-progress-linear
-							class="my-auto mr-2"
-							ref="dictionaryValidationProgressRef"
-							v-for="dict of [...params.dictionaries.filter(dict => unvalidatedDictionaries.includes(dictionaryAsName(dict)))]"
-							style="height: 30px; max-width: 200px"
-							rounded
-							:indeterminate="!dictionaryValidationStatus[dict]"
-							:color="dictionaryValidationStatus[dict] === 'failed' ? 'red' : 'green'"
-							:id="dictionaryAsName(dict)">
-							<div class="text-caption validation-progress-label">validating dictionary</div>
-						</v-progress-linear>
-						<v-chip key="control" class="text-uppercase dictionary-control text-blue-darken-2" :ripple="false" @click="dialogs.addDictionary = true" text="add" prepend-icon="add">
-							<template v-slot:append>
-								<v-chip class="mx-2 font-weight-bold text-caption" label size="x-small" :text="`${store.aname.availableDictionaries?.filter(dict => typeof dict === 'string').length} available`" />
-							</template>
-						</v-chip>
-					</v-chip-group>
+					<v-input :model-value="params.dictionaries" :rules="rules.dictionaries" :error-messages="rules.dictionaries.map(r => r(params.dictionaries)).filter(msg => msg !== true)" class="d-flex flex-column">
+						<v-chip-group column>
+							<draggable v-model="validDictionaries" @change="dictionaryOrderChanged" class="d-flex flex-column" item-key="name" :key="validDictionaries.length">
+								<template #item="{ element: item, index }">
+									<v-chip class="dictionary" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
+										<div class="text-caption">{{ dictionaryAsName(item) }}</div>
+										<template v-slot:prepend>
+											<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
+										</template>
+										<template v-slot:append>
+											<v-chip class="ml-1 mr-n1 font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
+										</template>
+									</v-chip>
+								</template>
+							</draggable>
+							<v-progress-linear
+								class="my-auto mr-2"
+								ref="dictionaryValidationProgressRef"
+								v-for="dict of [...params.dictionaries.filter(dict => unvalidatedDictionaries.includes(dictionaryAsName(dict)))]"
+								style="height: 30px; max-width: 200px"
+								rounded
+								:indeterminate="!dictionaryValidationStatus[dict]"
+								:color="dictionaryValidationStatus[dict] === 'failed' ? 'red' : 'green'"
+								:id="dictionaryAsName(dict)">
+								<div class="text-caption validation-progress-label">validating dictionary</div>
+							</v-progress-linear>
+							<v-chip key="control" class="text-uppercase dictionary-control text-blue-darken-2" :ripple="false" @click="dialogs.addDictionary = true" text="add" prepend-icon="add">
+								<template v-slot:append>
+									<v-chip class="mx-2 font-weight-bold text-caption" label size="x-small" :text="`${store.aname.availableDictionaries?.filter(dict => typeof dict === 'string').length} available`" />
+								</template>
+							</v-chip>
+						</v-chip-group>
+					</v-input>
 				</v-sheet>
 				<div class="d-flex">
 					<v-text-field variant="solo" flat v-model="params.separator" label="separator" class="w-25 mr-2" :rules="rules.separator" @keydown.enter="callAPI" />
@@ -134,8 +136,8 @@
 						</div>
 						<div style="font-size: 0.75rem" class="d-flex flex-wrap">
 							<div v-for="(dictionary, index) of templateArr" class="d-flex align-center" :key="`${dictionary.name}-${index}`" style="position: relative">
-								<v-sheet color="green" rounded="lg" class="segment px-1 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${1000/(templateArr.length - 1) * index}ms`">{{ dictionary.href || dictionary.name }}</v-sheet>
-								<v-sheet color="green" rounded="lg" class="segment px-2 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${1000/(templateArr.length - 1) * index}ms`" v-if="index < templateArr.length - 1" :key="params.separator">{{ params.separator }}</v-sheet>
+								<v-sheet color="green" rounded="lg" class="segment px-1 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${(1000 / (templateArr.length - 1)) * index}ms`">{{ dictionary.href || dictionary.name }}</v-sheet>
+								<v-sheet color="green" rounded="lg" class="segment px-2 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${(1000 / (templateArr.length - 1)) * index}ms`" v-if="index < templateArr.length - 1" :key="params.separator">{{ params.separator }}</v-sheet>
 								<v-chip style="position: absolute; top: -40%; left: 6px" :text="index + 1" />
 							</div>
 						</div>
@@ -389,7 +391,7 @@ const rules = ref({
         v => (v && `${v}`.length <= 100) || 'Seed must be less than 100 characters'
     ],
 	dictionaries: [
-        v => !!v || 'At least one dictionary is required',
+        v => (v && v.length > 0) || 'At least one dictionary is required',
         v => (v && v.length > 0 && v.length <= 5) || 'A maximum of 5 dictionaries is supported.'
     ],
 	separator: [
@@ -662,7 +664,10 @@ function dictionaryOrderChanged({ moved }) {
 function closeDictionaryHandler(item) {
 	const index = params.value.dictionaries.findIndex(dict => dict === item)
 
+    console.log(index, params.value.dictionaries)
 	params.value.dictionaries.splice(index, 1)
+
+    console.log(validDictionaries.value)
 }
 function validateDictionary(dictionary) {
 	unvalidatedDictionaries.value.push(dictionary)
