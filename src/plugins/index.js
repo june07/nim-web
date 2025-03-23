@@ -34,6 +34,7 @@ export function registerPlugins(app) {
             },
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
+            pinia
         })
         .use(InstantSearch)
         .use(pinia)

@@ -15,6 +15,7 @@ export const useAppStore = defineStore("app", {
             generated: {},
             lookups: {},
             keypair: {},
+            keypairs: {},
             publicKey: undefined,
             entropyMode: false,
             apikeyData: {},
