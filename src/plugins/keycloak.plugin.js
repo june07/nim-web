@@ -88,7 +88,8 @@ async function deriveKey(password, salt) {
     )
 }
 async function onPiniaLoad(pinia, options) {
-    const { sub } = options
+    const { keycloak } = options
+    const { sub, exp } = keycloak.tokenParsed
 
     await until(
         async () => await pinia.state.value?.app.aname,
@@ -105,7 +106,7 @@ async function onPiniaLoad(pinia, options) {
     }
 
     setInterval(() => {
-        if (!keycloak.value.tokenParsed || keycloak.value.tokenParsed.exp * 1000 < Date.now()) {
+        if (exp * 1000 < Date.now()) {
             console.warn("Session expired, clearing stored keys.")
             pinia.state.value.app.aname.keypair = {}
             pinia.state.value.app.aname.publicKey = undefined
@@ -134,7 +135,7 @@ const keycloakPlugin = {
 
         try {
             keycloak.value.onAuthSuccess = () => {
-                onPiniaLoad(options.pinia, { sub: keycloak.value.idTokenParsed.sub })
+                onPiniaLoad(options.pinia, { keycloak: keycloak.value })
             }
             // Initialize Keycloak and set it to keycloakRef
             keycloak.value.isAuthenticated = await keycloak.value.init(options)
