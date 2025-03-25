@@ -164,11 +164,11 @@
 						<div class="text-caption text-center my-8">retreived data</div>
 						<div class="d-flex flex-no-wrap justify-center saira-extra-condensed-regular">
 							<div style="position: relative">
-								<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ store.aname.generated[uuid]?.salt && apiResponseData2 ? store.aname.generated[uuid].salt : '\u003cempty>' }}</v-sheet>
+								<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ store.aname.generated[uuid]?.salt || '\u003cempty>' }}</v-sheet>
 								<v-chip style="position: absolute; top: -40%; right: 6px" text="NaCl" />
 							</div>
-							<div style="position: relative; min-width: 70px">
-								<v-sheet color="green" rounded="lg" class="segment px-1 py-2 text-center">{{ store.aname.generated[uuid]?.salt && apiResponseData2 ? apiResponseData2.slice(store.aname.generated[uuid].salt.length) : apiResponseData2 || '\u003cempty>' }}</v-sheet>
+							<div style="position: relative">
+								<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ store.aname.generated[uuid]?.salt ? apiResponseData2?.slice(store.aname.generated[uuid].salt.length) : apiResponseData2 || '\u003cempty>' }}</v-sheet>
 								<v-chip style="position: absolute; top: -40%; right: 6px" text="Seed" />
 							</div>
 						</div>
@@ -185,7 +185,6 @@
 				</v-tabs-window>
 			</v-sheet>
 		</v-form>
-
 		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light" color="blue-darken-2">
 			<v-card-title class="title font-weight-bold text-wrap">What is a Deterministic Name Generator</v-card-title>
 			<v-card-subtitle class="text-wrap">A deterministic name generator is a tool that generates a unique name based on a seed and a set of rules.</v-card-subtitle>
@@ -211,23 +210,6 @@
 					solution.
 				</p>
 			</v-card-text>
-		</v-card>
-
-		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light">
-			<v-card-title class="title font-weight-bold text-wrap">Example Use of a Deterministic Name Generator</v-card-title>
-			<v-card-subtitle class="text-wrap">Generating Consistent Usernames from a Seeded API</v-card-subtitle>
-			<v-card-text>
-				<div class="text-caption text-center mt-8 font-weight-bold">Node.js (Express) and Keycloak Integration</div>
-				<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
-					<pre style="font-size: small; white-space: pre-wrap"><code v-html="hljs.highlightAuto(nodeExpressFetch).value"></code></pre>
-				</v-sheet>
-			</v-card-text>
-		</v-card>
-
-		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light" color="blue-darken-2">
-			<v-card-title class="title font-weight-bold text-wrap"></v-card-title>
-			<v-card-subtitle class="text-wrap"></v-card-subtitle>
-			<v-card-text> </v-card-text>
 		</v-card>
 
 		<v-card ref="swalHtmlRef" v-show="swalActive" rounded="xl" flat class="d-flex saira-extra-condensed-regular flex-column">
@@ -273,7 +255,7 @@
 				</v-item-group>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn v-if="swalActive" class="mx-auto" rounded="lg" variant="tonal" color="blue-darken-4" text="close" @click="Swal.close" />
+				<v-btn v-if="$el.closest('.swal2-html-container')" class="mx-auto" rounded="lg" variant="tonal" color="blue-darken-4" text="close" @click="Swal.close" />
 			</v-card-actions>
 		</v-card>
 		<add-dictionary-dialog v-model="dialogs.addDictionary" :selected="params.dictionaries" @update:modelValue="value => (dialogs.addDictionary = value)" @update:dictionary="dictionary => addDictionary(dictionary)" />
@@ -399,19 +381,13 @@ import { ed25519 } from '@noble/curves/ed25519'
 import { bytesToHex } from '@noble/curves/abstract/utils'
 import { useDisplay } from 'vuetify/lib/framework.mjs'
 import draggable from 'vuedraggable'
-import hljs from 'highlight.js/lib/core'
-import javascript from 'highlight.js/lib/languages/javascript'
 import Swal from 'sweetalert2'
-import 'highlight.js/styles/github.css'
 import 'animate.css'
 
 import UrlVisualizer from '../components/UrlVisualizer.vue'
 import AnameHeader from '../components/AnameHeader.vue'
 import AddDictionaryDialog from '../components/aname/AddDictionaryDialog.vue'
 import NamesDialog from '../components/aname/NamesDialog.vue'
-import nodeExpressFetch from '@/data/codeExamples/nodeExpressFetch?raw'
-
-hljs.registerLanguage('javascript', javascript)
 
 const { xs, smAndDown } = useDisplay()
 const { $keycloak } = getCurrentInstance().appContext.config.globalProperties

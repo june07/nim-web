@@ -121,16 +121,17 @@ function parseURL(url) {
 		urlParts.value = null
 	}
 }
+// prettier-ignore
 const commands = computed(() => [
 	{
 		title: 'Copy as curl (bash)',
 		icon: 'terminal.svg',
-		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} '${url.value}' \\\n  -H 'x-api-key: ${props.apikey}'`,
+		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} '${url.value}'${props.apikey ? ` \\\n  -H 'x-api-key: ${props.apikey}'` : ''}`,
 	},
 	{
 		title: 'Copy as curl (cmd)',
 		icon: 'cmd.svg',
-		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} ^"${url.value}^" ^\n  -H ^"x-api-key: ${props.apikey}^"`,
+		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} ^"${url.value}^" ${props.apikey && `^\n  -H ^"x-api-key: ${props.apikey}^"`}`,
 	},
 	{
 		title: 'Copy as fetch',
