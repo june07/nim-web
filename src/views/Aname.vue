@@ -1,10 +1,14 @@
 <template>
 	<v-container fluid class="py-0 news-cycle-regular">
 		<aname-header :username="username" />
+		<v-card rounded="xl" flat class="mb-8">
+			<v-card-title class="title saira-extra-condensed-extrabold font-weight-bold text-wrap">A Unique Deterministic Name Generator</v-card-title>
+			<v-card-subtitle class="text-wrap saira-extra-condensed-light">Just provide a seed and we'll generate a name for you. One that is guaranteed to be globally unique and repeatable.</v-card-subtitle>
+		</v-card>
 		<v-form ref="form">
-			<v-sheet color="grey-lighten-2" class="font-weight-bold mx-auto my-4 pa-4" :class="smAndDown ? 'w-100' : 'w-75'">
-				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" :placeholder="v4()" />
-				<v-sheet rounded="lg" class="mb-4 pa-2">
+			<v-sheet color="grey-lighten-2" class="font-weight-bold mx-auto my-4 px-1 pt-1" rounded="lg" :class="smAndDown ? 'w-100' : 'w-75'">
+				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" :placeholder="v4()" hide-details class="mb-1" />
+				<v-sheet rounded="lg" class="mb-1 pa-2">
 					<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
 						<p class="mb-2">Dicionaries can be passed in as objects or strings.</p>
 						<p class="mb-2">Objects shall be in the format of { ['dictionary name']: 'wsv list of terms where compound terms are separated by a hyphen' }.</p>
@@ -21,7 +25,7 @@
 							<draggable v-model="validDictionaries" @change="dictionaryOrderChanged" class="d-flex flex-column" item-key="name" :key="validDictionaries.length">
 								<template #item="{ element: item, index }">
 									<v-chip class="dictionary" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
-										<div class="text-caption">{{ dictionaryAsName(item) }}</div>
+										<div class="text-truncate saira-extra-condensed-regular" :style="smAndDown ? 'max-width: 150px' : ''">{{ dictionaryAsName(item).replace(/https?:\/\//, '') }}</div>
 										<template v-slot:prepend>
 											<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
 										</template>
@@ -50,31 +54,37 @@
 						</v-chip-group>
 					</v-input>
 				</v-sheet>
-				<div class="d-flex">
-					<v-text-field variant="solo" flat v-model="params.separator" label="separator" class="w-25 mr-2" :rules="rules.separator" @keydown.enter="callAPI" />
+				<v-row>
+					<v-col :cols="xs ? 4 : 3" class="d-flex pr-0">
+						<v-text-field variant="solo" flat v-model="params.separator" label="separator" class="mr-1 mb-1" :rules="rules.separator" @keydown.enter="callAPI" hide-details @blur="params.separator = params.separator || defaultParams.separator" />
+					</v-col>
 
-					<div style="position: relative" class="d-flex w-25 mr-2">
-						<v-text-field variant="solo" flat v-model="params.suffixLength" :rules="rules.suffixLength" @keydown.enter="callAPI">
-							<template v-slot:label>
-								<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
-									<p class="mb-2">Entropy mode controls how the suffix length is determined.</p>
-									<p class="mb-2">When disabled, the suffix length represents the exact number of digits in base 10, ensuring predictable and user-friendly output.</p>
-									<p class="mb-2">When enabled, the suffix length is directly tied to the entropy of the underlying hash, preserving randomness by selecting a fixed number of hex characters before conversion.</p>
-									<p class="mb-2">This mode is useful for applications requiring precise entropy retention rather than strictly formatted numerical suffixes.</p>
-									<template v-slot:activator="{ props: tooltip }">
-										<div class="font-weight-light text-grey-darken-1" style="font-size: 0.5rem">
-											suffixLength
-											<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" style="cursor: pointer; pointer-events: auto" />
-										</div>
-									</template>
-								</v-tooltip>
-							</template>
-						</v-text-field>
-						<v-checkbox-btn style="position: absolute; bottom: 30px; right: 6px" density="compact" v-model="params.entropyMode" />
-					</div>
+					<v-col :cols="xs ? 4 : 3" class="d-flex px-0">
+						<div style="position: relative" class="d-flex w-100 mr-1 mb-1">
+							<v-text-field variant="solo" flat v-model="params.suffixLength" :rules="rules.suffixLength" @keydown.enter="callAPI" placeholder="3" hide-details @blur="params.suffixLength = params.suffixLength || defaultParams.suffixLength">
+								<template v-slot:label>
+									<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
+										<p class="mb-2">Entropy mode controls how the suffix length is determined.</p>
+										<p class="mb-2">When disabled, the suffix length represents the exact number of digits in base 10, ensuring predictable and user-friendly output.</p>
+										<p class="mb-2">When enabled, the suffix length is directly tied to the entropy of the underlying hash, preserving randomness by selecting a fixed number of hex characters before conversion.</p>
+										<p class="mb-2">This mode is useful for applications requiring precise entropy retention rather than strictly formatted numerical suffixes.</p>
+										<template v-slot:activator="{ props: tooltip }">
+											<div class="font-weight-light text-grey-darken-1" style="font-size: 0.5rem">
+												suffixLength
+												<v-icon v-bind="tooltip" color="yellow-darken-2" icon="info" style="cursor: pointer; pointer-events: auto" />
+											</div>
+										</template>
+									</v-tooltip>
+								</template>
+							</v-text-field>
+							<v-checkbox-btn style="position: absolute; bottom: 6px; right: 6px" density="compact" v-model="params.entropyMode" />
+						</div>
+					</v-col>
 
-					<v-text-field variant="solo" flat v-model="store.aname.salt" label="salt" :rules="rules.salt" class="w-50" @keydown.enter="callAPI" />
-				</div>
+					<v-col :cols="xs ? 4 : 6" class="d-flex pl-0">
+						<v-text-field variant="solo" flat v-model="store.aname.salt" label="salt" :rules="rules.salt" class="mb-1" @keydown.enter="callAPI" hide-details />
+					</v-col>
+				</v-row>
 				<div class="d-flex mb-2">
 					<v-text-field variant="solo" flat v-model="params.publicKey" :rules="rules.publicKey" class="w-50" id="publicKey" ref="keyRef" @keydown.enter="callAPI" :hint="keyHint" :persistent-hint="!!keyHint">
 						<template v-slot:label>
@@ -103,7 +113,7 @@
 					</v-text-field>
 				</div>
 				<v-sheet height="100" rounded="lg" class="d-flex flex-column justify-end" style="position: relative">
-					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.username" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.username }}</div>
+					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.name" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.name }}</div>
 					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
 					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" />
 					<v-chip style="position: absolute; top: 6px; left: 6px" color="green" class="d-flex align-center animate__animated animate__bounceIn" label v-if="stats?.count">
@@ -135,10 +145,10 @@
 							</v-tooltip>
 						</div>
 						<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-							<div v-for="(dictionary, index) of templateArr" class="d-flex align-center" :key="`${dictionary.name}-${index}`" style="position: relative">
-								<v-sheet color="green" rounded="lg" class="segment px-1 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${(1000 / (templateArr.length - 1)) * index}ms`">{{ dictionary.href || dictionary.name }}</v-sheet>
+							<div v-for="(dictionary, index) of templateArr" class="d-flex align-center saira-extra-condensed-regular" :key="`${dictionary.name}-${index}`" style="position: relative">
+								<v-sheet color="green" rounded="lg" class="text-truncate segment px-1 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${(1000 / (templateArr.length - 1)) * index}ms`">{{ dictionary.href || dictionary.name }}</v-sheet>
 								<v-sheet color="green" rounded="lg" class="segment px-2 py-2 animate__animated animate__bounceIn" :style="`animation-delay: ${(1000 / (templateArr.length - 1)) * index}ms`" v-if="index < templateArr.length - 1" :key="params.separator">{{ params.separator }}</v-sheet>
-								<v-chip style="position: absolute; top: -40%; left: 6px" :text="index + 1" />
+								<v-chip class="font-weight-bold" style="position: absolute; top: -40%; left: 6px" :text="index + 1" />
 							</div>
 						</div>
 						<div class="text-caption text-center mt-8">API call</div>
@@ -153,13 +163,13 @@
 					<v-tabs-window-item value="lookup">
 						<div class="text-caption text-center my-8">retreived data</div>
 						<div class="d-flex flex-no-wrap justify-center">
-							<div class="d-flex align-center stint-ultra-condensed-regular">
+							<div class="d-flex align-center saira-extra-condensed-regular">
 								<div style="position: relative">
-									<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ apiResponseData2?.slice(0, 13) || '\u003cretreived salt placeholder>' }}</v-sheet>
+									<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ store.aname.generated[uuid]?.salt || '\u003cretreived salt placeholder>' }}</v-sheet>
 									<v-chip style="position: absolute; top: -40%; right: 6px" text="NaCl" />
 								</div>
 								<div style="position: relative">
-									<v-sheet color="green" rounded="lg" class="segment px-2 py-2">{{ apiResponseData2?.slice(13) || '\u003cretreived seed placeholder>' }}</v-sheet>
+									<v-sheet color="green" rounded="lg" class="segment px-2 py-2">{{ store.aname.generated[uuid]?.salt ? apiResponseData2?.slice(store.aname.generated[uuid].salt.length) : apiResponseData2 || '\u003cretreived seed placeholder>' }}</v-sheet>
 									<v-chip style="position: absolute; top: -40%; right: 6px" text="Seed" />
 								</div>
 							</div>
@@ -177,8 +187,35 @@
 				</v-tabs-window>
 			</v-sheet>
 		</v-form>
+		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light" color="blue-darken-2">
+			<v-card-title class="title font-weight-bold text-wrap">What is a Deterministic Name Generator</v-card-title>
+			<v-card-subtitle class="text-wrap">A deterministic name generator is a tool that generates a unique name based on a seed and a set of rules.</v-card-subtitle>
+			<v-card-text>
+				<p class="my-4">
+					A Deterministic Name Generator (DNG) is a system that produces the same output name every time it receives the same input, ensuring consistency and predictability. This is achieved by using a <span class="font-weight-bold">SHA-256 cryptographic hash function</span>, which transforms the input into a
+					fixed-length, collision-resistant hash. The hash is then processed into a structured, human-readable format using predefined dictionaries and entropy controls.
+				</p>
+
+				<p class="my-4">Unlike traditional random name generators, a DNG does not introduce unpredictability—<span class="font-weight-bold">the same input always results in the same output</span>, making it ideal for applications requiring stable, reusable identifiers.</p>
+
+				<p class="mt-8 saira-extra-condensed-bold" style="font-size: 1rem">Benefits of a Deterministic Name Generator:</p>
+				<v-list bg-color="transparent">
+					<v-list-item><span class="font-weight-bold">Consistency</span> – The same input always produces the same name.</v-list-item>
+					<v-list-item><span class="font-weight-bold">Stateless</span> – No database storage is required; names are generated on demand.</v-list-item>
+					<v-list-item><span class="font-weight-bold">Collision Resistance</span> – SHA-256 hashing minimizes the likelihood of duplicate names.</v-list-item>
+					<v-list-item><span class="font-weight-bold">Cross-Platform Use</span> – The same logic can be applied across different systems.</v-list-item>
+					<v-list-item><span class="font-weight-bold">Privacy-Preserving</span> – Inputs can be hashed before processing, ensuring data security.</v-list-item>
+				</v-list>
+
+				<p class="my-4">
+					By leveraging <span class="font-weight-bold">SHA-256 hashing</span>, the system guarantees high entropy while maintaining a structured, human-readable output. Whether for <span class="font-weight-bold">usernames, gamertags, or unique identifiers</span>, a DNG provides an elegant and deterministic
+					solution.
+				</p>
+			</v-card-text>
+		</v-card>
+
 		<v-card ref="swalHtmlRef" v-show="swalActive" rounded="xl" flat class="mb-8">
-			<v-card-title>{{ store.aname.generated[uuid]?.data?.username || 'fake-transparent-name-placeholder' }}</v-card-title>
+			<v-card-title>{{ store.aname.generated[uuid]?.data?.name || 'fake-transparent-name-placeholder' }}</v-card-title>
 			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower">Congratulations on your first generated name!</v-card-subtitle>
 			<v-card-text class="text-start">
 				<p class="mb-4">Your unique name has been <span class="font-weight-bold">deterministically</span> generated!🔥</p>
@@ -191,9 +228,9 @@
 				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: your username will be recycled after 24 hours if you don't create an account)</div>
 
 				<v-item-group v-model="plansGroup" mandatory>
-					<v-container>
+					<v-container class="px-0">
 						<v-row>
-							<v-col class="pa-0" :cols="4" v-for="plan of plans" :key="plan">
+							<v-col :cols="xs ? 12 : 4" class="pa-0" :class="xs ? 'mb-4' : ''" v-for="plan of plans" :key="plan">
 								<v-item v-slot="{ isSelected, selectedClass, toggle }">
 									<v-card class="d-flex flex-column mr-1 h-100" :color="isSelected ? 'blue-darken-4' : undefined" @click="toggle" rounded="xl" :class="selectedClass">
 										<v-card-title class="text-h6 text-center font-weight-bold">
@@ -234,6 +271,10 @@
 html {
 	font-size: 1.5rem;
 }
+.title {
+	font-size: 2.2rem;
+	line-height: 2.5rem !important;
+}
 .news-cycle-regular {
 	font-family: 'News Cycle', sans-serif;
 	font-weight: 400;
@@ -243,11 +284,6 @@ html {
 .news-cycle-bold {
 	font-family: 'News Cycle', sans-serif;
 	font-weight: 700;
-	font-style: normal;
-}
-.stint-ultra-condensed-regular {
-	font-family: 'Stint Ultra Condensed', serif;
-	font-weight: 400;
 	font-style: normal;
 }
 .saira-extra-condensed-thin {
@@ -315,6 +351,7 @@ html {
 }
 .segment {
 	margin: 1px;
+	max-width: 75vw;
 }
 :deep(.outer .v-chip__append) {
 	margin-right: -6px;
@@ -332,7 +369,7 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance, nextTick } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance } from 'vue'
 import { v5 as uuidv5, v4 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
@@ -347,7 +384,7 @@ import AnameHeader from '../components/AnameHeader.vue'
 import AddDictionaryDialog from '../components/aname/AddDictionaryDialog.vue'
 import NamesDialog from '../components/aname/NamesDialog.vue'
 
-const { smAndDown } = useDisplay()
+const { xs, smAndDown } = useDisplay()
 const { $keycloak } = getCurrentInstance().appContext.config.globalProperties
 const swalHtmlRef = ref()
 const tabs = ref()
@@ -380,7 +417,7 @@ const snackbar = ref({
 	text: '',
 })
 const keyHint = computed(() => {
-	return params.value.publicKey && store.aname.keypair.pub && params.value.publicKey !== store.aname.keypair.pub ? 'Note: This public key does not match the stored keypair.' : undefined
+	return params.value.publicKey && store.aname.keypair.pub && params.value.publicKey !== store.aname.keypair.pub ? 'NOTE: This key does not match the stored keypair.' : undefined
 })
 const stats = ref({})
 // prettier-ignore
@@ -424,6 +461,10 @@ const styleObjs = computed(() => ({
 		  }
 		: {},
 }))
+const defaultParams = ref({
+	separator: '-',
+	suffixLength: '3',
+})
 const params = ref({
 	entropyMode: store.aname.entropyMode,
 	dictionaries: ['https://github.june07.com/dictionary/adjs.txt', 'https://github.june07.com/dictionary/colors.txt', 'https://github.june07.com/dictionary/nouns.txt'],
@@ -488,14 +529,14 @@ const templateArr = computed(() => {
 		name: typeof dictionary === 'object' ? Object.keys(dictionary)[0] : dictionary.split('/').pop(),
 		href: typeof dictionary === 'object' ? undefined : dictionary,
 	}))
-	params.value.template = arr.map(d => encodeURIComponent(d.href || d.name)).join(params.value.separator)
+	params.value.template = arr.map(d => btoa(d.href || d.name)).join(params.value.separator)
 
 	return arr
 })
 const swalActive = ref(false)
 const apiResponseData = computed(() => uuid.value && store.aname.generated[uuid.value]?.data)
 const apiResponseData2 = computed(() => uuid.value && store.aname.lookups[uuid.value])
-const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.username || 'unique-name-placeholder'}?publicKey=${params.value.publicKey}`)?.href)
+const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey}`)?.href)
 function updateURL() {
 	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
 
@@ -505,7 +546,7 @@ function updateURL() {
 		if (key === 'dictionaries') {
 			value = JSON.stringify(params.value[key])
 		} else if (key === 'seed') {
-			value = `${store.aname.salt || ''}${params.value[key]}`
+			value = `${store.aname.salt || ''}${params.value[key] || ''}`
 		} else {
 			value = params.value[key]
 		}
@@ -542,6 +583,11 @@ async function callAPI(action) {
 					}
 					store.aname.generated[uuid.value] = {
 						url: url.value,
+						salt: (() => {
+							const urlBase = new URL(url.value)
+
+							return urlBase.searchParams.get('salt') || ''
+						})(),
 						data,
 					}
 				}
@@ -664,10 +710,10 @@ function dictionaryOrderChanged({ moved }) {
 function closeDictionaryHandler(item) {
 	const index = params.value.dictionaries.findIndex(dict => dict === item)
 
-    console.log(index, params.value.dictionaries)
+	console.log(index, params.value.dictionaries)
 	params.value.dictionaries.splice(index, 1)
 
-    console.log(validDictionaries.value)
+	console.log(validDictionaries.value)
 }
 function validateDictionary(dictionary) {
 	unvalidatedDictionaries.value.push(dictionary)

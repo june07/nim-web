@@ -1,10 +1,10 @@
 <template>
 	<div>
 		<v-app-bar color="primary" height="50">
-			<v-app-bar-nav-icon variant="tonal" size="x-small" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+			<v-icon size="small" icon="more" class="ml-2" />
+			<v-toolbar-title class="boldonse-regular">aName<span v-if="!xs"> - unique deterministic names</span></v-toolbar-title>
 
-			<v-toolbar-title class="saira-extra-condensed-light text-body-1">aName - unique deterministic names</v-toolbar-title>
-
+			<v-app-bar-nav-icon variant="plain" size="x-small" @click.stop="drawer = !drawer" />
 			<template v-if="!xs">
 				<div v-for="menu of menus" class="d-flex align-center mr-2">
 					<v-menu v-if="menu.name === 'info'">
@@ -32,7 +32,7 @@
 			</template>
 		</v-app-bar>
 
-		<v-navigation-drawer v-model="drawer" temporary>
+		<v-navigation-drawer v-model="drawer" temporary location="right">
 			<v-list>
 				<v-list-item v-for="(item, index) in items.main" :key="index" :value="index" :href="item.href" @click="item.action" density="compact">
 					<template v-slot:append>
@@ -45,6 +45,11 @@
 	</div>
 </template>
 <style scoped>
+.boldonse-regular {
+	font-family: 'Boldonse', system-ui;
+	font-weight: 400;
+	font-style: normal;
+}
 :deep(.v-list-.v-icon) {
 	font-size: 0.75rem !important;
 }

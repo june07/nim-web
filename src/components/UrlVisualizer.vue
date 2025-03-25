@@ -39,7 +39,7 @@
 			<div class="section">
 				<span class="label">Query:</span> <span class="value" @click="condensed['query'] = !condensed['query']" :class="condensed['query'] ? 'text-no-wrap text-truncate' : ''">{{ urlParts.search || 'None' }}</span>
 			</div>
-			<div class="section">
+			<div class="section" v-if="urlParts.hash">
 				<span class="label">Fragment:</span> <span class="value">{{ urlParts.hash || 'None' }}</span>
 			</div>
 			<div v-if="urlParts.params.length" class="section flex-column">
@@ -68,7 +68,6 @@
 }
 .section {
 	display: flex;
-	margin-bottom: 8px;
 	cursor: pointer;
 }
 .label {
