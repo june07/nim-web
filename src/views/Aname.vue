@@ -48,7 +48,7 @@
 							</v-progress-linear>
 							<v-chip key="control" class="text-uppercase dictionary-control text-blue-darken-2" :ripple="false" @click="dialogs.addDictionary = true" text="add" prepend-icon="add">
 								<template v-slot:append>
-									<v-chip class="mx-2 font-weight-bold text-caption" label size="x-small" :text="`${store.aname.availableDictionaries?.filter(dict => typeof dict === 'string').length} available`" />
+									<v-chip class="mx-2 font-weight-bold text-caption" label size="x-small" :text="`${store.aname.availableDictionaries?.filter(dict => typeof dict === 'string' && !params.dictionaries.includes(dictionaryAsName(dict))).length} available`" />
 								</template>
 							</v-chip>
 						</v-chip-group>
@@ -105,17 +105,22 @@
 							</v-tooltip>
 							<v-tooltip text="Copied public key to clipboard" v-model="tooltips['copy']" location="top" :open-on-hover="false" aria-label="Copied public key tooltip">
 								<template v-slot:activator="{ props: tooltip }">
-									<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="copy" class="mb-auto mt-2 mr-1" id="copyButton" style="font-size: 0.5rem" @click="copyHandler" />
+									<v-btn v-bind="tooltip" size="x-small" variant="tonal" text="copy" class="mb-auto mt-2 mr-1" id="copyButton" style="font-size: 0.5rem" @click="copyHandler(store.aname.keypair.pub, 'copy')" />
 								</template>
 							</v-tooltip>
 							<v-btn size="x-small" variant="tonal" text="reset" class="mb-auto mt-2" style="font-size: 0.5rem" @click="resetHandler" />
 						</template>
 					</v-text-field>
 				</div>
-				<v-sheet height="100" rounded="lg" class="d-flex flex-column justify-end" style="position: relative">
-					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.name" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.name }}</div>
-					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
-					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" />
+				<v-sheet height="120" rounded="lg" class="d-flex flex-column justify-end" style="position: relative">
+					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.name" :class="!canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.name }}</div>
+					<v-tooltip text="Copied name to clipboard" v-model="tooltips['name']" location="top" :open-on-hover="false" aria-label="Copied name tooltip">
+						<template v-slot:activator="{ props: tooltip }">
+							<v-btn v-if="apiResponseData?.name" v-bind="tooltip" size="x-small" variant="tonal" text="copy" id="copyNameButton" style="font-size: 0.5rem" @click="copyHandler(apiResponseData.name, 'name')" :style="styleObjs['copyNameBtn']" />
+						</template>
+					</v-tooltip>
+					<v-btn @click="callAPI" :text="!canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="!canGenerate ? 'blue' : 'green'" :disabled="canGenerate || !form.isValid" :size="canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
+					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup || !apiResponseData?.name" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" />
 					<v-chip style="position: absolute; top: 6px; left: 6px" color="green" class="d-flex align-center animate__animated animate__bounceIn" label v-if="stats?.count">
 						<v-btn class="text-caption" variant="text" :text="`Used ${stats.count}/${stats.max}`" @click="dialogs.names = true" />
 						<template v-slot:append>
@@ -164,11 +169,11 @@
 						<div class="text-caption text-center my-8">retreived data</div>
 						<div class="d-flex flex-no-wrap justify-center saira-extra-condensed-regular">
 							<div style="position: relative">
-								<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ store.aname.generated[uuid]?.salt && apiResponseData2 ? store.aname.generated[uuid].salt : '\u003cempty>' }}</v-sheet>
+								<v-sheet color="green" rounded="lg" class="segment px-1 py-2">{{ generated?.[uuid]?.salt && apiResponseData2 ? generated[uuid].salt : '\u003cempty>' }}</v-sheet>
 								<v-chip style="position: absolute; top: -40%; right: 6px" text="NaCl" />
 							</div>
 							<div style="position: relative; min-width: 70px">
-								<v-sheet color="green" rounded="lg" class="segment px-1 py-2 text-center">{{ store.aname.generated[uuid]?.salt && apiResponseData2 ? apiResponseData2.slice(store.aname.generated[uuid].salt.length) : apiResponseData2 || '\u003cempty>' }}</v-sheet>
+								<v-sheet color="green" rounded="lg" class="segment px-1 py-2 text-center">{{ generated?.[uuid]?.salt && apiResponseData2 ? apiResponseData2.slice(generated[uuid].salt.length) : apiResponseData2 || '\u003cempty>' }}</v-sheet>
 								<v-chip style="position: absolute; top: -40%; right: 6px" text="Seed" />
 							</div>
 						</div>
@@ -210,6 +215,26 @@
 					By leveraging <span class="font-weight-bold">SHA-256 hashing</span>, the system guarantees high entropy while maintaining a structured, human-readable output. Whether for <span class="font-weight-bold">usernames, gamertags, or unique identifiers</span>, a DNG provides an elegant and deterministic
 					solution.
 				</p>
+
+				<p class="mt-8 saira-extra-condensed-bold" style="font-size: 1rem">How aName Ensures Collision-Proof Names:</p>
+				<v-list bg-color="transparent">
+					<v-list-item><span class="font-weight-bold">Global Uniqueness Enforcement</span> – aName checks and registers each generated name before finalizing assignment.</v-list-item>
+					<v-list-item><span class="font-weight-bold">Real-Time Deduplication</span> – Ensures that even highly similar inputs cannot accidentally generate the same name.</v-list-item>
+					<v-list-item><span class="font-weight-bold">Cross-Service Consistency</span> – Names remain unique across multiple applications using aName.</v-list-item>
+					<v-list-item><span class="font-weight-bold">Scalable Architecture</span> – Combines high-speed caching (Redis) and permanent encrypted public records (GitHub) for guaranteed uniqueness, transparency, and scalability.</v-list-item>
+				</v-list>
+
+				<p class="my-4">
+					While SHA-256 provides a high level of collision resistance, <span class="font-weight-bold">aName eliminates the burden on developers</span> by handling the additional complexity required to guarantee collision-proof names. Instead of requiring teams to build and maintain their own
+					<span class="font-weight-bold">lookup systems, uniqueness enforcement, and data synchronization</span>, aName automates these processes as part of its streamlined service.
+				</p>
+
+				<p class="my-4">
+					Through a combination of <span class="font-weight-bold">real-time uniqueness verification</span> (via Redis-backed storage) and <span class="font-weight-bold">eventual consistency with GitHub-backed mapping records</span>, aName ensures that no two users ever receive the same name—even when working
+					across different projects or instances.
+				</p>
+
+				<p class="my-4">With aName, developers gain <span class="font-weight-bold">not just deterministic, but truly unique, collision-proof names</span>, making it the ultimate solution for identity generation at scale.</p>
 			</v-card-text>
 		</v-card>
 
@@ -231,7 +256,7 @@
 		</v-card>
 
 		<v-card ref="swalHtmlRef" v-show="swalActive" rounded="xl" flat class="d-flex saira-extra-condensed-regular flex-column">
-			<v-card-title class="text-wrap saira-extra-condensed-bold px-0" style="font-size: 1rem">{{ store.aname.generated[uuid]?.data?.name || 'fake-transparent-name-placeholder' }}</v-card-title>
+			<v-card-title class="text-wrap saira-extra-condensed-bold px-0" style="font-size: 1rem">{{ generated?.[uuid]?.data?.name || 'fake-transparent-name-placeholder' }}</v-card-title>
 			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower text-wrap px-0">Congratulations on your first generated name!</v-card-subtitle>
 			<v-card-text class="text-start px-0">
 				<p class="mb-4">Your <span class="font-weight-bold">unique</span> name has been <span class="font-weight-bold">deterministically</span> generated!🔥</p>
@@ -284,6 +309,7 @@
 				<v-btn color="red" variant="text" @click="snackbar.active = false"> Close </v-btn>
 			</template>
 		</v-snackbar>
+		{{ console.log(generated, canGenerate) }}
 	</v-container>
 </template>
 <style>
@@ -392,7 +418,7 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance, nextTick } from 'vue'
 import { v5 as uuidv5, v4 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
@@ -436,11 +462,14 @@ const dialogs = ref({
 	addDictionary: false,
 	names: false,
 })
+const userId = ref('anonymous')
 const dictionaryValidationProgressRef = ref([])
 const plansGroup = ref(0)
-const canGenerate = computed(() => uuid.value && !store.aname.generated[uuid.value])
-const didLookup = computed(() => uuid.value && !!store.aname.lookups[uuid.value])
 const store = useAppStore()
+const generated = computed(() => uuid.value && store.aname.generated[userId.value])
+const lookup = computed(() => store.aname.lookups[userId.value])
+const canGenerate = computed(() => uuid.value && !!generated.value?.[uuid.value])
+const didLookup = computed(() => uuid.value && lookup.value && !!lookup.value[uuid.value])
 const snackbar = ref({
 	active: false,
 	text: '',
@@ -475,20 +504,25 @@ const rules = ref({
     ],
 })
 const styleObjs = computed(() => ({
-	generatedBtn: canGenerate.value
+	generatedBtn: !canGenerate.value
 		? {}
 		: {
 				position: 'absolute',
-				top: '6px',
+				bottom: '0',
 				right: '6px',
 		  },
 	didLookupBtn: didLookup.value
 		? {
 				position: 'absolute',
-				top: '6px',
+				bottom: '0',
 				right: '6px',
 		  }
 		: {},
+	copyNameBtn: {
+		position: 'absolute',
+		top: '6px',
+		right: '6px',
+	},
 }))
 const defaultParams = ref({
 	separator: '-',
@@ -500,7 +534,7 @@ const params = ref({
 	template: `${encodeURIComponent('https://github.june07.com/dictionary/adjs.txt')}-${encodeURIComponent('colors')}-${encodeURIComponent('https://github.june07.com/dictionary/nouns.txt')}`,
 	separator: store.aname.separator,
 	suffixLength: store.aname.suffixLength,
-	seed: store.aname.generated.length ? '' : store.aname.seed,
+	seed: generated.value?.length ? '' : store.aname.seed,
 	publicKey: store.aname.publicKey,
 	nocache: MODE === 'production' ? false : true,
 })
@@ -563,8 +597,8 @@ const templateArr = computed(() => {
 	return arr
 })
 const swalActive = ref(false)
-const apiResponseData = computed(() => uuid.value && store.aname.generated[uuid.value]?.data)
-const apiResponseData2 = computed(() => uuid.value && store.aname.lookups[uuid.value])
+const apiResponseData = computed(() => uuid.value && generated.value && generated.value[uuid.value]?.data)
+const apiResponseData2 = computed(() => uuid.value && lookup.value && lookup.value[uuid.value])
 const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey}`)?.href)
 function updateURL() {
 	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
@@ -589,7 +623,7 @@ function updateURL() {
 }
 async function callAPI(action) {
 	await $keycloak.value.isLoaded
-	const token = await $keycloak.value.token
+	const { token } = await $keycloak.value
 
 	if (action !== 'lookup') {
 		fetch(url.value, {
@@ -600,17 +634,20 @@ async function callAPI(action) {
 				: {},
 		})
 			.then(response => response.json())
-			.then(data => {
+			.then(async data => {
 				if (data.error) {
 					snackbar.value.text = data.error
 					snackbar.value.active = true
 					return
 				}
-				if (!store.aname.generated[uuid.value]) {
-					if (!Object.keys(store.aname.generated).length) {
+				if (!generated.value) {
+					store.aname.generated[userId.value] = {}
+				}
+				if (!generated.value[uuid.value]) {
+					if (!Object.keys(generated.value).length) {
 						swal()
 					}
-					store.aname.generated[uuid.value] = {
+					store.aname.generated[userId.value][uuid.value] = {
 						url: url.value,
 						salt: store.aname.salt,
 						data,
@@ -627,9 +664,12 @@ async function callAPI(action) {
 			.then(async response => {
 				const data = await response.text()
 
+				if (!lookup.value) {
+					store.aname.lookups[userId.value] = {}
+				}
 				if (response.ok) {
-					if (data && !store.aname.lookups[uuid.value]) {
-						store.aname.lookups[uuid.value] = data
+					if (data && !lookup.value[uuid.value]) {
+						store.aname.lookups[userId.value][uuid.value] = data
 					}
 				} else {
 					console.warn(data)
@@ -707,12 +747,13 @@ function resetHandler() {
 const tooltips = ref({
 	download: false,
 	copy: false,
+	name: false,
 })
-function copyHandler() {
-	clipboard.copy(store.aname.keypair.pub).then(copied => {
-		tooltips.value['copy'] = copied
+function copyHandler(str, tooltipName) {
+	clipboard.copy(str).then(copied => {
+		tooltips.value[tooltipName] = copied
 		if (copied) {
-			setTimeout(() => (tooltips.value['copy'] = false), 1500)
+			setTimeout(() => (tooltips.value[tooltipName] = false), 1500)
 		}
 	})
 }
@@ -833,6 +874,7 @@ async function asyncInit() {
 
 	if (!$keycloak.value.isAuthenticated) return
 
+	userId.value = $keycloak.value.tokenParsed.sub || 'anonymous'
 	username.value = $keycloak.value.tokenParsed.preferred_username
 	const { token } = await $keycloak.value
 

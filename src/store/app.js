@@ -12,8 +12,12 @@ export const useAppStore = defineStore("app", {
             separator: '-',
             suffixLength: 3,
             salt: `${Date.now()}`,
-            generated: {},
-            lookups: {},
+            generated: {
+                anonymous: {},
+            },
+            lookups: {
+                anonymous: {},
+            },
             keypair: {},
             keypairs: {},
             publicKey: undefined,

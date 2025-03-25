@@ -9,7 +9,7 @@
 					<v-text-field variant="solo" flat label="Dictionary URL" v-model="dictionary" :rules="rules.asString" hint="https://example.com/dictionary.txt" persistent-hint />
 				</v-form>
 				<p class="mt-4">Or select a dictionary from the available dictionaries below.</p>
-				<v-select :items="availableDictionaries" label="Available Dictionaries" variant="solo" flat @update:modelValue="selectionHandler" />
+				<v-select :items="availableDictionaries" label="Available Dictionaries" variant="solo" flat @update:modelValue="selectionHandler" multiple />
 			</v-card-text>
 			<v-card-actions>
 				<v-spacer></v-spacer>
@@ -33,7 +33,7 @@ const store = useAppStore()
 const form = ref()
 const availableDictionaries = computed(() =>
 	store.aname.availableDictionaries
-        .filter(dict => typeof dict === 'string') // filter out local dictionaries for now
+		.filter(dict => typeof dict === 'string') // filter out local dictionaries for now
 		.filter(dict => !props.selected.includes(typeof dict === 'string' ? dict : Object.keys(dict)[0]))
 		.map(dict => ({
 			title: typeof dict === 'string' ? dict : Object.keys(dict)[0],
@@ -57,11 +57,17 @@ function add() {
 
 	emit('update:dictionary', dictionary.value)
 }
+const selectionHandlerTimeout = ref()
 function selectionHandler(value) {
-	if (/https?:\/\//.test(value)) {
-		emit('update:dictionary', value)
-		return
-	}
-	// show another dialog to possibly edit the custom dictionary for now it's just filtered above so it can't be selected
+	if (selectionHandlerTimeout.value) clearTimeout(selectionHandlerTimeout.value)
+	selectionHandlerTimeout.value = setTimeout(() => {
+		value.forEach(dictionary => {
+			if (/https?:\/\//.test(dictionary)) {
+				emit('update:dictionary', dictionary)
+				return
+			}
+			// show another dialog to possibly edit the custom dictionary for now it's just filtered above so it can't be selected
+		})
+	}, 1000)
 }
 </script>

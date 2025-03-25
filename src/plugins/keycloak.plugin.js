@@ -102,18 +102,28 @@ async function onPiniaLoad(pinia, options) {
     if (!keypairs[sub] && stringifiedKeypair !== '{}') {
         pinia.state.value.app.aname.keypairs[sub] = await encryptData(stringifiedKeypair, sub)
     } else if (keypairs[sub]) {
+        // move anonymous keypair to keypairs
+        if (JSON.stringify(keypairs[sub]) !== JSON.stringify(keypair)) {
+            pinia.state.value.app.aname.keypairs['anonymous'] = keypair
+        }
+
+        // setup authed users store
         pinia.state.value.app.aname.keypair = await decryptData(keypairs[sub], sub)
     }
 
     setInterval(() => {
         if (exp * 1000 < Date.now()) {
             console.warn("Session expired, clearing stored keys.")
-            pinia.state.value.app.aname.keypair = {}
-            pinia.state.value.app.aname.publicKey = undefined
+            clearStoreState(pinia)
         }
     }, 30000) // Check every 30 seconds
 }
-
+function clearStoreState(pinia) {
+    pinia.state.value.app.aname.apikeyData = {}
+    pinia.state.value.app.aname.keypair = {}
+    pinia.state.value.app.aname.publicKey = undefined
+    pinia.state.value.app.aname.salt = `${Date.now()}`
+}
 const keycloakPlugin = {
     async install(app, options) {
         const { keycloakConfig } = options
@@ -136,6 +146,9 @@ const keycloakPlugin = {
         try {
             keycloak.value.onAuthSuccess = () => {
                 onPiniaLoad(options.pinia, { keycloak: keycloak.value })
+            }
+            keycloak.value.onAuthLogout = () => {
+                clearStoreState(pinia)
             }
             // Initialize Keycloak and set it to keycloakRef
             keycloak.value.isAuthenticated = await keycloak.value.init(options)
