@@ -46,9 +46,10 @@
 </template>
 <style scoped></style>
 <script setup>
-import { ref, getCurrentInstance } from "vue"
+import { ref, getCurrentInstance, provide, inject } from "vue"
 import { useDisplay } from 'vuetify/lib/framework.mjs'
 
+const clipboard = inject('clipboard')
 const { smAndDown } = useDisplay()
 const { $api } = getCurrentInstance().appContext.config.globalProperties
 const version = ref()
@@ -108,4 +109,19 @@ function reload() {
 }
 checkVersion()
 versionCheckIntervalId.value = setInterval(checkVersion, 60000)
+
+async function copyHandler(tooltips, tooltipName, value) {
+    try {
+        const copied = await clipboard.copy(value)
+        if (copied && !(copied instanceof Error)) {
+            tooltips[tooltipName] = true
+        }
+    } finally {
+        setTimeout(() => {
+            tooltips[tooltipName] = false
+        }, 1500)
+    }
+}
+
+provide('copyHandler', copyHandler)
 </script>

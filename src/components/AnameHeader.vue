@@ -32,7 +32,7 @@
 
 		<v-navigation-drawer v-model="drawer" temporary location="right">
 			<v-list>
-				<v-list-item v-for="(item, index) in items.main" :key="index" :value="index" :href="item.href" @click="item.action" density="compact">
+				<v-list-item v-for="(item, index) in items.side" :key="index" :value="index" :href="item.href" @click="() => item.action($emit)" density="compact">
 					<template v-slot:append>
 						<v-icon :icon="item.icon" size="x-small" />
 					</template>
@@ -56,6 +56,7 @@
 import { ref, getCurrentInstance, computed } from 'vue'
 import { useDisplay } from 'vuetify/lib/framework.mjs'
 
+defineEmits(['open:names', 'open:apikeys'])
 const props = defineProps({
 	username: String,
 })
@@ -74,11 +75,21 @@ const menus = ref([
 	},
 ])
 const items = computed(() => ({
-	main: [
+	side: [
 		{
 			title: $keycloak.value.isAuthenticated ? 'sign out' : 'sign in',
 			action: $keycloak.value.isAuthenticated ? logout : login,
 			icon: $keycloak.value.isAuthenticated ? 'logout' : 'login',
+		},
+		{
+			title: 'api keys',
+			action: $emit => $emit('open:apikeys'),
+			icon: 'key',
+		},
+		{
+			title: 'names',
+			action: $emit => $emit('open:names'),
+			icon: 'more',
 		},
 		{
 			title: 'support',

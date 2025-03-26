@@ -1,6 +1,6 @@
 <template>
 	<v-container fluid class="py-0 news-cycle-regular">
-		<aname-header :username="username" />
+		<aname-header :username="username" @open:names="dialogs.names = true" @open:apikeys="dialogs.apikeys = true" />
 		<v-card rounded="xl" flat class="mb-8">
 			<v-card-title class="title saira-extra-condensed-extrabold font-weight-bold text-wrap">A Unique Deterministic Name Generator</v-card-title>
 			<v-card-subtitle class="text-wrap saira-extra-condensed-light">Just provide a seed and we'll generate a name for you. One that is guaranteed to be globally unique and repeatable.</v-card-subtitle>
@@ -158,7 +158,7 @@
 						</div>
 						<div class="text-caption text-center mt-8">API call</div>
 						<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-							<url-visualizer :url="url" :apikey="store.aname.apikeyData.key" />
+							<url-visualizer :url="url" :apikey="store.aname.apikeys[0]?.key" />
 						</div>
 						<div class="text-caption text-center mt-8">fetch response data</div>
 						<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
@@ -303,13 +303,13 @@
 		</v-card>
 		<add-dictionary-dialog v-model="dialogs.addDictionary" :selected="params.dictionaries" @update:modelValue="value => (dialogs.addDictionary = value)" @update:dictionary="dictionary => addDictionary(dictionary)" />
 		<names-dialog v-model="dialogs.names" :names="stats.names" />
+		<apikeys-dialog v-model="dialogs.apikeys" :apikeys="store.aname.apikeys" />
 		<v-snackbar v-model="snackbar.active" multi-line :timeout="snackbar.timeout" @mouseenter="snackbar.timeout = -1" @mouseleave="snackbar.timeout = 5000">
 			<div class="text-caption">{{ snackbar.text }}</div>
 			<template v-slot:actions>
 				<v-btn color="red" variant="text" @click="snackbar.active = false"> Close </v-btn>
 			</template>
 		</v-snackbar>
-		{{ console.log(generated, canGenerate) }}
 	</v-container>
 </template>
 <style>
@@ -435,6 +435,7 @@ import UrlVisualizer from '../components/UrlVisualizer.vue'
 import AnameHeader from '../components/AnameHeader.vue'
 import AddDictionaryDialog from '../components/aname/AddDictionaryDialog.vue'
 import NamesDialog from '../components/aname/NamesDialog.vue'
+import ApikeysDialog from '../components/aname/ApikeysDialog.vue'
 import nodeExpressFetch from '@/data/codeExamples/nodeExpressFetch?raw'
 
 hljs.registerLanguage('javascript', javascript)
@@ -461,6 +462,7 @@ const uuid = computed(() => {
 const dialogs = ref({
 	addDictionary: false,
 	names: false,
+	apikeys: false,
 })
 const userId = ref('anonymous')
 const dictionaryValidationProgressRef = ref([])
@@ -892,7 +894,7 @@ async function asyncInit() {
 			console.error('Error fetching metadata:', error)
 		})
 
-	if (token && !store.aname.apikeyData.key) {
+	if (token && !store.aname.apikeys.length) {
 		fetch(`${VITE_APP_API_SERVER}/v1/ai/aname/apikey`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -900,7 +902,7 @@ async function asyncInit() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				store.aname.apikeyData = data.apikey
+				store.aname.apikeys = [data.apikey]
 			})
 			.catch(error => {
 				console.error('Error fetching metadata:', error)

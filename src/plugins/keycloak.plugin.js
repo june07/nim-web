@@ -2,6 +2,11 @@ import { until } from 'async'
 import Keycloak from 'keycloak-js'
 import { ref } from 'vue'
 
+const {
+    VITE_APP_API_SERVER,
+    VITE_APP_ANAME_PUBLIC_KEY
+} = import.meta.env
+
 function arrayBufferToBase64(buffer) {
     return btoa(String.fromCharCode(...new Uint8Array(buffer)))
 }
@@ -119,10 +124,24 @@ async function onPiniaLoad(pinia, options) {
     }, 30000) // Check every 30 seconds
 }
 function clearStoreState(pinia) {
-    pinia.state.value.app.aname.apikeyData = {}
+    pinia.state.value.app.aname.apikeys = []
     pinia.state.value.app.aname.keypair = {}
     pinia.state.value.app.aname.publicKey = undefined
     pinia.state.value.app.aname.salt = `${Date.now()}`
+}
+function getAname(token) {
+    return fetch(`${VITE_APP_API_SERVER}/v1/aname/${VITE_APP_ANAME_PUBLIC_KEY}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error)
+        })
 }
 const keycloakPlugin = {
     async install(app, options) {
@@ -146,6 +165,10 @@ const keycloakPlugin = {
         try {
             keycloak.value.onAuthSuccess = () => {
                 onPiniaLoad(options.pinia, { keycloak: keycloak.value })
+                
+                if (!keycloak.value.tokenParsed.anameUsername) {
+                    getAname(keycloak.value.token)
+                }
             }
             keycloak.value.onAuthLogout = () => {
                 clearStoreState(pinia)
