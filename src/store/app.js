@@ -30,6 +30,9 @@ export const useAppStore = defineStore("app", {
                 'https://github.june07.com/dictionary/adjs.txt',
                 'https://github.june07.com/dictionary/colors.txt',
                 'https://github.june07.com/dictionary/nouns.txt',
+                'https://github.june07.com/dictionary/countries.txt',
+                'https://github.june07.com/dictionary/languages.txt',
+                'https://github.june07.com/dictionary/girls.txt',
                 {
                     colors: ['red', 'green', 'blue'],
                 }

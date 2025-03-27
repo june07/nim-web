@@ -34,7 +34,7 @@
 
 		<v-navigation-drawer v-model="drawer" temporary location="right">
 			<v-list>
-				<v-list-item v-for="(item, index) in items.side" :key="index" :value="index" :href="item.href" @click="() => item.action($emit)" density="compact">
+				<v-list-item v-for="(item, index) in items.side.filter(i => !i.filter)" :key="index" :value="index" :href="item.href" @click="() => item.action($emit)" density="compact">
 					<template v-slot:append>
 						<v-icon :icon="item.icon" size="x-small" />
 					</template>
@@ -87,17 +87,14 @@ const items = computed(() => ({
 			title: 'api keys',
 			action: $emit => $emit('open:apikeys'),
 			icon: 'key',
+            filter: !$keycloak.value.isAuthenticated
 		},
 		{
 			title: 'names',
 			action: $emit => $emit('open:names'),
 			icon: 'more',
-		},
-		{
-			title: 'support',
-			href: 'https://github.com/june07/aname/issues',
-			icon: 'help',
-		},
+            filter: !$keycloak.value.isAuthenticated
+		}
 	],
 	info: [
 		{

@@ -3,7 +3,7 @@
 		<aname-header :username="username" @open:names="dialogs.names = true" @open:apikeys="dialogs.apikeys = true" />
 		<v-card rounded="xl" flat class="mb-8">
 			<v-card-title class="title saira-extra-condensed-extrabold font-weight-bold text-wrap">A Unique Deterministic Name Generator</v-card-title>
-			<v-card-subtitle class="text-wrap saira-extra-condensed-light">Just provide a seed and we'll generate a name for you. One that is guaranteed to be globally unique and repeatable.</v-card-subtitle>
+			<v-card-subtitle class="text-wrap saira-extra-condensed-light">Just provide a seed and we'll generate a name for you. A name that is guaranteed to be globally unique and repeatable.</v-card-subtitle>
 		</v-card>
 		<v-form ref="form">
 			<v-sheet color="grey-lighten-2" class="font-weight-bold mx-auto my-4 px-1 pt-1" rounded="lg" :class="smAndDown ? 'w-100' : 'w-75'">
@@ -188,11 +188,11 @@
 									<url-visualizer :url="url" height="200px" />
 								</div>
 								<div class="text-caption text-center mt-8">fetch response data</div>
-								<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
+								<v-sheet color="black" rounded="lg" class="my-2 pa-2" :height="lookupApiCalls[0].responseData || lookupApiCalls[1].responseData ? '500px' : '200px'" style="overflow-y: auto">
 									<pre v-if="responseData" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(responseData, null, '  ') }}</pre>
 									<div v-else class="text-overline d-flex flex-column justify-center align-center h-100">
 										no data
-										<v-btn v-if="index === 1" text="retry" size="small" color="blue-darken-4" @click="!fetchingFromGithub && fetchGithub(userId, uuid)" :disabled="fetchingFromGithub" :loading="fetchingFromGithub" />
+										<v-btn v-if="fetchingFromGithub !== undefined && index === 1" text="retry" size="small" color="blue-darken-4" @click="!fetchingFromGithub && fetchGithub(userId, uuid)" :disabled="fetchingFromGithub" :loading="fetchingFromGithub" />
 									</div>
 								</v-sheet>
 							</v-col>
@@ -260,13 +260,19 @@
 			</v-card-text>
 		</v-card>
 
-		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light" color="blue-darken-2">
-			<v-card-title class="title font-weight-bold text-wrap"></v-card-title>
-			<v-card-subtitle class="text-wrap"></v-card-subtitle>
-			<v-card-text> </v-card-text>
+		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light pa-16" color="blue-darken-4">
+			<v-card-title class="title font-weight-bold text-wrap">“What’s in a name?</v-card-title>
+			<v-card-subtitle class="text-wrap mt-n4">That which we call a rose / By Any Other Name would smell as sweet.”</v-card-subtitle>
+			<v-card-text>
+                <p class="mb-4">Turns out there's a lot to a name... or more pointedly NAMING.</p>
+                
+                <p class="mb-4">Naming is a critical part of our lives, from the moment we're born to the moment we die. It's how we identify ourselves, how we're identified by others, and how we identify others. It's how we brand ourselves, how we brand our products, and how we brand our services. It's how we communicate, how we connect, and how we create. It's how we remember, how we remind, and how we recognize. It's how we differentiate, how we distinguish, and how we define. It's how we express, how we evoke, and how we engage. It's how we inspire, how we influence, and how we innovate. It's how we lead, how we learn, and how we love. It's how we motivate, how we manage, and how we measure. It's how we navigate, how we negotiate, and how we nurture. It's how we organize, how we optimize, and how we operate. It's how we plan, how we perform, and how we persevere. It's how we question, how we qualify, and how we quantify. It's how we remember, how we remind, and how we recognize. It's how we strategize, how we structure, and how we succeed. It's how we transform, how we transcend, and how we thrive. It's how we understand, how we unify, and how we uplift. It's how we validate, how we value, and how we visualize. It's how we win, how we wonder, and how we work. It's how we x-ray, how we yield, and how we yearn. It's how we zeal, how we zest, and how we zoom!</p>
+
+                <p class="mb-4">So, what's in a name? Everything. And that's why we're here to help you manage them all, every last one of them.</p>
+            </v-card-text>
 		</v-card>
 
-		<v-card ref="swalHtmlRef" v-show="swalActive" rounded="xl" flat class="d-flex saira-extra-condensed-regular flex-column">
+		<v-card ref="swalHtmlRef" :style="{ zIndex: swalActive ? 1 : -1, height: swalActive ? 'auto' : '0px' }" rounded="xl" flat class="d-flex saira-extra-condensed-regular flex-column">
 			<v-card-title class="text-wrap saira-extra-condensed-bold px-0" style="font-size: 1rem">{{ generated?.[uuid]?.data?.name || 'fake-transparent-name-placeholder' }}</v-card-title>
 			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower text-wrap px-0">Congratulations on your first generated name!</v-card-subtitle>
 			<v-card-text class="text-start px-0">
@@ -711,7 +717,7 @@ async function callAPI(action) {
 		fetchGithub(userId.value, uuid.value)
 	}
 }
-const fetchingFromGithub = ref(false)
+const fetchingFromGithub = ref()
 async function fetchGithub(userId, uuid) {
 	if (fetchingFromGithub.value) return
 	fetchingFromGithub.value = true
@@ -826,10 +832,7 @@ function dictionaryOrderChanged({ moved }) {
 function closeDictionaryHandler(item) {
 	const index = params.value.dictionaries.findIndex(dict => dict === item)
 
-	console.log(index, params.value.dictionaries)
 	params.value.dictionaries.splice(index, 1)
-
-	console.log(validDictionaries.value)
 }
 function validateDictionary(dictionary) {
 	unvalidatedDictionaries.value.push(dictionary)

@@ -24,8 +24,8 @@
             </router-view>
         </v-main>
         <v-navigation-drawer v-if="!smAndDown" order="2" width="200" floating location="right">
-            <div class="h-100 d-flex align-center">
-                <a href="https://www.digitalocean.com/?refcode=fe4184318b19&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" style="width: 200px; height: 65px" alt="DigitalOcean Referral Badge" /></a>
+            <div class="h-100 d-flex align-center justify-center">
+                <a href="https://www.digitalocean.com/?refcode=fe4184318b19&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" style="width: 190px; height: 65px;" alt="DigitalOcean Referral Badge" /></a>
             </div>
         </v-navigation-drawer>
         <v-snackbar text :timeout="-1" v-model="snackbar.active" style="opacity: 0.9" @click="snackbarCloseHandler">
