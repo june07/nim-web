@@ -2,7 +2,7 @@
 	<v-sheet width="100%" rounded="lg" class="pl-8 text-wrap ubuntu-condensed-regular" style="position: relative" :height="height">
 		<v-text-field v-model="url" @input="parseURL" placeholder="Enter URL here" class="url-input" readonly variant="solo" density="compact" hide-details flat style="position: absolute; top: 0; left: 0">
 			<template v-slot:prepend-inner>
-				<v-tooltip text="Copied command to the clipboard" v-model="tooltip" aria-label="Copied Command Tooltip" attach location="top">
+				<v-tooltip :text="tooltipText" v-model="tooltip" aria-label="Copied Command Tooltip" attach location="top">
 					<template v-slot:activator="{ props: tooltip }">
 						<v-menu>
 							<template v-slot:activator="{ props, isActive }">
@@ -14,9 +14,10 @@
 								</v-btn>
 							</template>
 							<v-list>
-								<v-list-item v-for="(command, index) in commands" :key="index" :value="index" density="compact" @click="copyHandler(command.command)">
+								<v-list-item v-for="(command, index) in commands" :key="index" :value="index" density="compact" @click="copyHandler(command.str)">
 									<template v-slot:prepend>
-										<v-img :src="command.icon" width="20" class="mr-4" />
+                                        <v-icon v-if="command.icon" :icon="command.icon" size="20" class="mr-n4" />
+										<v-img v-if="command.img" :src="command.img" width="20" class="mr-4" />
 									</template>
 									<v-list-item-title class="text-body-2">{{ command.title }}</v-list-item-title>
 								</v-list-item>
@@ -125,25 +126,32 @@ function parseURL(url) {
 // prettier-ignore
 const commands = computed(() => [
 	{
+		title: 'Copy URL',
+		icon: 'content_copy',
+		str: url.value,
+	},
+    {
 		title: 'Copy as curl (bash)',
-		icon: 'terminal.svg',
-		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} '${url.value}'${props.apikey ? ` \\\n  -H 'x-api-key: ${props.apikey}'` : ''}`,
+		img: 'terminal.svg',
+		str: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} '${url.value}'${props.apikey ? ` \\\n  -H 'x-api-key: ${props.apikey}'` : ''}`,
 	},
 	{
 		title: 'Copy as curl (cmd)',
-		icon: 'cmd.svg',
-		command: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} ^"${url.value}^" ${props.apikey && `^\n  -H ^"x-api-key: ${props.apikey}^"`}`,
+		img: 'cmd.svg',
+		str: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} ^"${url.value}^" ${props.apikey && `^\n  -H ^"x-api-key: ${props.apikey}^"`}`,
 	},
 	{
 		title: 'Copy as fetch',
-		icon: 'fetch.svg',
-		command: !url.value.endsWith('/stats') && `fetch("${url.value}", {\n  method: "GET",\n  headers: {\n    "x-api-key": "${props.apikey}"\n  }\n})`,
+		img: 'fetch.svg',
+		str: !url.value.endsWith('/stats') && `fetch("${url.value}", {\n  method: "GET",\n  headers: {\n    "x-api-key": "${props.apikey}"\n  }\n})`,
 	},
 ])
 const tooltip = ref(false)
+const tooltipText = ref()
 function copyHandler(command) {
 	clipboard.copy(command).then(copied => {
 		tooltip.value = copied
+        tooltipText.value = `Copied ${command === url.value ? 'URL' : 'command'} to the clipboard`
 		if (copied) {
 			setTimeout(() => (tooltip.value = false), 1500)
 		}

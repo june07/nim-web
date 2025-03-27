@@ -165,8 +165,11 @@
 							<url-visualizer :url="url" :apikey="store.aname.apikeys[0]?.key" />
 						</div>
 						<div class="text-caption text-center mt-8">fetch response data</div>
-						<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
-							<pre style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData, null, '  ') }}</pre>
+						<v-sheet color="black" rounded="lg" class="my-2 pa-2" style="overflow-y: auto" :height="apiResponseData ? '500px' : '200px'">
+							<pre v-if="apiResponseData" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData, null, '  ') }}</pre>
+							<div v-else class="text-overline d-flex flex-column justify-center align-center h-100">
+								no data
+							</div>
 						</v-sheet>
 					</v-tabs-window-item>
 					<v-tabs-window-item value="lookup">
@@ -182,7 +185,7 @@
 							</div>
 						</div>
 						<v-row>
-							<v-col v-for="({ name, url, responseData, userId, uuid }, index) of lookupApiCalls" :cols="6" class="px-3" :style="`padding-${index % 2 !== 0 ? 'left' : 'right'}: 1px !important`">
+							<v-col v-for="({ name, url, responseData, userId, uuid }, index) of lookupApiCalls" :cols="xs ? 12 : 6" class="px-3" :style="`padding-${index % 2 !== 0 ? 'left' : 'right'}: 1px !important`">
 								<div class="text-caption text-center mt-8">{{ name }}</div>
 								<div style="font-size: 0.75rem" class="d-flex flex-wrap">
 									<url-visualizer :url="url" height="200px" />
@@ -545,7 +548,7 @@ const params = ref({
 	publicKey: store.aname.publicKey,
 	nocache: MODE === 'production' ? false : true,
 })
-const role = computed(() => $keycloak.value?.isAuthenticated && $keycloak.value.resourceAccess?.['ai'].roles.find(role => role.startsWith('aname')))
+const role = computed(() => $keycloak.value?.isAuthenticated && $keycloak.value.resourceAccess?.['ai'].roles.find(role => role.startsWith('aname')) || '')
 // prettier-ignore
 
 const keyRef = ref()
@@ -850,6 +853,7 @@ async function addDictionary(dictionary) {
 function swal(options = {}, func) {
 	swalActive.value = true
 	const effectiveOptions = {
+        padding: xs.value ? 0 : undefined,
 		showConfirmButton: false,
 		icon: 'success',
 		color: 'white',
