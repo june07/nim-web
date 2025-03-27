@@ -99,7 +99,7 @@ const items = computed(() => ({
 	info: [
 		{
 			title: 'about aName',
-			href: 'https://blog.june07.com/2022/06/02/what-is-aname/',
+			href: 'https://blog.june07.com/kind-pink-meal/',
 			icon: 'rss_feed',
 		},
 		{
