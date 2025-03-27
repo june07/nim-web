@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<v-app-bar color="primary" height="50">
-			<v-icon size="small" icon="more" class="ml-2" />
+            <v-img src="/public/aname/icon/icon128@3x.png" height="64" max-width="64" class="ml-2" />
 			<v-toolbar-title>
                 <div class="d-flex align-center text-no-wrap"><div class="mt-1 boldonse-regular">aName</div><div v-if="!xs" class="text-h5 saira-extra-condensed-light ml-4">Unique Deterministic Names</div></div>
             </v-toolbar-title>
