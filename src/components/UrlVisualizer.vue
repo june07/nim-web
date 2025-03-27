@@ -1,5 +1,5 @@
 <template>
-	<v-sheet width="100%" rounded="lg" class="pl-8 text-wrap ubuntu-condensed-regular" style="position: relative">
+	<v-sheet width="100%" rounded="lg" class="pl-8 text-wrap ubuntu-condensed-regular" style="position: relative" :height="height">
 		<v-text-field v-model="url" @input="parseURL" placeholder="Enter URL here" class="url-input" readonly variant="solo" density="compact" hide-details flat style="position: absolute; top: 0; left: 0">
 			<template v-slot:prepend-inner>
 				<v-tooltip text="Copied command to the clipboard" v-model="tooltip" aria-label="Copied Command Tooltip" attach location="top">
@@ -92,6 +92,7 @@ const {
 const emit = defineEmits(['update'])
 const props = defineProps({
 	url: String,
+    height: String,
 	apikey: String,
 })
 const clipboard = inject('clipboard')

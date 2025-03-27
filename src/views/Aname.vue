@@ -125,14 +125,18 @@
 						<v-btn class="text-caption" variant="text" :text="`Used ${stats.count}/${stats.max}`" @click="dialogs.names = true" />
 						<template v-slot:append>
 							<v-progress-circular class="ml-2" width="2" :model-value="(stats?.count / stats?.max) * 100" size="20"
-								><div style="font-size: 0.4rem; font-weight: bold">{{ (stats?.count / stats?.max) * 100 }}%</div></v-progress-circular
+								><div style="font-size: 0.4rem; font-weight: bold">{{ Number((stats?.count / stats?.max) * 100).toFixed(0) }}%</div></v-progress-circular
 							>
 						</template>
 					</v-chip>
 				</v-sheet>
-				<v-tabs v-model="tabs" fixed-tabs>
-					<v-tab text="generate" value="generate"></v-tab>
-					<v-tab text="lookup" value="lookup"></v-tab>
+				<v-tabs v-model="tabs" fixed-tabs color="primary">
+					<v-tab text="generate" value="generate">
+						<v-btn variant="plain" text="generate" color="primary" :disabled="tabs === 'lookup'" />
+					</v-tab>
+					<v-tab text="lookup" value="lookup">
+						<v-btn variant="plain" size="small" text="lookup" color="primary" :disabled="tabs === 'generate'" />
+					</v-tab>
 				</v-tabs>
 				<v-tabs-window v-model="tabs">
 					<v-tabs-window-item value="generate">
@@ -177,15 +181,22 @@
 								<v-chip style="position: absolute; top: -40%; right: 6px" text="Seed" />
 							</div>
 						</div>
-						<div class="text-caption text-center mt-8">API call</div>
-						<div style="font-size: 0.75rem" class="d-flex flex-wrap">
-							<url-visualizer :url="url2" />
-						</div>
-						<div class="text-caption text-center mt-8">fetch response data</div>
-						<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
-							<pre v-if="apiResponseData2" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData2, null, '  ') }}</pre>
-							<div v-else class="text-overline d-flex justify-center align-center h-100">no data</div>
-						</v-sheet>
+						<v-row>
+							<v-col v-for="({ name, url, responseData, userId, uuid }, index) of lookupApiCalls" :cols="6" class="px-3" :style="`padding-${index % 2 !== 0 ? 'left' : 'right'}: 1px !important`">
+								<div class="text-caption text-center mt-8">{{ name }}</div>
+								<div style="font-size: 0.75rem" class="d-flex flex-wrap">
+									<url-visualizer :url="url" height="200px" />
+								</div>
+								<div class="text-caption text-center mt-8">fetch response data</div>
+								<v-sheet color="black" rounded="lg" class="my-2 pa-2" height="500px" style="overflow-y: auto">
+									<pre v-if="responseData" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(responseData, null, '  ') }}</pre>
+									<div v-else class="text-overline d-flex flex-column justify-center align-center h-100">
+										no data
+										<v-btn v-if="index === 1" text="retry" size="small" color="blue-darken-4" @click="!fetchingFromGithub && fetchGithub(userId, uuid)" :disabled="fetchingFromGithub" :loading="fetchingFromGithub" />
+									</div>
+								</v-sheet>
+							</v-col>
+						</v-row>
 					</v-tabs-window-item>
 				</v-tabs-window>
 			</v-sheet>
@@ -202,8 +213,8 @@
 
 				<p class="my-4">Unlike traditional random name generators, a DNG does not introduce unpredictability—<span class="font-weight-bold">the same input always results in the same output</span>, making it ideal for applications requiring stable, reusable identifiers.</p>
 
-				<p class="mt-8 saira-extra-condensed-bold" style="font-size: 1rem">Benefits of a Deterministic Name Generator:</p>
-				<v-list bg-color="transparent">
+				<p class="mt-8 saira-extra-condensed-bold text-black" style="font-size: 1rem">Benefits of a Deterministic Name Generator:</p>
+				<v-list bg-color="white" density="compact" rounded="lg">
 					<v-list-item><span class="font-weight-bold">Consistency</span> – The same input always produces the same name.</v-list-item>
 					<v-list-item><span class="font-weight-bold">Stateless</span> – No database storage is required; names are generated on demand.</v-list-item>
 					<v-list-item><span class="font-weight-bold">Collision Resistance</span> – SHA-256 hashing minimizes the likelihood of duplicate names.</v-list-item>
@@ -216,8 +227,8 @@
 					solution.
 				</p>
 
-				<p class="mt-8 saira-extra-condensed-bold" style="font-size: 1rem">How aName Ensures Collision-Proof Names:</p>
-				<v-list bg-color="transparent">
+				<p class="mt-8 saira-extra-condensed-bold text-black" style="font-size: 1rem">How aName Ensures Collision-Proof Names:</p>
+				<v-list bg-color="white" density="compact" rounded="lg">
 					<v-list-item><span class="font-weight-bold">Global Uniqueness Enforcement</span> – aName checks and registers each generated name before finalizing assignment.</v-list-item>
 					<v-list-item><span class="font-weight-bold">Real-Time Deduplication</span> – Ensures that even highly similar inputs cannot accidentally generate the same name.</v-list-item>
 					<v-list-item><span class="font-weight-bold">Cross-Service Consistency</span> – Names remain unique across multiple applications using aName.</v-list-item>
@@ -261,12 +272,12 @@
 			<v-card-text class="text-start px-0">
 				<p class="mb-4">Your <span class="font-weight-bold">unique</span> name has been <span class="font-weight-bold">deterministically</span> generated!🔥</p>
 				<p class="mb-4">
-					This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real user IDs private and opting for personalized usernames instead with zero managment effort. Say goodbye to the hassle and extra processing
-					required to track/store name data.
+					This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real IDs private and opt for customized names instead with zero managment effort. Say goodbye to the hassle and extra processing
+					required to track/store/manage name data.
 				</p>
-				<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, and branding</span>🔗</p>
+				<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, branding, you NAME it.</span>🔗</p>
 				<p>Create a <b>free</b> account to keep your name and unlock more features like <span class="font-weight-bold">additional API calls, shorter names, and more</span>!🗝️</p>
-				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: your username will be recycled after 24 hours if you don't create an account)</div>
+				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: the username you just generated will be recycled after 24 hours if you don't create an account)</div>
 
 				<v-item-group v-model="plansGroup" mandatory>
 					<v-container class="px-0">
@@ -418,7 +429,7 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance, nextTick } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance } from 'vue'
 import { v5 as uuidv5, v4 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
@@ -601,7 +612,22 @@ const templateArr = computed(() => {
 const swalActive = ref(false)
 const apiResponseData = computed(() => uuid.value && generated.value && generated.value[uuid.value]?.data)
 const apiResponseData2 = computed(() => uuid.value && lookup.value && lookup.value[uuid.value])
-const url2 = computed(() => new URL(`${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey}`)?.href)
+const url2 = computed(() => `${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey || ''}`)
+const url3 = computed(() => `https://router-aname.june07.com/n/${apiResponseData.value?.name || 'unique-name-placeholder'}.json`)
+const lookupApiCalls = computed(() => [
+	{
+		name: 'aName API',
+		url: url2.value,
+		responseData: apiResponseData2.value,
+	},
+	{
+		name: 'GitHub CDN',
+		url: url3.value,
+		responseData: uuid.value && userId.value && store.aname.lookupsGithub[userId.value]?.[uuid.value],
+		userId: userId.value,
+		uuid: uuid.value,
+	},
+])
 function updateURL() {
 	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
 
@@ -682,7 +708,29 @@ async function callAPI(action) {
 				snackbar.value.text = error.message
 				snackbar.value.active = true
 			})
+		fetchGithub(userId.value, uuid.value)
 	}
+}
+const fetchingFromGithub = ref(false)
+async function fetchGithub(userId, uuid) {
+	if (fetchingFromGithub.value) return
+	fetchingFromGithub.value = true
+	for (let attempt = 0; attempt < 11; attempt++) {
+		await fetch(url3.value)
+			.then(async response => {
+				if (response.ok) {
+					store.aname.lookupsGithub[userId][uuid] = await response.json()
+					return
+				}
+                debugger
+
+			})
+			.catch(error => {
+				error
+			})
+		await new Promise(resolve => setTimeout(resolve, 11000 * attempt))
+	}
+	fetchingFromGithub.value = false
 }
 async function updateMetadata() {
 	store.aname.availableDictionaries

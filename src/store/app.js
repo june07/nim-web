@@ -18,6 +18,9 @@ export const useAppStore = defineStore("app", {
             lookups: {
                 anonymous: {},
             },
+            lookupsGithub: {
+                anonymous: {},
+            },
             keypair: {},
             keypairs: {},
             publicKey: undefined,
