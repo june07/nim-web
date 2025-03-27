@@ -1,5 +1,5 @@
 <template>
-	<v-container fluid class="py-0 news-cycle-regular">
+	<v-container fluid class="py-0 news-cycle-regular" :class="xs ? 'px-0' : ''" :style="xs ? 'min-width: 100vw; overflow-x: hidden' : ''">
 		<aname-header :username="username" @open:names="dialogs.names = true" @open:apikeys="dialogs.apikeys = true" />
 		<v-card rounded="xl" flat class="mb-8">
 			<v-card-title class="title saira-extra-condensed-extrabold font-weight-bold text-wrap">A Unique Deterministic Name Generator</v-card-title>
@@ -202,7 +202,7 @@
 			</v-sheet>
 		</v-form>
 
-		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light" color="blue-darken-2">
+		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light py-16" color="blue-darken-2">
 			<v-card-title class="title font-weight-bold text-wrap">What is a Deterministic Name Generator</v-card-title>
 			<v-card-subtitle class="text-wrap">A deterministic name generator is a tool that generates a unique name based on a seed and a set of rules.</v-card-subtitle>
 			<v-card-text>
@@ -249,8 +249,8 @@
 			</v-card-text>
 		</v-card>
 
-		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light">
-			<v-card-title class="title font-weight-bold text-wrap">Example Use of a Deterministic Name Generator</v-card-title>
+		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light py-16">
+			<v-card-title class="title font-weight-bold text-wrap">Example Uses of a Deterministic Name Generator</v-card-title>
 			<v-card-subtitle class="text-wrap">Generating Consistent Usernames from a Seeded API</v-card-subtitle>
 			<v-card-text>
 				<div class="text-caption text-center mt-8 font-weight-bold">Node.js (Express) and Keycloak Integration</div>
@@ -260,16 +260,30 @@
 			</v-card-text>
 		</v-card>
 
-		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light pa-16" color="blue-darken-4">
+		<v-card flat tile class="mb-8 mx-n4 saira-extra-condensed-light" :class="xs ? '' : 'pa-16'" color="blue-darken-4">
 			<v-card-title class="title font-weight-bold text-wrap">“What’s in a name?</v-card-title>
 			<v-card-subtitle class="text-wrap mt-n4">That which we call a rose / By Any Other Name would smell as sweet.”</v-card-subtitle>
 			<v-card-text>
-                <p class="mb-4">Turns out there's a lot to a name... or more pointedly NAMING.</p>
-                
-                <p class="mb-4">Naming is a critical part of our lives, from the moment we're born to the moment we die. It's how we identify ourselves, how we're identified by others, and how we identify others. It's how we brand ourselves, how we brand our products, and how we brand our services. It's how we communicate, how we connect, and how we create. It's how we remember, how we remind, and how we recognize. It's how we differentiate, how we distinguish, and how we define. It's how we express, how we evoke, and how we engage. It's how we inspire, how we influence, and how we innovate. It's how we lead, how we learn, and how we love. It's how we motivate, how we manage, and how we measure. It's how we navigate, how we negotiate, and how we nurture. It's how we organize, how we optimize, and how we operate. It's how we plan, how we perform, and how we persevere. It's how we question, how we qualify, and how we quantify. It's how we remember, how we remind, and how we recognize. It's how we strategize, how we structure, and how we succeed. It's how we transform, how we transcend, and how we thrive. It's how we understand, how we unify, and how we uplift. It's how we validate, how we value, and how we visualize. It's how we win, how we wonder, and how we work. It's how we x-ray, how we yield, and how we yearn. It's how we zeal, how we zest, and how we zoom!</p>
+				<p class="mb-4">Turns out there's a lot to a name... or more pointedly NAMING.</p>
 
-                <p class="mb-4">So, what's in a name? Everything. And that's why we're here to help you manage them all, every last one of them.</p>
-            </v-card-text>
+				<p class="mb-4">
+					Naming is a critical part of our lives, from the moment we're born to the moment we die. It's how we identify ourselves, how we're identified by others, and how we identify others. It's how we brand ourselves, how we brand our products, and how we brand our services. It's how we communicate, how we
+					connect, and how we create. It's how we remember, how we remind, and how we recognize. It's how we differentiate, how we distinguish, and how we define. It's how we express, how we evoke, and how we engage. It's how we inspire, how we influence, and how we innovate. It's how we lead, how we learn,
+					and how we love. It's how we motivate, how we manage, and how we measure. It's how we navigate, how we negotiate, and how we nurture. It's how we organize, how we optimize, and how we operate. It's how we plan, how we perform, and how we persevere. It's how we question, how we qualify, and how we
+					quantify. It's how we remember, how we remind, and how we recognize. It's how we strategize, how we structure, and how we succeed. It's how we transform, how we transcend, and how we thrive. It's how we understand, how we unify, and how we uplift. It's how we validate, how we value, and how we
+					visualize. It's how we win, how we wonder, and how we work. It's how we x-ray, how we yield, and how we yearn. It's how we zeal, how we zest, and how we zoom!
+				</p>
+
+				<p class="mb-4">So, what's in a name? Everything. And that's why we're here to help you manage them all, every last one of them.</p>
+			</v-card-text>
+		</v-card>
+
+		<v-card rounded="xl" flat class="d-flex saira-extra-condensed-regular flex-column py-16">
+			<v-card-title class="text-wrap saira-extra-condensed-bold px-0 text-center title">Choose Your Plan</v-card-title>
+			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower text-wrap px-0"></v-card-subtitle>
+			<v-card-text class="text-start px-0">
+				<plan-group :role="`${role}`" />
+			</v-card-text>
 		</v-card>
 
 		<v-card ref="swalHtmlRef" :style="{ zIndex: swalActive ? 1 : -1, height: swalActive ? 'auto' : '0px' }" rounded="xl" flat class="d-flex saira-extra-condensed-regular flex-column">
@@ -278,46 +292,20 @@
 			<v-card-text class="text-start px-0">
 				<p class="mb-4">Your <span class="font-weight-bold">unique</span> name has been <span class="font-weight-bold">deterministically</span> generated!🔥</p>
 				<p class="mb-4">
-					This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real IDs private and opt for customized names instead with zero managment effort. Say goodbye to the hassle and extra processing
-					required to track/store/manage name data.
+					This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real IDs private and opt for customized names instead with zero managment effort. Say goodbye to the hassle and extra processing required to
+					track/store/manage name data.
 				</p>
 				<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, branding, you NAME it.</span>🔗</p>
 				<p>Create a <b>free</b> account to keep your name and unlock more features like <span class="font-weight-bold">additional API calls, shorter names, and more</span>!🗝️</p>
 				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: the username you just generated will be recycled after 24 hours if you don't create an account)</div>
 
-				<v-item-group v-model="plansGroup" mandatory>
-					<v-container class="px-0">
-						<v-row>
-							<v-col :cols="xs ? 12 : 4" class="pa-0" :class="xs ? 'mb-4' : ''" v-for="plan of plans" :key="plan">
-								<v-item v-slot="{ isSelected, selectedClass, toggle }">
-									<v-card class="d-flex flex-column h-100 mx-3" :class="{ ...selectedClass, 'mr-1': !xs }" :color="isSelected ? 'blue-darken-4' : undefined" @click="toggle" rounded="xl" :flat="!isSelected">
-										<v-card-title class="text-h6 text-center font-weight-bold">
-											{{ plan.name }}
-										</v-card-title>
-										<v-card-subtitle>
-											{{ plan.description }}
-										</v-card-subtitle>
-										<v-card-text style="font-size: 0.65rem" class="ml-2 text-capitalize">
-											<ul>
-												<li v-for="feature of plan.features" :key="feature">
-													<span v-html="feature"></span>
-												</li>
-											</ul>
-										</v-card-text>
-										<v-card-actions class="d-flex flex-column justify-end">
-											<v-btn rounded variant="tonal" :color="isSelected ? 'white' : undefined" block :to="plan.to" :href="plan.href" :target="plan.href && '_blank'" :rel="plan.href && 'noopener'" :text="plan.buttonText" :disabled="plan.disabled" @click.stop />
-										</v-card-actions>
-									</v-card>
-								</v-item>
-							</v-col>
-						</v-row>
-					</v-container>
-				</v-item-group>
+				<plan-group :role="`${role}`" />
 			</v-card-text>
 			<v-card-actions>
 				<v-btn v-if="swalActive" class="mx-auto" rounded="lg" variant="tonal" color="blue-darken-4" text="close" @click="Swal.close" />
 			</v-card-actions>
 		</v-card>
+
 		<add-dictionary-dialog v-model="dialogs.addDictionary" :selected="params.dictionaries" @update:modelValue="value => (dialogs.addDictionary = value)" @update:dictionary="dictionary => addDictionary(dictionary)" />
 		<names-dialog v-model="dialogs.names" :names="stats.names" />
 		<apikeys-dialog v-model="dialogs.apikeys" :apikeys="store.aname.apikeys" />
@@ -454,6 +442,7 @@ import AddDictionaryDialog from '../components/aname/AddDictionaryDialog.vue'
 import NamesDialog from '../components/aname/NamesDialog.vue'
 import ApikeysDialog from '../components/aname/ApikeysDialog.vue'
 import nodeExpressFetch from '@/data/codeExamples/nodeExpressFetch?raw'
+import PlanGroup from '../components/aname/PlanGroup.vue'
 
 hljs.registerLanguage('javascript', javascript)
 
@@ -483,7 +472,6 @@ const dialogs = ref({
 })
 const userId = ref('anonymous')
 const dictionaryValidationProgressRef = ref([])
-const plansGroup = ref(0)
 const store = useAppStore()
 const generated = computed(() => uuid.value && store.aname.generated[userId.value])
 const lookup = computed(() => store.aname.lookups[userId.value])
@@ -559,52 +547,7 @@ const params = ref({
 })
 const role = computed(() => $keycloak.value?.isAuthenticated && $keycloak.value.resourceAccess?.['ai'].roles.find(role => role.startsWith('aname')))
 // prettier-ignore
-const plans = computed(() => [
-	{
-		name: 'Free',
-		price: 0,
-		type: 'free',
-		features: [
-            'up to <b>100</b> permanent and guaranteed unique names',
-            'unlimited lookups',
-            'CDN name caching',
-            'use up to 5 dictionaries',
-            'use custom dictionaries',
-            'API token support for use with other services',
-        ],
-		to: `/signin?action=register&redirect=${window.location.origin}/aname`,
-		buttonText: /free/i.test(role.value) ? '' : 'Get Started',
-		disabled: !!role.value,
-	},
-	{
-		name: 'Developer',
-		price: 1000,
-		type: 'developer',
-		features: [
-            '<b>Everything in free version</b>',
-            'up to <b>1,000</b> names',
-            'developer sandbox',
-            'custom namespaces',
-            'multiple key pairs per account'
-        ],
-		href: 'https://buy.stripe.com/14k7vw4Nn0pP4ZafZ1',
-		buttonText: /free/i.test(role.value) ? 'Upgrade' : 'Get Started',
-		disabled: /developer|pro/i.test(role.value),
-	},
-	{
-		name: 'Pro',
-		price: 1999,
-		type: 'pro',
-		features: [
-            '<b>Everything in developer version</b>',
-            'up to <b>10,000</b> names',
-            'priority support',
-        ],
-		href: 'https://buy.stripe.com/00g3fg3JjgoN9fq6os',
-		buttonText: /free|developer/i.test(role.value) ? 'Upgrade' : 'Get Started',
-		disabled: /pro/i.test(role.value),
-	},
-])
+
 const keyRef = ref()
 const templateArr = computed(() => {
 	const arr = params.value.dictionaries?.map(dictionary => ({
@@ -728,8 +671,7 @@ async function fetchGithub(userId, uuid) {
 					store.aname.lookupsGithub[userId][uuid] = await response.json()
 					return
 				}
-                debugger
-
+				debugger
 			})
 			.catch(error => {
 				error

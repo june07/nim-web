@@ -9,7 +9,7 @@
 					<v-text-field variant="solo" flat label="Dictionary URL" v-model="dictionary" :rules="rules.asString" hint="https://example.com/dictionary.txt" persistent-hint />
 				</v-form>
 				<p class="mt-4">Or select a dictionary from the available dictionaries below.</p>
-				<v-select :items="availableDictionaries" label="Available Dictionaries" variant="solo" flat @update:modelValue="selectionHandler" multiple />
+				<v-select :items="availableDictionaries" label="Available Dictionaries" variant="solo" flat @update:modelValue="selectionHandler" multiple :menu="true" />
 			</v-card-text>
 			<v-card-actions>
 				<v-spacer></v-spacer>
@@ -36,7 +36,7 @@ const availableDictionaries = computed(() =>
 		.filter(dict => typeof dict === 'string') // filter out local dictionaries for now
 		.filter(dict => !props.selected.includes(typeof dict === 'string' ? dict : Object.keys(dict)[0]))
 		.map(dict => ({
-			title: typeof dict === 'string' ? dict : Object.keys(dict)[0],
+			title: (typeof dict === 'string' ? dict : Object.keys(dict)[0]).split('/').pop(),
 			value: typeof dict === 'string' ? dict : Object.keys(dict)[0],
 		}))
 )
