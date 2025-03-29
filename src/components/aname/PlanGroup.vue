@@ -42,7 +42,7 @@ const plans = computed(() => [
 		suggestedPrice: 0,
 		type: 'free',
 		features: ['up to <b>100</b> permanent and guaranteed unique names', 'unlimited lookups', 'CDN name caching', 'use up to 5 dictionaries', 'use custom dictionaries', 'API token support for use with other services'],
-		to: `/signin?action=register&redirect=${window.location.origin}/aname`,
+		to: `/signin?redirect=${window.location.origin}/aname`,
 		buttonText: /free/i.test(props.role) ? '' : 'Get Started',
 		disabled: !!props.role,
         chip1: 'Free Forever',
