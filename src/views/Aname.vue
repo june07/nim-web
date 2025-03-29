@@ -24,15 +24,34 @@
 						<v-chip-group column>
 							<draggable v-model="validDictionaries" @change="dictionaryOrderChanged" class="d-flex flex-column" item-key="name" :key="validDictionaries.length">
 								<template #item="{ element: item, index }">
-									<v-chip class="dictionary d-flex justify-space-between" style="max-width: 90vw" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
-										<div class="text-truncate saira-extra-condensed-regular">{{ dictionaryAsName(item).replace(/https?:\/\//, '') }}</div>
-										<template v-slot:prepend>
-											<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
+									<v-menu :model-value="dictionaryChangeMenu[index]">
+										<v-select :items="store.aname.availableDictionaries.filter(dict => !params.dictionaries.includes(dict))" label="Available Dictionaries" variant="solo" flat density="compact" @update:modelValue="value => dictionaryChangeHandler(value, { item, index })" :menu="true">
+											<template v-slot:item="{ props: itemProps, item }" lines="two">
+												<v-list-item v-bind="itemProps" :title="dictionaryAsName(item.value).split('/').pop().replace('.txt', '')">
+													<template v-slot:prepend>
+														<v-icon icon="spellcheck" size="x-small" />
+													</template>
+													<template v-slot:subtitle>
+														<div style="font-size: 0.75rem">
+															<a v-if="dictionaryAsName(item.value).startsWith('http')" :href="dictionaryAsName(item.value)" target="_blank" rel="noopener noreferrer">{{ dictionaryAsName(item.value).replace(/https?:\/\//, '') }}</a>
+															<div v-else class="d-flex text-wrap">{{ Object.values(item.value)[0].join(', ') }}</div>
+														</div>
+													</template>
+												</v-list-item>
+											</template>
+										</v-select>
+										<template v-slot:activator="{ props }">
+											<v-chip v-bind="props" class="dictionary d-flex justify-space-between" style="max-width: 90vw" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
+												<div class="text-truncate saira-extra-condensed-regular">{{ dictionaryAsName(item).replace(/https?:\/\//, '') }}</div>
+												<template v-slot:prepend>
+													<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
+												</template>
+												<template v-slot:append>
+													<v-chip class="font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
+												</template>
+											</v-chip>
 										</template>
-										<template v-slot:append>
-											<v-chip class="font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
-										</template>
-									</v-chip>
+									</v-menu>
 								</template>
 							</draggable>
 							<v-progress-linear
@@ -427,7 +446,7 @@ html {
 }
 </style>
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance, nextTick } from 'vue'
 import { v5 as uuidv5, v4 } from 'uuid'
 import { useAppStore } from '@/store/app'
 import { ed25519 } from '@noble/curves/ed25519'
@@ -474,7 +493,7 @@ const dialogs = ref({
 	names: false,
 	apikeys: false,
 })
-const formIsValid = computed(() => form.value?.isValid ? 'true' : 'false')
+const formIsValid = computed(() => (form.value?.isValid ? 'true' : 'false'))
 const userId = ref('anonymous')
 const dictionaryValidationProgressRef = ref([])
 const store = useAppStore()
@@ -828,7 +847,11 @@ function validateDictionary(dictionary) {
 	})
 }
 function dictionaryAsName(dictionary) {
-	return typeof dictionary === 'string' ? dictionary : Object.keys(dictionary)[0]
+	const name = typeof dictionary === 'string' ? dictionary : Object.keys(dictionary)[0]
+
+	// console.log('dictionaryAsName: ', name)
+
+	return name
 }
 async function addDictionary(dictionary) {
 	dialogs.value.addDictionary = false
@@ -907,6 +930,16 @@ async function asyncInit() {
 				console.error('Error fetching metadata:', error)
 			})
 	}
+}
+const dictionaryChangeMenu = ref([])
+function dictionaryChangeHandler(newDictionary, oldDictionary) {
+    dictionaryChangeMenu.value[oldDictionary.index] = true
+	params.value.dictionaries.splice(oldDictionary.index, 1, newDictionary)
+
+	// Close the menu manually
+	nextTick(() => {
+		dictionaryChangeMenu.value[oldDictionary.index] = false
+	})
 }
 onBeforeMount(() => {
 	updateMetadata()
