@@ -58,7 +58,7 @@
 								class="my-auto mr-2"
 								ref="dictionaryValidationProgressRef"
 								v-for="dict of [...params.dictionaries.filter(dict => unvalidatedDictionaries.includes(dictionaryAsName(dict)))]"
-								style="height: 30px; max-width: 200px"
+								style="height: 30px; max-width: 90vw"
 								rounded
 								:indeterminate="!dictionaryValidationStatus[dict]"
 								:color="dictionaryValidationStatus[dict] === 'failed' ? 'red' : 'green'"
@@ -132,7 +132,7 @@
 					</v-text-field>
 				</div>
 				<v-sheet height="120" rounded="lg" class="d-flex flex-column justify-end" style="position: relative">
-					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.name" :class="!canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.name }}</div>
+					<div class="text-center mb-auto mt-8" v-if="apiResponseData?.name" :class="canGenerate ? 'animate__animated animate__fadeOut' : ''">{{ apiResponseData.name }}</div>
 					<v-tooltip text="Copied name to clipboard" v-model="tooltips['name']" location="top" :open-on-hover="false" aria-label="Copied name tooltip">
 						<template v-slot:activator="{ props: tooltip }">
 							<v-btn v-if="apiResponseData?.name" v-bind="tooltip" size="x-small" variant="tonal" text="copy" id="copyNameButton" style="font-size: 0.5rem" @click="copyHandler(apiResponseData.name, 'name')" :style="styleObjs['copyNameBtn']" />
@@ -211,7 +211,8 @@
 								<v-sheet color="black" rounded="lg" class="my-2 pa-2" :height="lookupApiCalls[0].responseData || lookupApiCalls[1].responseData ? '500px' : '200px'" style="overflow-y: auto">
 									<pre v-if="responseData" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(responseData, null, '  ') }}</pre>
 									<div v-else class="text-overline d-flex flex-column justify-center align-center h-100">
-										no data
+										<div v-if="!fetchingFromGithub">no data</div>
+                                        <div v-else class="text-no-wrap text-caption">Attemping to fetch from CDN...</div>
 										<v-btn v-if="fetchingFromGithub !== undefined && index === 1" text="retry" size="small" color="blue-darken-4" @click="!fetchingFromGithub && fetchGithub(userId, uuid)" :disabled="fetchingFromGithub" :loading="fetchingFromGithub" />
 									</div>
 								</v-sheet>

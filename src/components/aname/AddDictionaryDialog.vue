@@ -9,7 +9,7 @@
 					<v-text-field variant="solo" flat label="Dictionary URL" v-model="dictionary" :rules="rules.asString" hint="https://example.com/dictionary.txt" persistent-hint />
 				</v-form>
 				<p class="mt-4">Or select a dictionary from the available dictionaries below.</p>
-				<v-select :items="availableDictionaries" label="Available Dictionaries" variant="solo" flat @update:modelValue="selectionHandler" multiple :menu="true" />
+				<v-select :items="availableDictionaries" label="Available Dictionaries" variant="solo" flat @update:modelValue="selectionHandler" multiple />
 			</v-card-text>
 			<v-card-actions>
 				<v-spacer></v-spacer>
