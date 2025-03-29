@@ -9,8 +9,8 @@ export const useAppStore = defineStore("app", {
         },
         aname: {
             metadata: {},
-            separator: '-',
-            suffixLength: 3,
+            separator: '_',
+            suffixLength: '0',
             salt: `${Date.now()}`,
             generated: {
                 anonymous: {},
@@ -27,15 +27,16 @@ export const useAppStore = defineStore("app", {
             entropyMode: false,
             apikeys: [],
             availableDictionaries: [
+                {
+                    colors: ['black', 'white', 'red', 'green', 'yellow', 'blue', 'brown', 'orange', 'pink', 'purple', 'gray']
+                },
                 'https://github.june07.com/dictionary/adjs.txt',
                 'https://github.june07.com/dictionary/colors.txt',
                 'https://github.june07.com/dictionary/nouns.txt',
                 'https://github.june07.com/dictionary/countries.txt',
                 'https://github.june07.com/dictionary/languages.txt',
                 'https://github.june07.com/dictionary/girls.txt',
-                {
-                    colors: ['red', 'green', 'blue'],
-                }
+                'https://github.june07.com/dictionary/name-thesaurus.txt'
             ]
         }
     }),

@@ -1,5 +1,5 @@
 <template>
-	<v-container fluid class="py-0 news-cycle-regular" :class="xs ? 'px-0' : ''" :style="xs ? 'min-width: 100vw; overflow-x: hidden' : ''">
+	<v-container fluid class="py-0 news-cycle-regular" :class="xs ? 'px-0' : ''" :style="xs ? 'min-width: 100vw; overflow-x: hidden' : 'max-width: 75vw'">
 		<aname-header :username="username" @open:names="dialogs.names = true" @open:apikeys="dialogs.apikeys = true" />
 		<v-card rounded="xl" flat class="mb-8">
 			<v-card-title class="title saira-extra-condensed-extrabold font-weight-bold text-wrap">A Unique Deterministic Name Generator</v-card-title>
@@ -7,7 +7,7 @@
 		</v-card>
 		<v-form ref="form">
 			<v-sheet color="grey-lighten-2" class="font-weight-bold mx-auto my-4 px-1 pt-1" rounded="lg" :class="smAndDown ? 'w-100' : 'w-75'">
-				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" :placeholder="v4()" hide-details class="mb-1" />
+				<v-text-field variant="solo" flat v-model="params.seed" label="seed" :rules="rules.seed" @keydown.enter="callAPI" :placeholder="v4()" hide-details class="mb-1" @change="form.validate()" />
 				<v-sheet rounded="lg" class="mb-1 pa-2">
 					<v-tooltip location="top" aria-label="dictionaries tooltip" :open-on-click="smAndDown">
 						<p class="mb-2">Dicionaries can be passed in as objects or strings.</p>
@@ -24,13 +24,13 @@
 						<v-chip-group column>
 							<draggable v-model="validDictionaries" @change="dictionaryOrderChanged" class="d-flex flex-column" item-key="name" :key="validDictionaries.length">
 								<template #item="{ element: item, index }">
-									<v-chip class="dictionary" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
-										<div class="text-truncate saira-extra-condensed-regular" :style="smAndDown ? 'max-width: 150px' : ''">{{ dictionaryAsName(item).replace(/https?:\/\//, '') }}</div>
+									<v-chip class="dictionary d-flex justify-space-between" style="max-width: 90vw" :key="item" closable draggable :data-name="dictionaryAsName(item)" :ripple="false" @click:close="closeDictionaryHandler(item)">
+										<div class="text-truncate saira-extra-condensed-regular">{{ dictionaryAsName(item).replace(/https?:\/\//, '') }}</div>
 										<template v-slot:prepend>
 											<v-chip class="mr-2 ml-n2 font-weight-bold" size="x-small" :text="index + 1" />
 										</template>
 										<template v-slot:append>
-											<v-chip class="ml-1 mr-n1 font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
+											<v-chip class="font-weight-bold" label v-if="store.aname.metadata[dictionaryAsName(item)]?.words" size="x-small" :text="store.aname.metadata[dictionaryAsName(item)].words" />
 										</template>
 									</v-chip>
 								</template>
@@ -119,7 +119,7 @@
 							<v-btn v-if="apiResponseData?.name" v-bind="tooltip" size="x-small" variant="tonal" text="copy" id="copyNameButton" style="font-size: 0.5rem" @click="copyHandler(apiResponseData.name, 'name')" :style="styleObjs['copyNameBtn']" />
 						</template>
 					</v-tooltip>
-					<v-btn @click="callAPI" :text="!canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="!canGenerate ? 'blue' : 'green'" :disabled="canGenerate || !form.isValid" :size="canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
+					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
 					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup || !apiResponseData?.name" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" />
 					<v-chip style="position: absolute; top: 6px; left: 6px" color="green" class="d-flex align-center animate__animated animate__bounceIn" label v-if="stats?.count">
 						<v-btn class="text-caption" variant="text" :text="`Used ${stats.count}/${stats.max}`" @click="dialogs.names = true" />
@@ -167,9 +167,7 @@
 						<div class="text-caption text-center mt-8">fetch response data</div>
 						<v-sheet color="black" rounded="lg" class="my-2 pa-2" style="overflow-y: auto" :height="apiResponseData ? '500px' : '200px'">
 							<pre v-if="apiResponseData" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(apiResponseData, null, '  ') }}</pre>
-							<div v-else class="text-overline d-flex flex-column justify-center align-center h-100">
-								no data
-							</div>
+							<div v-else class="text-overline d-flex flex-column justify-center align-center h-100">no data</div>
 						</v-sheet>
 					</v-tabs-window-item>
 					<v-tabs-window-item value="lookup">
@@ -300,7 +298,7 @@
 				</p>
 				<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, branding, you NAME it.</span>🔗</p>
 				<p>Create a <b>free</b> account to keep your name and unlock more features like <span class="font-weight-bold">additional API calls, shorter names, and more</span>!🗝️</p>
-				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(note: the username you just generated will be recycled after 24 hours if you don't create an account)</div>
+				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(NOTE: The username you just generated is ephemeral. When you create an account, generated names are permanent)</div>
 
 				<plan-group :role="`${role}`" />
 			</v-card-text>
@@ -424,6 +422,9 @@ html {
 :deep(.v-overlay__content) {
 	font-family: 'Saira Extra Condensed', sans-serif;
 }
+:deep(.dictionary .v-chip__content) {
+	width: 100%;
+}
 </style>
 <script setup>
 import { ref, computed, onBeforeMount, onMounted, watch, inject, getCurrentInstance } from 'vue'
@@ -473,12 +474,13 @@ const dialogs = ref({
 	names: false,
 	apikeys: false,
 })
+const formIsValid = computed(() => form.value?.isValid ? 'true' : 'false')
 const userId = ref('anonymous')
 const dictionaryValidationProgressRef = ref([])
 const store = useAppStore()
 const generated = computed(() => uuid.value && store.aname.generated[userId.value])
 const lookup = computed(() => store.aname.lookups[userId.value])
-const canGenerate = computed(() => uuid.value && !!generated.value?.[uuid.value])
+const canGenerate = computed(() => (uuid.value && !generated.value?.[uuid.value] ? true : false))
 const didLookup = computed(() => uuid.value && lookup.value && !!lookup.value[uuid.value])
 const snackbar = ref({
 	active: false,
@@ -505,8 +507,8 @@ const rules = ref({
         v => (v && /^[-_:.|,;+# ]$/.test(v)) || 'Separator must be one of the following: - _ : . | , ; + # space'
     ],
 	suffixLength: [
-        v => !!v || 'Suffix Length is required',
-        v => (v && v >= 0 && v <= 21) || 'Suffix Length must be a positive number between 0 and 21 inclusive'
+        v => v !== undefined || 'Suffix Length is required',
+        v => (v !== undefined && Number(v) >= 0 && Number(v) <= 21) || 'Suffix Length must be a positive number between 0 and 21 inclusive'
     ],
 	publicKey: [
         v => !!v || 'Public key is required',
@@ -515,12 +517,12 @@ const rules = ref({
 })
 const styleObjs = computed(() => ({
 	generatedBtn: !canGenerate.value
-		? {}
-		: {
+		? {
 				position: 'absolute',
 				bottom: '0',
 				right: '6px',
-		  },
+		  }
+		: {},
 	didLookupBtn: didLookup.value
 		? {
 				position: 'absolute',
@@ -535,20 +537,20 @@ const styleObjs = computed(() => ({
 	},
 }))
 const defaultParams = ref({
-	separator: '-',
-	suffixLength: '3',
+	separator: '_',
+	suffixLength: '0',
 })
 const params = ref({
 	entropyMode: store.aname.entropyMode,
-	dictionaries: ['https://github.june07.com/dictionary/adjs.txt', 'https://github.june07.com/dictionary/colors.txt', 'https://github.june07.com/dictionary/nouns.txt'],
-	template: `${encodeURIComponent('https://github.june07.com/dictionary/adjs.txt')}-${encodeURIComponent('colors')}-${encodeURIComponent('https://github.june07.com/dictionary/nouns.txt')}`,
+	dictionaries: ['https://github.june07.com/dictionary/adjs.txt', store.aname.availableDictionaries[0], 'https://github.june07.com/dictionary/name-thesaurus.txt'],
+	template: `${encodeURIComponent('https://github.june07.com/dictionary/adjs.txt')}-colors-${encodeURIComponent('https://github.june07.com/dictionary/name-thesaurus.txt')}`,
 	separator: store.aname.separator,
 	suffixLength: store.aname.suffixLength,
 	seed: generated.value?.length ? '' : store.aname.seed,
 	publicKey: store.aname.publicKey,
 	nocache: MODE === 'production' ? false : true,
 })
-const role = computed(() => $keycloak.value?.isAuthenticated && $keycloak.value.resourceAccess?.['ai'].roles.find(role => role.startsWith('aname')) || '')
+const role = computed(() => ($keycloak.value?.isAuthenticated && $keycloak.value.resourceAccess?.['ai'].roles.find(role => role.startsWith('aname'))) || '')
 // prettier-ignore
 
 const keyRef = ref()
@@ -697,7 +699,7 @@ async function updateMetadata() {
 
 					// Ensure only valid word characters, hyphens, and whitespace exist
 					if (!/^[\w-]+(\s[\w-]+)*$/.test(str)) {
-						console.error('Invalid format: Contains invalid characters or incorrect spacing')
+						console.error('Invalid format: Contains invalid characters or incorrect spacing ', str)
 						return
 					}
 
@@ -712,11 +714,11 @@ async function updateMetadata() {
 	params.value.dictionaries
 		.filter(dictionary => typeof dictionary === 'object')
 		.forEach(localDictionary => {
-			const name = Object.keys(localDictionary)[0]
-			const value = Object.values(localDictionary)[0]
+			const [name, value] = Object.entries(localDictionary)[0]
+			const words = value.length
 
 			store.aname.metadata[name] = {
-				words: value.length,
+				words,
 			}
 		})
 }
@@ -853,7 +855,7 @@ async function addDictionary(dictionary) {
 function swal(options = {}, func) {
 	swalActive.value = true
 	const effectiveOptions = {
-        padding: xs.value ? 0 : undefined,
+		padding: xs.value ? 0 : undefined,
 		showConfirmButton: false,
 		icon: 'success',
 		color: 'white',
