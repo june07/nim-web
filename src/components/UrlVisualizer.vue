@@ -132,17 +132,17 @@ const commands = computed(() => [
 	},
     {
 		title: 'Copy as curl (bash)',
-		img: 'terminal.svg',
+		img: '/aname/terminal.svg',
 		str: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} '${url.value}'${props.apikey ? ` \\\n  -H 'x-api-key: ${props.apikey}'` : ''}`,
 	},
 	{
 		title: 'Copy as curl (cmd)',
-		img: 'cmd.svg',
+		img: '/aname/cmd.svg',
 		str: !url.value.endsWith('/stats') && `curl ${MODE !== 'production' ? '-k' : ''} ^"${url.value}^" ${props.apikey && `^\n  -H ^"x-api-key: ${props.apikey}^"`}`,
 	},
 	{
 		title: 'Copy as fetch',
-		img: 'fetch.svg',
+		img: '/aname/fetch.svg',
 		str: !url.value.endsWith('/stats') && `fetch("${url.value}", {\n  method: "GET",\n  headers: {\n    "x-api-key": "${props.apikey}"\n  }\n})`,
 	},
 ])

@@ -470,7 +470,7 @@ const tabs = ref()
 const clipboard = inject('clipboard')
 const {
     MODE,
-    VITE_APP_API_SERVER_ANAME: VITE_APP_API_SERVER
+    VITE_APP_API_SERVER_ANAME
 } = import.meta.env
 const form = ref()
 const url = ref()
@@ -598,7 +598,7 @@ const lookupApiCalls = computed(() => [
 	},
 ])
 function updateURL() {
-	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/aname`)
+	const urlBase = new URL(`${VITE_APP_API_SERVER_ANAME}/v1/aname`)
 
 	Object.keys(params.value || {}).forEach(key => {
 		let value
@@ -911,7 +911,7 @@ async function asyncInit() {
 	const { token } = await $keycloak.value
 
 	// get count stats
-	fetch(token && `${VITE_APP_API_SERVER}/v1/aname/stats`, {
+	fetch(token && `${VITE_APP_API_SERVER_ANAME}/v1/aname/stats`, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},
@@ -925,7 +925,7 @@ async function asyncInit() {
 		})
 
 	if (token && !store.aname.apikeys.length) {
-		fetch(`${VITE_APP_API_SERVER}/v1/aname/apikey`, {
+		fetch(`${VITE_APP_API_SERVER_ANAME}/v1/aname/apikey`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
