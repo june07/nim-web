@@ -11,11 +11,11 @@
 			<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, branding, you NAME it.</span>🔗</p>
 
 			<p class="mb-4">
-				And remember the power in aName, and really the reason it was built, is in it's ability to plug into your existing systems! So please visit the <a href="https://github.com/june07/aname" target="_blank" rel="noreferrer noopener">repo</a>,
-				<a href="https://github.com/june07/aname/fork" target="_blank" rel="noreferrer noopener">fork</a>, and contribute!
+				The power of aName, and really the reason it was built, is it's ability to plug into your existing systems via the API!
 			</p>
 
-			<p class="mb-4">You can self-host aName or use the cloud version maintained by the developer.⤵️</p>
+			<p class="mb-4">aName is open source so please visit the <a href="https://github.com/june07/aname" target="_blank" rel="noreferrer noopener">repo</a>,
+				<a href="https://github.com/june07/aname/fork" target="_blank" rel="noreferrer noopener">fork</a>, and contribute! You can self-host or use the cloud version maintained by the developer.⤵️</p>
 
 			<p>Create a <b>free</b> account to keep your name and unlock more features like <span class="font-weight-bold">additional API calls, shorter names, and more</span>!🗝️</p>
 
