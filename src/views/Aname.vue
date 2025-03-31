@@ -906,8 +906,8 @@ async function asyncInit() {
 
 	if (!$keycloak.value.isAuthenticated) return
 
-	userId.value = $keycloak.value.tokenParsed.sub || 'anonymous'
-	username.value = $keycloak.value.tokenParsed.preferred_username
+	userId.value = $keycloak.value.tokenParsed.sub
+	username.value = $keycloak.value.tokenParsed.anameUsername || $keycloak.value.tokenParsed.preferred_username
 	const { token } = await $keycloak.value
 
 	// get count stats

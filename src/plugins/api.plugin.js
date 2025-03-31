@@ -3,6 +3,7 @@ import axios from "axios"
 const {
     MODE,
     VITE_APP_API_SERVER,
+    VITE_APP_ANAME_PUBLIC_KEY
 } = import.meta.env
 
 const axiosInstance = axios.create({
@@ -11,7 +12,6 @@ const axiosInstance = axios.create({
     },
     withCredentials: true
 })
-
 const apiService = () => {
     const request = async (passedOptions) => {
         const { auth, data, method, url, responseType } = passedOptions
@@ -56,6 +56,7 @@ const apiService = () => {
     }
     return {
         request,
+        assignAname: (auth) => request({ auth, url: `${VITE_APP_API_SERVER}/v1/aname/${VITE_APP_ANAME_PUBLIC_KEY}` }),
         buildInfo: async () => {
             if (MODE !== 'production' && !/dev\./.test(window.location.host)) {
                 return
