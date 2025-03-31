@@ -141,7 +141,7 @@
 						</template>
 					</v-tooltip>
 					<v-btn @click="callAPI" :text="canGenerate ? 'generate' : 'generated'" class="mx-auto d-flex mb-2" :color="canGenerate ? 'blue' : 'green'" :disabled="!canGenerate || !form.isValid" :size="!canGenerate ? 'small' : 'large'" v-if="tabs === 'generate'" :style="styleObjs['generatedBtn']" />
-					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup || !apiResponseData?.name" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" />
+					<v-btn @click="callAPI('lookup')" :text="!didLookup ? 'lookup' : 'retreived'" class="mx-auto d-flex mb-2" :color="!didLookup ? 'blue' : 'green'" :disabled="didLookup || !apiResponseData?.name" :size="didLookup ? 'small' : 'large'" v-else :style="styleObjs['didLookupBtn']" id="lookupBtn" />
 					<v-chip style="position: absolute; top: 6px; left: 6px" color="green" class="d-flex align-center animate__animated animate__bounceIn" label v-if="stats?.count">
 						<v-btn class="text-caption" variant="text" :text="`Used ${stats.count}/${stats.max}`" @click="dialogs.names = true" />
 						<template v-slot:append>
@@ -155,7 +155,7 @@
 					<v-tab text="generate" value="generate">
 						<v-btn variant="plain" text="generate" color="primary" :disabled="tabs === 'lookup'" />
 					</v-tab>
-					<v-tab text="lookup" value="lookup">
+					<v-tab text="lookup" value="lookup" id="lookupTab">
 						<v-btn variant="plain" size="small" text="lookup" color="primary" :disabled="tabs === 'generate'" />
 					</v-tab>
 				</v-tabs>
@@ -214,8 +214,15 @@
 									<pre v-if="responseData" style="font-size: small; white-space: pre-wrap">{{ JSON.stringify(responseData, null, '  ') }}</pre>
 									<div v-else class="text-overline d-flex flex-column justify-center align-center h-100">
 										<div v-if="!fetchingFromGithub">no data</div>
-										<div v-else class="text-no-wrap text-caption">Attemping to fetch from CDN...</div>
-										<v-btn v-if="fetchingFromGithub !== undefined && index === 1" text="retry" size="small" color="blue-darken-4" @click="!fetchingFromGithub && fetchGithub(userId, uuid)" :disabled="fetchingFromGithub" :loading="fetchingFromGithub" />
+										<div v-else class="text-center text-caption mb-4">
+											Attemping to fetch from CDN...<br />
+											<span style="font-size: 0.5rem">(keep in mind the initial fetch may take a few minutes)</span>
+										</div>
+										<v-btn :text="fetchingFromGithub !== undefined && index === 1 ? 'retry' : 'fetch'" size="small" color="blue-darken-4" @click="!fetchingFromGithub && fetchGithub(userId, uuid)" :disabled="fetchingFromGithub" :loading="fetchingFromGithub" />
+										<div class="text-center text-caption mb-4" id="fetchingFromGithubStatus">
+											{{ fetchingFromGithubStatus?.message || '' }}<br />
+											<span style="font-size: 0.5rem" v-if="fetchingFromGithubStatus?.status">status: {{ fetchingFromGithubStatus.status }}<br />updated: {{ fetchingFromGithubStatus.updated.toLocaleString() }}</span>
+										</div>
 									</div>
 								</v-sheet>
 							</v-col>
@@ -309,25 +316,7 @@
 			</v-card-text>
 		</v-card>
 
-		<v-card ref="swalHtmlRef" :style="{ zIndex: swalActive ? 1 : -1, height: swalActive ? 'auto' : '0px' }" rounded="xl" flat class="d-flex saira-extra-condensed-regular flex-column">
-			<v-card-title class="text-wrap saira-extra-condensed-bold px-0" style="font-size: 1rem">{{ generated?.[uuid]?.data?.name || 'fake-transparent-name-placeholder' }}</v-card-title>
-			<v-card-subtitle class="animate__animated animate__fadeIn animate__slower text-wrap px-0">Congratulations on your first generated name!</v-card-subtitle>
-			<v-card-text class="text-start px-0">
-				<p class="mb-4">Your <span class="font-weight-bold">unique</span> name has been <span class="font-weight-bold">deterministically</span> generated!🔥</p>
-				<p class="mb-4">
-					This means that as long as you provide the same input, you'll always get the same name—no pseudo-randomness games, no duplicates, no hassle!✨ Keep your real IDs private and opt for customized names instead with zero managment effort. Say goodbye to the hassle and extra processing required to
-					track/store/manage name data.
-				</p>
-				<p class="mb-4">Perfect for <span class="font-weight-bold">cross-platform identity, gamertags, branding, you NAME it.</span>🔗</p>
-				<p>Create a <b>free</b> account to keep your name and unlock more features like <span class="font-weight-bold">additional API calls, shorter names, and more</span>!🗝️</p>
-				<div class="mb-16 ml-4 text-caption font-italic font-weight-thin">(NOTE: The username you just generated is ephemeral. When you create an account, generated names are permanent)</div>
-
-				<plan-group :role="`${role}`" />
-			</v-card-text>
-			<v-card-actions>
-				<v-btn v-if="swalActive" class="mx-auto" rounded="lg" variant="tonal" color="blue-darken-4" text="close" @click="Swal.close" />
-			</v-card-actions>
-		</v-card>
+		<swal-html-card ref="swalHtmlRef" :swalActive="swalActive" :generated="generated" :uuid="uuid" :role="role" @close:swal="Swal.close" @close:andLookup="closeAndLookupHandler" />
 
 		<add-dictionary-dialog v-model="dialogs.addDictionary" :selected="params.dictionaries" @update:modelValue="value => (dialogs.addDictionary = value)" @update:dictionary="dictionary => addDictionary(dictionary)" />
 		<names-dialog v-model="dialogs.names" :names="stats.names" />
@@ -335,7 +324,8 @@
 		<v-snackbar v-model="snackbar.active" multi-line :timeout="snackbar.timeout" @mouseenter="snackbar.timeout = -1" @mouseleave="snackbar.timeout = 5000">
 			<div class="text-caption">{{ snackbar.text }}</div>
 			<template v-slot:actions>
-				<v-btn color="red" variant="text" @click="snackbar.active = false"> Close </v-btn>
+				<v-btn color="green" variant="text" @click="$keycloak.login" text="Sign in" />
+				<v-btn variant="text" @click="snackbar.active = false" text="Close" />
 			</template>
 		</v-snackbar>
 	</v-container>
@@ -469,6 +459,7 @@ import NamesDialog from '../components/aname/NamesDialog.vue'
 import ApikeysDialog from '../components/aname/ApikeysDialog.vue'
 import nodeExpressFetch from '@/data/codeExamples/nodeExpressFetch?raw'
 import PlanGroup from '../components/aname/PlanGroup.vue'
+import SwalHtmlCard from '../components/aname/SwalHtmlCard.vue'
 
 hljs.registerLanguage('javascript', javascript)
 
@@ -477,7 +468,10 @@ const { $keycloak } = getCurrentInstance().appContext.config.globalProperties
 const swalHtmlRef = ref()
 const tabs = ref()
 const clipboard = inject('clipboard')
-const { MODE, VITE_APP_API_SERVER } = import.meta.env
+const {
+    MODE,
+    VITE_APP_API_SERVER_ANAME: VITE_APP_API_SERVER
+} = import.meta.env
 const form = ref()
 const url = ref()
 const username = ref()
@@ -496,7 +490,6 @@ const dialogs = ref({
 	names: false,
 	apikeys: false,
 })
-const formIsValid = computed(() => (form.value?.isValid ? 'true' : 'false'))
 const userId = ref('anonymous')
 const dictionaryValidationProgressRef = ref([])
 const store = useAppStore()
@@ -588,8 +581,8 @@ const templateArr = computed(() => {
 const swalActive = ref(false)
 const apiResponseData = computed(() => uuid.value && generated.value && generated.value[uuid.value]?.data)
 const apiResponseData2 = computed(() => uuid.value && lookup.value && lookup.value[uuid.value])
-const url2 = computed(() => `${VITE_APP_API_SERVER}/v1/ai/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey || ''}`)
-const url3 = computed(() => `https://router-aname.june07.com/n/${apiResponseData.value?.name || 'unique-name-placeholder'}.json`)
+const url2 = computed(() => `${VITE_APP_API_SERVER}/v1/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey || ''}`)
+const url3 = computed(() => `https://router-aname.june07.com/n/${apiResponseData.value?.templateHash}/${apiResponseData.value?.name || 'unique-name-placeholder'}.json`)
 const lookupApiCalls = computed(() => [
 	{
 		name: 'aName API',
@@ -605,7 +598,7 @@ const lookupApiCalls = computed(() => [
 	},
 ])
 function updateURL() {
-	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/ai/aname`)
+	const urlBase = new URL(`${VITE_APP_API_SERVER}/v1/aname`)
 
 	Object.keys(params.value || {}).forEach(key => {
 		let value
@@ -688,7 +681,14 @@ async function callAPI(action) {
 	}
 }
 const fetchingFromGithub = ref()
+const fetchingFromGithubStatus = ref({})
 async function fetchGithub(userId, uuid) {
+	const fetchingFromGithubStatusEl = document.getElementById('fetchingFromGithubStatus')
+
+	function animationEndEvent() {
+		fetchingFromGithubStatusEl.classList.remove('animate__animated', 'animate__rubberBand')
+		fetchingFromGithubStatusEl.removeEventListener('animationend', animationEndEvent)
+	}
 	if (fetchingFromGithub.value) return
 	fetchingFromGithub.value = true
 	for (let attempt = 0; attempt < 11; attempt++) {
@@ -698,10 +698,15 @@ async function fetchGithub(userId, uuid) {
 					store.aname.lookupsGithub[userId][uuid] = await response.json()
 					return
 				}
-				debugger
+				fetchingFromGithubStatus.value = { status: response.status, updated: new Date() }
 			})
 			.catch(error => {
-				error
+				fetchingFromGithubStatus.value = { message: error.message }
+			})
+			.finally(() => {
+				fetchingFromGithubStatusEl.addEventListener('animationend', animationEndEvent)
+				fetchingFromGithubStatusEl.classList.remove('animate__animated', 'animate__rubberBand')
+				nextTick(() => fetchingFromGithubStatusEl.classList.add('animate__animated', 'animate__rubberBand'))
 			})
 		await new Promise(resolve => setTimeout(resolve, 11000 * attempt))
 	}
@@ -906,7 +911,7 @@ async function asyncInit() {
 	const { token } = await $keycloak.value
 
 	// get count stats
-	fetch(token && `${VITE_APP_API_SERVER}/v1/ai/aname/stats`, {
+	fetch(token && `${VITE_APP_API_SERVER}/v1/aname/stats`, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},
@@ -920,7 +925,7 @@ async function asyncInit() {
 		})
 
 	if (token && !store.aname.apikeys.length) {
-		fetch(`${VITE_APP_API_SERVER}/v1/ai/aname/apikey`, {
+		fetch(`${VITE_APP_API_SERVER}/v1/aname/apikey`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -943,6 +948,28 @@ function dictionaryChangeHandler(newDictionary, oldDictionary) {
 	nextTick(() => {
 		dictionaryChangeMenu.value[oldDictionary.index] = false
 	})
+}
+function closeAndLookupHandler() {
+	const tab = document.querySelector('#lookupTab')
+	let btn
+
+	function animationendEvent() {
+		btn.removeEventListener('animationend', animationendEvent)
+		btn.classList.remove('animate__animated', 'animate__bounceIn')
+	}
+	Swal.close()
+	setTimeout(() => {
+		window.scrollTo({
+			behavior: 'smooth',
+			top: tab.getBoundingClientRect().top - document.body.getBoundingClientRect().top - 200,
+		})
+		tab.click()
+		setTimeout(() => {
+			btn = document.querySelector('#lookupBtn')
+			btn.addEventListener('animationend', animationendEvent)
+			btn.classList.add('animate__animated', 'animate__bounceIn')
+		}, 1500)
+	}, 500)
 }
 onBeforeMount(() => {
 	updateMetadata()

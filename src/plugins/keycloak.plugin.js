@@ -3,7 +3,7 @@ import Keycloak from 'keycloak-js'
 import { ref } from 'vue'
 
 const {
-    VITE_APP_API_SERVER,
+    VITE_APP_API_SERVER_ANAME,
     VITE_APP_ANAME_PUBLIC_KEY
 } = import.meta.env
 
@@ -130,7 +130,7 @@ function clearStoreState(pinia) {
     pinia.state.value.app.aname.salt = `${Date.now()}`
 }
 function getAname(token) {
-    return fetch(`${VITE_APP_API_SERVER}/v1/aname/${VITE_APP_ANAME_PUBLIC_KEY}`, {
+    return fetch(`${VITE_APP_API_SERVER_ANAME}/v1/aname/public/${VITE_APP_ANAME_PUBLIC_KEY}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }

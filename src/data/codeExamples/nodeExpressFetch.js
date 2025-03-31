@@ -22,7 +22,7 @@ async function aname(auth, publicKey) {
         /** Construct the API request URL using the available options (see documentation for more details)
          * @see https://aname.june07.com/docs
         */
-        const apiUrl = `${ANAME_API_URL}/v1/ai/aname?seed=${createdAt}${sub}`
+        const apiUrl = `${ANAME_API_URL}/v1/aname?seed=${createdAt}${sub}`
             + `&suffixLength=0`
             + `&dictionaries=${encodeURIComponent(JSON.stringify([
                 'https://my-hosted-dictionary.com/adjs.txt',
