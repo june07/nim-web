@@ -1,10 +1,13 @@
 <template>
 	<div>
 		<v-app-bar color="primary" height="50">
-            <v-img src="/public/aname/icon/icon128@3x.png" height="64" max-width="64" class="ml-2" />
+			<v-img src="/public/aname/icon/icon128@3x.png" height="64" max-width="64" class="ml-2" />
 			<v-toolbar-title>
-                <div class="d-flex align-center text-no-wrap"><div class="mt-1 boldonse-regular">aName</div><div v-if="!xs" class="text-h5 saira-extra-condensed-light ml-4">Unique Deterministic Names</div></div>
-            </v-toolbar-title>
+				<div class="d-flex align-center text-no-wrap">
+					<div class="mt-1 boldonse-regular">aName</div>
+					<div v-if="!xs" class="text-h5 saira-extra-condensed-light ml-4">Unique Deterministic Names</div>
+				</div>
+			</v-toolbar-title>
 
 			<div v-for="menu of menus" class="d-flex align-center mr-2">
 				<v-menu v-if="!xs && menu.name === 'info'">
@@ -12,14 +15,15 @@
 						<v-btn variant="tonal" v-bind="props" :append-icon="isActive ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" size="small">
 							<span class="text-caption">{{ menu.name }}</span>
 							<template v-slot:prepend>
-								<v-icon :icon="menu.icon" size="small"></v-icon>
+								<v-icon :icon="menu.icon" size="small" />
 							</template>
 						</v-btn>
 					</template>
 					<v-list>
-						<v-list-item v-for="(item, index) in items[menu.name]" :key="index" :value="index" :href="item.href" density="compact">
+						<v-list-item v-for="(item, index) in items[menu.name]" :key="index" :value="index" :href="item.href" rel="noopener noreferrer" target="_blank" density="compact">
 							<template v-slot:prepend>
-								<v-icon :icon="item.icon" size="x-small" />
+								<v-img v-if="item.img" :src="item.img" width="24" height="24" class="mr-8" />
+								<v-icon v-else :icon="item.icon" size="x-small" />
 							</template>
 							<v-list-item-title class="saira-extra-condensed-light text-body-2">{{ item.title }}</v-list-item-title>
 						</v-list-item>
@@ -87,20 +91,30 @@ const items = computed(() => ({
 			title: 'api keys',
 			action: $emit => $emit('open:apikeys'),
 			icon: 'key',
-            filter: !$keycloak.value.isAuthenticated
+			filter: !$keycloak.value.isAuthenticated,
 		},
 		{
 			title: 'names',
 			action: $emit => $emit('open:names'),
 			icon: 'more',
-            filter: !$keycloak.value.isAuthenticated
-		}
+			filter: !$keycloak.value.isAuthenticated,
+		},
 	],
 	info: [
 		{
 			title: 'about aName',
 			href: 'https://blog.june07.com/kind-pink-meal/',
 			icon: 'rss_feed',
+		},
+		{
+			title: 'GitHub',
+			href: 'https://github.com/june07/aname',
+			img: '/github-mark.svg',
+		},
+        {
+			title: 'name repos',
+			href: 'https://github.com/june07-aname',
+			img: '/github-mark.svg',
 		},
 		{
 			title: 'support',
