@@ -581,7 +581,7 @@ const templateArr = computed(() => {
 const swalActive = ref(false)
 const apiResponseData = computed(() => uuid.value && generated.value && generated.value[uuid.value]?.data)
 const apiResponseData2 = computed(() => uuid.value && lookup.value && lookup.value[uuid.value])
-const url2 = computed(() => `${VITE_APP_API_SERVER}/v1/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey || ''}`)
+const url2 = computed(() => `${VITE_APP_API_SERVER_ANAME}/v1/aname/${apiResponseData.value?.name || 'unique-name-placeholder'}?publicKey=${params.value.publicKey || ''}`)
 const url3 = computed(() => `https://router-aname.june07.com/n/${apiResponseData.value?.templateHash}/${apiResponseData.value?.name || 'unique-name-placeholder'}.json`)
 const lookupApiCalls = computed(() => [
 	{
