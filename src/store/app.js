@@ -38,6 +38,13 @@ export const useAppStore = defineStore("app", {
                 'https://github.june07.com/dictionary/girls.txt',
                 'https://github.june07.com/dictionary/name-thesaurus.txt'
             ]
+        },
+        callem: {
+            form: {
+                name: undefined,
+                description: undefined,
+                force: false
+            },
         }
     }),
     persist: true,

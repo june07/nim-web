@@ -20,6 +20,23 @@ export default (app) => {
                 },
                 component: () => import('@/views/FAQ.vue')
             }, {
+                path: '/callem',
+                name: 'callEm',
+                meta: {
+                    title: 'What do you call em?',
+                },
+                component: () => import('@/views/Callem.vue'),
+                beforeEnter(to, _from, next) {
+                    const meta = document.createElement('meta')
+                    
+                    meta.name = 'viewport'
+                    meta.content = 'width=device-width, initial-scale=1.0'
+                    document.head.appendChild(meta)
+                    document.title = `${to.name} by June07 - ${to.meta.title}`
+
+                    next()
+                },
+            }, {
                 path: '/aname',
                 name: 'aName',
                 meta: {
